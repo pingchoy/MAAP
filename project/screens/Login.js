@@ -13,7 +13,9 @@ export default function Login({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar style="auto" />
       <Image style={styles.banner} source={require('../assets/banner.png')}/>
+      <Text style={styles.heading}>Login</Text>
       <TextInput
         style={styles.usernameBody}
         placeholder={username}
@@ -28,8 +30,6 @@ export default function Login({ navigation }) {
         onChangePassword={text => onChangePassword(text)}
         password={password}
       />
-      <Text style={styles.heading}>Login</Text>
-      <StatusBar style="auto" />
       <LoginButton></LoginButton>
       <Text style={styles.subheading}>Don’t have an account?</Text>
       <TouchableOpacity style={styles.signUpBody}  onPress={pressHandler}>
