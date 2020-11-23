@@ -1,9 +1,9 @@
 import React from 'react';
-import { Text, StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 
 const LoginForm = () => {
     const [username, onChangeUsername] = React.useState('Email or Username');
-    const [password, onChangePassword] = React.useState('Password');
+    const [password, onChangePassword] = React.useState('Passworddd');
 
     return (
         <View style={styles.container}>
@@ -14,7 +14,8 @@ const LoginForm = () => {
                 username={username}
             /> 
             <TextInput
-                style={styles.passwordBody} 
+                style={styles.passwordBody}
+                secureTextEntry={true}
                 textContentType='password'
                 placeholder={password}
                 onChangePassword={text => onChangePassword(text)}
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
         left: 24,
         top: 323,
         paddingLeft: 16,
-        fontFamily: 'Roboto',
+        //fontFamily: 'Roboto',
         fontStyle: 'normal',
         fontWeight: 'bold',
         fontSize: 18,
@@ -60,7 +61,7 @@ const styles = StyleSheet.create({
         left: 24,
         top: 392,
         paddingLeft: 16,
-        fontFamily: 'Roboto',
+        //fontFamily: 'Roboto',
         fontStyle: 'normal',
         fontWeight: 'bold',
         fontSize: 18,
@@ -72,28 +73,4 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 10,
     },
-    fieldText: {
-        position: 'absolute',
-        height: 21.3272705078125,
-        width: 333,
-        left: 14,
-        top: 14.83642578125,
-        borderRadius: null,
-        fontFamily: 'Roboto',
-        fontStyle: 'normal',
-        fontWeight: 'bold',
-        fontSize: 18,
-        lineHeight: 21,
-        color: '#3C3C3C',
-    },
 });
-
-// const [value, onChangeText] = React.useState('Useless Placeholder');
-
-// return (
-//   <TextInput
-//     style={styles.fieldBody} textContentType={'password'}
-//     onChangeText={text => onChangeText(text)}
-//     value={value}
-//   />
-// );

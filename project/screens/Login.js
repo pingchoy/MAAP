@@ -7,8 +7,12 @@ export default function Login({ navigation }) {
   const [username, onChangeUsername] = React.useState('Email or Username');
   const [password, onChangePassword] = React.useState('Password');
 
-  const pressHandler = () => {
+  const goToSignUp = () => {
     navigation.push('SignUp');
+  }
+
+  const goToGuest = () => {
+    navigation.push('Guest');
   }
 
   return (
@@ -32,10 +36,10 @@ export default function Login({ navigation }) {
       />
       <LoginButton></LoginButton>
       <Text style={styles.subheading}>Don’t have an account?</Text>
-      <TouchableOpacity style={styles.signUpBody}  onPress={pressHandler}>
+      <TouchableOpacity style={styles.signUpBody}  onPress={goToSignUp}>
         <Text style={styles.signUpText}>Sign Up!</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.guestLinkBody}>
+      <TouchableOpacity style={styles.guestLinkBody} onPress={goToGuest}>
         <Text style={styles.guestLinkText}>Or, login as a Guest</Text>
       </TouchableOpacity>
     </SafeAreaView>

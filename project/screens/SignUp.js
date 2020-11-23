@@ -9,8 +9,12 @@ export default function SignUp({ navigation }) {
   const [password, onChangePassword] = React.useState('Password');
   const [rePassword, onChangeRePassword] = React.useState('Re-enter password');
 
-  const pressHandler = () => {
+  const goToLogin = () => {
     navigation.push('Login');
+  }
+
+  const goToGuest = () => {
+    navigation.push('Guest');
   }
 
   return (
@@ -48,10 +52,10 @@ export default function SignUp({ navigation }) {
         />
         <SignUpButton></SignUpButton>
         <Text style={styles.subheading}>Already have an account?</Text>
-        <TouchableOpacity style={styles.signInBody}  onPress={pressHandler}>
+        <TouchableOpacity style={styles.signInBody}  onPress={goToLogin}>
             <Text style={styles.signInText}>Sign In!</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.guestLinkBody}>
+        <TouchableOpacity style={styles.guestLinkBody} onPress={goToGuest}>
             <Text style={styles.guestLinkText}>Or, login as a Guest</Text>
         </TouchableOpacity>
     </SafeAreaView>
