@@ -1,7 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, Image, SafeAreaView, TextInput } from 'react-native';
+import { View, StyleSheet, Dimensions, Text, TouchableOpacity, Image, SafeAreaView, TextInput } from 'react-native';
 import { LoginButton } from '../components/LoginButton';
+
+const dimensions = Dimensions.get('window');
 
 export default function Login({ navigation }) {
   const [username, onChangeUsername] = React.useState('Email or Username');
@@ -14,30 +16,47 @@ export default function Login({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <Image style={styles.banner} source={require('../assets/banner.png')}/>
-      <TextInput
-        style={styles.usernameBody}
-        placeholder={username}
-        onChangeUsername={text => onChangeUsername(text)}
-        username={username}
-      /> 
-      <TextInput
-        style={styles.passwordBody}
-        secureTextEntry={true}
-        textContentType='password'
-        placeholder={password}
-        onChangePassword={text => onChangePassword(text)}
-        password={password}
-      />
-      <Text style={styles.heading}>Login</Text>
+
+      <View style={styles.inputView}>       
+        <Text style={styles.heading}>Login</Text>
+      </View>
+
+      <View style={styles.inputView}>       
+        <TextInput
+          style={styles.inputBody}
+          placeholder={username}
+          onChangeUsername={text => onChangeUsername(text)}
+          username={username}
+        /> 
+      </View>
+      <View style={styles.inputView}>       
+        <TextInput
+          style={styles.inputBody}
+          secureTextEntry={true}
+          textContentType='password'
+          placeholder={password}
+          onChangePassword={text => onChangePassword(text)}
+          password={password}
+        />
+      </View>
+
+      <View style={styles.inputView}>
+        <LoginButton></LoginButton>
+      </View>
+
+      <View style={styles.inputView}>     
+        <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: 'center'}}>
+          <Text style={styles.subheading}>Don’t have an account? </Text>
+          <TouchableOpacity onPress={pressHandler} >
+            <Text style={styles.subheading}>Sign Up!</Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity >
+          <Text style={styles.subheading}>Or, login as a Guest</Text>
+        </TouchableOpacity>
+      </View>
+
       <StatusBar style="auto" />
-      <LoginButton></LoginButton>
-      <Text style={styles.subheading}>Don’t have an account?</Text>
-      <TouchableOpacity style={styles.signUpBody}  onPress={pressHandler}>
-        <Text style={styles.signUpText}>Sign Up!</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.guestLinkBody}>
-        <Text style={styles.guestLinkText}>Or, login as a Guest</Text>
-      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -49,30 +68,59 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  inputView: {
+    width:"100%",
+    justifyContent: 'center',
+    alignItems: "center",
+    marginBottom: 30,
+    height:55,
+    padding: 20,
+  },
   heading: {
-    position: 'absolute',
-    left: 24,
-    top: 224,
-    //fontFamily: 'Roboto',
     fontStyle: 'normal',
     fontWeight: 'bold',
     fontSize: 32,
-    lineHeight: 37,
     color: '#3C3C3C',
+    position: 'absolute',
+    alignSelf: "flex-start",
+    margin: 30,
+  },
+
+  inputBody: {
+    position: 'absolute',
+    paddingLeft: 20,
+    height: 55,
+    width: '100%',
+    fontStyle: 'normal',
+    fontWeight: 'bold',
+    fontSize: 18,
+    lineHeight: 21,
+    color: '#3C3C3C',
+    backgroundColor: 'white',
+    borderRightColor: 'black',
+    borderColor: "black",
+    borderWidth: 1,
+    borderRadius: 10,
+  },
+
+  banner: {
+    position: 'absolute',
+    height: 112,
+    width: dimensions.width,
+    top: 0,
   },
   subheading: {
-    position: 'absolute',
-    width: 214,
-    height: 24,
-    left: 59,
-    top: 800,  
-    //fontFamily: 'Roboto',
+    
     fontStyle: 'normal',
     fontWeight: 'normal',
     fontSize: 20,
     lineHeight: 23,
     color: '#3C3C3C',
   },
+
+
+
+
   guestLinkBody: {
     position: 'absolute',
     width: 150,
@@ -89,51 +137,7 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     color: '#165F22',
   },
-    banner: {
-      position: 'absolute',
-      width: 414,
-      height: 112,
-      left: 0,
-      top: 29,
-    },
-    usernameBody: {
-      position: 'absolute',
-      height: 55,
-      width: 366,
-      left: 24,
-      top: 323,
-      paddingLeft: 16,
-      //fontFamily: 'Roboto',
-      fontStyle: 'normal',
-      fontWeight: 'bold',
-      fontSize: 18,
-      lineHeight: 21,
-      color: '#3C3C3C',
-      backgroundColor: 'white',
-      borderRightColor: 'black',
-      borderColor: "black",
-      borderWidth: 1,
-      borderRadius: 10,
-  },
-  passwordBody: {
-      position: 'absolute',
-      width: 366,
-      height: 51,
-      left: 24,
-      top: 392,
-      paddingLeft: 16,
-      //fontFamily: 'Roboto',
-      fontStyle: 'normal',
-      fontWeight: 'bold',
-      fontSize: 18,
-      lineHeight: 21,
-      color: '#3C3C3C',
-      backgroundColor: 'white',
-      borderRightColor: 'black',
-      borderColor: "black",
-      borderWidth: 1,
-      borderRadius: 10,
-  },
+
   fieldText: {
       position: 'absolute',
       height: 21.3272705078125,
