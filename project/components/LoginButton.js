@@ -1,9 +1,10 @@
+import { useLinkProps } from '@react-navigation/native';
 import React from 'react';
 import { Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-const LoginButton = () => {
+const LoginButton = (props) => {
     return (
-        <TouchableOpacity style={styles.buttonBody}>
+        <TouchableOpacity style={styles.buttonBody} onPress={props.onPress}>
             <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
     )

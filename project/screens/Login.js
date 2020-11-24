@@ -41,7 +41,7 @@ export default function Login({ navigation }) {
       </View>
 
       <View style={styles.inputView}>
-        <LoginButton></LoginButton>
+        <LoginButton onPress={()=> navigation.push('Home')}></LoginButton>
       </View>
 
       <View style={styles.textView}>     
