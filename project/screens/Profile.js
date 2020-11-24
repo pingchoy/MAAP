@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Dimensions, Text, SafeAreaView, Image } from 'react-native';
+import { TouchableOpacity, StyleSheet, Dimensions, Text, SafeAreaView, Image } from 'react-native';
 import { AuthContext } from '../App';
 
 const dimensions = Dimensions.get('window');

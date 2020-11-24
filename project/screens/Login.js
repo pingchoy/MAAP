@@ -47,11 +47,11 @@ export default function Login({ navigation }) {
       <View style={styles.textView}>
         <View style={{flexDirection: "row", justifyContent: "center", alignItems: 'center', marginBottom: 10}}>
           <Text style={styles.subheading}>Don’t have an account? </Text>
-          <TouchableOpacity onPress={goToSignUp} >
+          <TouchableOpacity onPress={() => navigation.navigate('SignUp')} >
             <Text style={styles.subheading, styles.subLink}>Sign Up!</Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={goToGuest}>
+        <TouchableOpacity onPress={() => navigation.navigate('Guest')}>
           <Text style={{fontStyle: 'italic', color: '#165F22', fontWeight: 'bold',}} >Or, login as a Guest</Text>
         </TouchableOpacity>
       </View>

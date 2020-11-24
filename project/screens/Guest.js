@@ -8,15 +8,11 @@ const dimensions = Dimensions.get('window');
 export default function Login({ navigation }) {
   const [username, onChangeUsername] = React.useState('Enter a username');
   const [code, onChangeCode] = React.useState('Enter an event code');
-
-  const goBack = () => {
-    navigation.goBack();
-  }
-
+  
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.backButtonView}>
-        <TouchableOpacity onPress={goBack}>
+        <TouchableOpacity onPress={ () => navigation.goBack()}>
           <Image style={styles.backButton} source={require('../assets/backButton.png')}/>
         </TouchableOpacity>
       </View>
