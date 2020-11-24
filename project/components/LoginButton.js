@@ -1,16 +1,10 @@
+import { useLinkProps } from '@react-navigation/native';
 import React from 'react';
 import { Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 
-const LoginButton = () => {
-    const navigation = useNavigation();
-
-    const goToEvents = () => {
-      navigation.navigate('Events');
-    }
-
+const LoginButton = (props) => {
     return (
-        <TouchableOpacity style={styles.buttonBody} onPress={goToEvents}>
+        <TouchableOpacity style={styles.buttonBody} onPress={props.onPress}>
             <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
     )

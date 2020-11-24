@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { View, StyleSheet, Dimensions, Text, TouchableOpacity, Image, SafeAreaView, TextInput } from 'react-native';
 import { LoginButton } from '../components/LoginButton';
+import { AuthContext } from '../App';
 
 const dimensions = Dimensions.get('window');
 
@@ -9,13 +10,8 @@ export default function Login({ navigation }) {
   const [username, onChangeUsername] = React.useState('Email or Username');
   const [password, onChangePassword] = React.useState('Password');
 
-  const goToSignUp = () => {
-    navigation.navigate('SignUp');
-  }
+  const { login } = React.useContext(AuthContext);
 
-  const goToGuest = () => {
-    navigation.navigate('Guest');
-  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -45,7 +41,7 @@ export default function Login({ navigation }) {
       </View>
 
       <View style={styles.inputView}>
-        <LoginButton></LoginButton>
+        <LoginButton onPress={()=> login({ username, password })}></LoginButton>
       </View>
 
       <View style={styles.textView}>
@@ -95,7 +91,6 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     margin: 20,
   },
-
   inputBody: {
     position: 'absolute',
     paddingLeft: 20,
@@ -112,8 +107,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
   },
-
-
   textView: {
     position: 'absolute',
     bottom: 0,
@@ -124,37 +117,16 @@ const styles = StyleSheet.create({
     marginTop: 30,
     height:55,
   },
-
   subheading: {
     fontStyle: 'normal',
     fontWeight: 'normal',
     fontSize: 20,
     color: '#3C3C3C',
   },
-
   subLink :{
     textDecorationLine: 'underline',
     fontSize: 16,
     fontWeight: 'bold',
     color: '#165F22',
   }
-
-
-  // guestLinkBody: {
-  //   position: 'absolute',
-  //   width: 150,
-  //   height: 19,
-  //   left: 137,
-  //   top: 833,
-  // },
-  // guestLinkText: {
-  //   //fontFamily: 'Roboto',
-  //   fontStyle: 'italic',
-  //   fontWeight: 'bold',
-  //   fontSize: 16,
-  //   lineHeight: 19,
-  //   textDecorationLine: 'underline',
-  //   color: '#165F22',
-  // },
-
 });
