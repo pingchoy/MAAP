@@ -11,6 +11,7 @@ export default function Events({ navigation }) {
       <Image style={styles.banner} source={require('../assets/eventsBanner.png')}/>
 
       <View style={styles.headingView}>
+        <Image style={styles.add} source={require('../assets/add.png')}/>
         <Text style={styles.heading}>Events</Text>
       </View>
 
@@ -25,6 +26,13 @@ const styles = StyleSheet.create({
     height: 180,
     width: dimensions.width,
     top: 0,
+  },
+  add: {
+    position: 'absolute',
+    height: 40,
+    width: 40,
+    right: 25,
+    top: -20,
   },
   container: {
     flex: 1,

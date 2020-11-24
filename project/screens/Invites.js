@@ -11,7 +11,7 @@ export default function Events({ navigation }) {
       <Image style={styles.banner} source={require('../assets/eventsBanner.png')}/>
 
       <View style={styles.headingView}>
-        <Text style={styles.heading}>Invites</Text>
+        <Text style={styles.heading}>Incoming Invites</Text>
       </View>
 
       <StatusBar style="auto" />
