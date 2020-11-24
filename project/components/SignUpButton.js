@@ -1,22 +1,15 @@
 import React from 'react';
 import { Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 
-const LoginButton = () => {
-    const navigation = useNavigation();
-
-    const goToEvents = () => {
-      navigation.navigate('Events');
-    }
-
+const SignUpButton = () => {
     return (
-        <TouchableOpacity style={styles.buttonBody} onPress={goToEvents}>
-            <Text style={styles.buttonText}>Login</Text>
+        <TouchableOpacity style={styles.buttonBody}>
+            <Text style={styles.buttonText}>Create Account</Text>
         </TouchableOpacity>
     )
 }
 
-export { LoginButton };
+export { SignUpButton };
 
 const styles = StyleSheet.create({
     buttonBody: {

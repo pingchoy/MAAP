@@ -1,30 +1,25 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { View, StyleSheet, Dimensions, Text, TouchableOpacity, Image, SafeAreaView, TextInput } from 'react-native';
-import { LoginButton } from '../components/LoginButton';
+import { GoButton } from '../components/GoButton';
 
 const dimensions = Dimensions.get('window');
 
 export default function Login({ navigation }) {
-  const [username, onChangeUsername] = React.useState('Email or Username');
-  const [password, onChangePassword] = React.useState('Password');
+  const [username, onChangeUsername] = React.useState('Enter a username');
+  const [code, onChangeCode] = React.useState('Enter an event code');
 
-  const goToSignUp = () => {
-    navigation.navigate('SignUp');
-  }
-
-  const goToGuest = () => {
-    navigation.navigate('Guest');
+  const goBack = () => {
+    navigation.goBack();
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <Image style={styles.banner} source={require('../assets/banner.png')}/>
-
-      <View style={styles.inputView}>
-        <Text style={styles.heading}>Login</Text>
+      <View style={styles.backButtonView}>
+        <TouchableOpacity onPress={goBack}>
+          <Image style={styles.backButton} source={require('../assets/backButton.png')}/>
+        </TouchableOpacity>
       </View>
-
       <View style={styles.inputView}>
         <TextInput
           style={styles.inputBody}
@@ -36,31 +31,18 @@ export default function Login({ navigation }) {
       <View style={styles.inputView}>
         <TextInput
           style={styles.inputBody}
-          secureTextEntry={true}
-          textContentType='password'
-          placeholder={password}
-          onChangePassword={text => onChangePassword(text)}
-          password={password}
+          placeholder={code}
+          onChangePassword={text => onChangeCode(text)}
+          code={code}
         />
       </View>
 
       <View style={styles.inputView}>
-        <LoginButton></LoginButton>
-      </View>
-
-      <View style={styles.textView}>
-        <View style={{flexDirection: "row", justifyContent: "center", alignItems: 'center', marginBottom: 10}}>
-          <Text style={styles.subheading}>Don’t have an account? </Text>
-          <TouchableOpacity onPress={goToSignUp} >
-            <Text style={styles.subheading, styles.subLink}>Sign Up!</Text>
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity onPress={goToGuest}>
-          <Text style={{fontStyle: 'italic', color: '#165F22', fontWeight: 'bold',}} >Or, login as a Guest</Text>
-        </TouchableOpacity>
+        <GoButton></GoButton>
       </View>
 
       <StatusBar style="auto" />
+      <Image style={styles.banner} source={require('../assets/bottomBanner.png')}/>
     </SafeAreaView>
   );
 }
@@ -70,13 +52,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     height: 112,
     width: dimensions.width,
-    top: 0,
+    bottom: 0,
   },
   container: {
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  backButtonView: {
+    position: 'absolute',
+    left: 23,
+    top: 58,
   },
   inputView: {
     width:"100%",
@@ -138,23 +125,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#165F22',
   }
-
-
-  // guestLinkBody: {
-  //   position: 'absolute',
-  //   width: 150,
-  //   height: 19,
-  //   left: 137,
-  //   top: 833,
-  // },
-  // guestLinkText: {
-  //   //fontFamily: 'Roboto',
-  //   fontStyle: 'italic',
-  //   fontWeight: 'bold',
-  //   fontSize: 16,
-  //   lineHeight: 19,
-  //   textDecorationLine: 'underline',
-  //   color: '#165F22',
-  // },
-
 });
