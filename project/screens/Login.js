@@ -44,15 +44,15 @@ export default function Login({ navigation }) {
         <LoginButton></LoginButton>
       </View>
 
-      <View style={styles.inputView}>     
-        <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: 'center'}}>
+      <View style={styles.textView}>     
+        <View style={{flexDirection: "row", justifyContent: "center", alignItems: 'center', marginBottom: 30}}>
           <Text style={styles.subheading}>Don’t have an account? </Text>
           <TouchableOpacity onPress={pressHandler} >
-            <Text style={styles.subheading}>Sign Up!</Text>
+            <Text style={styles.subheading, styles.subLink}>Sign Up!</Text>
           </TouchableOpacity>
         </View>
         <TouchableOpacity >
-          <Text style={styles.subheading}>Or, login as a Guest</Text>
+          <Text style={{fontStyle: 'italic', color: '#165F22', fontWeight: 'bold',}} >Or, login as a Guest</Text>
         </TouchableOpacity>
       </View>
 
@@ -62,6 +62,12 @@ export default function Login({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  banner: {
+    position: 'absolute',
+    height: 112,
+    width: dimensions.width,
+    top: 0,
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -83,7 +89,7 @@ const styles = StyleSheet.create({
     color: '#3C3C3C',
     position: 'absolute',
     alignSelf: "flex-start",
-    margin: 30,
+    margin: 20,
   },
 
   inputBody: {
@@ -103,69 +109,47 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
 
-  banner: {
-    position: 'absolute',
-    height: 112,
-    width: dimensions.width,
-    top: 0,
+
+  textView: {
+    width:"100%",
+    justifyContent: 'center',
+    alignItems: "center",
+    marginBottom: 30,
+    marginTop: 30,
+    height:55,
+
   },
+
   subheading: {
-    
     fontStyle: 'normal',
     fontWeight: 'normal',
     fontSize: 20,
-    lineHeight: 23,
     color: '#3C3C3C',
   },
 
-
-
-
-  guestLinkBody: {
-    position: 'absolute',
-    width: 150,
-    height: 19,
-    left: 137,
-    top: 833,
-  },
-  guestLinkText: {
-    //fontFamily: 'Roboto',
-    fontStyle: 'italic',
-    fontWeight: 'bold',
+  subLink :{
+    textDecorationLine: 'underline',
     fontSize: 16,
-    lineHeight: 19,
-    textDecorationLine: 'underline',
-    color: '#165F22',
-  },
-
-  fieldText: {
-      position: 'absolute',
-      height: 21.3272705078125,
-      width: 333,
-      left: 14,
-      top: 14.83642578125,
-      borderRadius: null,
-      //fontFamily: 'Roboto',
-      fontStyle: 'normal',
-      fontWeight: 'bold',
-      fontSize: 18,
-      lineHeight: 21,
-      color: '#3C3C3C',
-  },
-  signUpBody: {
-    position: 'absolute',
-    width: 78,
-    height: 24,
-    left: 274,
-    top: 800,
-  },
-  signUpText: {
-    //fontFamily: 'Roboto',
-    fontStyle: 'normal',
     fontWeight: 'bold',
-    fontSize: 20,
-    lineHeight: 23,
-    textDecorationLine: 'underline',
     color: '#165F22',
-  },
+  }
+
+
+  // guestLinkBody: {
+  //   position: 'absolute',
+  //   width: 150,
+  //   height: 19,
+  //   left: 137,
+  //   top: 833,
+  // },
+  // guestLinkText: {
+  //   //fontFamily: 'Roboto',
+  //   fontStyle: 'italic',
+  //   fontWeight: 'bold',
+  //   fontSize: 16,
+  //   lineHeight: 19,
+  //   textDecorationLine: 'underline',
+  //   color: '#165F22',
+  // },
+
 });
