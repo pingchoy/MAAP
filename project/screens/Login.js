@@ -45,7 +45,7 @@ export default function Login({ navigation }) {
       </View>
 
       <View style={styles.textView}>     
-        <View style={{flexDirection: "row", justifyContent: "center", alignItems: 'center', marginBottom: 30}}>
+        <View style={{flexDirection: "row", justifyContent: "center", alignItems: 'center', marginBottom: 10}}>
           <Text style={styles.subheading}>Don’t have an account? </Text>
           <TouchableOpacity onPress={pressHandler} >
             <Text style={styles.subheading, styles.subLink}>Sign Up!</Text>
@@ -111,13 +111,14 @@ const styles = StyleSheet.create({
 
 
   textView: {
+    position: 'absolute',
+    bottom: 0,
     width:"100%",
     justifyContent: 'center',
     alignItems: "center",
-    marginBottom: 30,
+    marginBottom: 50,
     marginTop: 30,
     height:55,
-
   },
 
   subheading: {
