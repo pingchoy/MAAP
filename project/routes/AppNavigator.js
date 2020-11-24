@@ -14,7 +14,7 @@ const { Navigator, Screen } = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => (
-  <Tab.Navigator>
+  <Tab.Navigator initialRouteName="Events">
     <Tab.Screen name="Profile" component={Profile} />
     <Tab.Screen name="Events" component={Events} />
     <Tab.Screen name="Invites" component={Invites} />

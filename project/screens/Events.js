@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     position: 'absolute',
-    fontFamily: 'Roboto',
+    //fontFamily: 'Roboto',
     fontStyle: 'normal',
     fontWeight: 'bold',
     fontSize: 32,
