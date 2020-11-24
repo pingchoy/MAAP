@@ -1,30 +1,16 @@
 import * as React from 'react';
-import { Text, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ProfileScreen from '../screens/Profile';
+import InvitesScreen from '../screens/Invites';
+import EventsScreen from '../screens/Events';
 import { Ionicons } from '@expo/vector-icons';
 
-function EventsScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Events!</Text>
-    </View>
-  );
-}
-
-function InvitesScreen() {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Invites!</Text>
-      </View>
-    );
-  }
 
 const Tab = createBottomTabNavigator();
 
 const Home = () => {
   return (
-      <Tab.Navigator 
+      <Tab.Navigator  initialRouteName="Events"
     //     screenOptions={({ route }) => ({
     //         tabBarIcon: ({ focused, color, size }) => {
     //         let iconName;
