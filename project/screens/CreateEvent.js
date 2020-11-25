@@ -169,8 +169,5 @@ const styles = StyleSheet.create({
         height: 112,
         width: dimensions.width,
         bottom: 0,
-        top: height - 70,
     },
-
-
 })
