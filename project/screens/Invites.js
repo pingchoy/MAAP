@@ -22,7 +22,7 @@ export default function Events({ navigation }) {
 const styles = StyleSheet.create({
   banner: {
     position: 'absolute',
-    height: 180,
+    height: 127,
     width: dimensions.width,
     top: 0,
   },

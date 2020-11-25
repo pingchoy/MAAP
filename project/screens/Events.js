@@ -1,6 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView } from 'react-native';
+import { TouchableOpacity, View, StyleSheet, Dimensions, Text, SafeAreaView, ScrollView  } from 'react-native';
+import { Ionicons } from '@expo/vector-icons'; 
+
 
 const dimensions = Dimensions.get('window');
 
@@ -8,12 +10,24 @@ export default function Events({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Image style={styles.banner} source={require('../assets/eventsBanner.png')}/>
 
-      <View style={styles.headingView}>
-        <Image style={styles.add} source={require('../assets/add.png')}/>
-        <Text style={styles.heading}>Events</Text>
+      <View style={styles.bannerView}>
+        <View style={styles.headingView}>
+          <Text style={styles.heading}>Events</Text>
+          <TouchableOpacity style={styles.addButton}>
+            <Ionicons name='md-add' size={65} color='white'/>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.searchBarView}>
+          <Text style={styles.heading}>Searchbar here</Text>
+        </View>  
+
       </View>
+
+      <ScrollView>
+
+      </ScrollView>
+
 
       <StatusBar style="auto" />
     </SafeAreaView>
@@ -21,32 +35,31 @@ export default function Events({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  banner: {
-    position: 'absolute',
-    height: 180,
-    width: dimensions.width,
-    top: 0,
-  },
-  add: {
-    position: 'absolute',
-    height: 40,
-    width: 40,
-    right: 25,
-    top: -20,
-  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headingView: {
+  bannerView: {
     position: 'absolute',
-    width:"100%",
+    height: 150,
+    width: dimensions.width,
+    top: 0,
+    backgroundColor: '#165f22',
+    shadowColor: '#000',
+    shadowOffset: { width: 1, height: 1 },
+    shadowOpacity:  0.75,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  // Event text and button
+  headingView: {
+    flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
-    textAlign: 'center',
-    top: 80,
+    alignItems: 'flex-end',
+    flex: 1,
+
   },
   heading: {
     position: 'absolute',
@@ -54,9 +67,20 @@ const styles = StyleSheet.create({
     fontStyle: 'normal',
     fontWeight: 'bold',
     fontSize: 32,
-    lineHeight: 37,
     textAlign: 'center',
     color: '#FFFFFF',
-    alignSelf: "center",
   },
+  addButton: {
+    position: 'absolute',
+    right: 20,
+    top: 20,
+  },
+
+  searchBarView : {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1
+  },
+
+
 });
