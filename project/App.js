@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoginScreen from './screens/Login';
 import SignUpScreen from './screens/SignUp';
 import GuestScreen from './screens/Guest';
+import CreateEventScreen from './screens/CreateEvent'
 import Home from './routes/Home';
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from '@react-navigation/native';
@@ -97,8 +98,11 @@ export default function App({ navigation }) {
               <Stack.Screen name="Guest" component={GuestScreen} />
             </>
           ) : (
-            <Stack.Screen name="Home" component={Home} />
-          )}
+              <>
+                <Stack.Screen name="Home" component={Home} />
+                <Stack.Screen name="CreateEvent" component={CreateEventScreen} />
+              </>
+            )}
         </Stack.Navigator>
       </NavigationContainer>
     </AuthContext.Provider>
