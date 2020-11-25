@@ -1,14 +1,16 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput } from 'react-native';
+import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
 
 import { LoginButton } from '../components/LoginButton'
 
 const dimensions = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 export default function CreateEventScreen({ navigation }) {
     const [code, onChangeCode] = React.useState('Enter an event code');
 
     return (
+
         <SafeAreaView style={styles.container}>
             <View style={styles.backButtonView}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -32,11 +34,14 @@ export default function CreateEventScreen({ navigation }) {
                     style={styles.inputBody}
                 />
             </View>
+
             <View style={styles.goButtonView}>
                 <TouchableOpacity style={styles.goButtonBody} >
                     <Text style={styles.buttonText}>Go!</Text>
                 </TouchableOpacity>
             </View>
+
+            <Image style={styles.banner} source={require('../assets/bottomBanner.png')} />
         </SafeAreaView>
 
     )
@@ -158,7 +163,14 @@ const styles = StyleSheet.create({
 
         backgroundColor: '#165F22',
         borderRadius: 5,
-    }
+    },
+    banner: {
+        position: 'absolute',
+        height: 112,
+        width: dimensions.width,
+        bottom: 0,
+        top: height - 70,
+    },
 
 
 })
