@@ -2,7 +2,6 @@ import React from 'react';
 import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-import { render } from 'react-dom';
 
 const dimensions = Dimensions.get('window');
 const { height } = Dimensions.get('window');
@@ -107,7 +106,7 @@ export default function NewEventScreen({ navigation }) {
                 />
             </View>
             <View style={styles.bottomButtonView}>
-                <TouchableOpacity style={styles.buttonBody} onPress={() => navigation.navigate('NewEvent')}>
+                <TouchableOpacity style={styles.buttonBody} onPress={() => navigation.navigate('Add'.concat(currentTab))}>
                     <Text style={styles.buttonText}>Add {currentTab}</Text>
                 </TouchableOpacity>
             </View>
