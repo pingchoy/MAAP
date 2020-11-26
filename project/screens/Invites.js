@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     // alignItems: 'center',
     textAlign: 'center',
-    top: 80,
+    top: 100,
   },
   heading: {
     position: 'absolute',
