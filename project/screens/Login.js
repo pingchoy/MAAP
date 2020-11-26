@@ -15,7 +15,7 @@ export default function Login({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Image style={styles.banner} source={require('../assets/banner.png')}/>
+      <Image style={styles.banner} source={require('../assets/banner.png')} />
 
       <View style={styles.inputView}>
         <Text style={styles.heading}>Login</Text>
@@ -41,18 +41,18 @@ export default function Login({ navigation }) {
       </View>
 
       <View style={styles.inputView}>
-        <LoginButton onPress={()=> login({ username, password })}></LoginButton>
+        <LoginButton onPress={() => login({ username, password })}></LoginButton>
       </View>
 
       <View style={styles.textView}>
-        <View style={{flexDirection: "row", justifyContent: "center", alignItems: 'center', marginBottom: 10}}>
+        <View style={{ flexDirection: "row", justifyContent: "center", alignItems: 'center', marginBottom: 10 }}>
           <Text style={styles.subheading}>Don’t have an account? </Text>
           <TouchableOpacity onPress={() => navigation.navigate('SignUp')} >
             <Text style={styles.subheading, styles.subLink}>Sign Up!</Text>
           </TouchableOpacity>
         </View>
         <TouchableOpacity onPress={() => navigation.navigate('Guest')}>
-          <Text style={{fontStyle: 'italic', color: '#165F22', fontWeight: 'bold',}} >Or, login as a Guest</Text>
+          <Text style={{ fontStyle: 'italic', color: '#165F22', fontWeight: 'bold', }} >Or, login as a Guest</Text>
         </TouchableOpacity>
       </View>
 
@@ -75,11 +75,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   inputView: {
-    width:"100%",
+    width: "100%",
     justifyContent: 'center',
     alignItems: "center",
     marginBottom: 30,
-    height:55,
+    height: 55,
     padding: 20,
   },
   heading: {
@@ -110,12 +110,12 @@ const styles = StyleSheet.create({
   textView: {
     position: 'absolute',
     bottom: 0,
-    width:"100%",
+    width: "100%",
     justifyContent: 'center',
     alignItems: "center",
     marginBottom: 50,
     marginTop: 30,
-    height:55,
+    height: 55,
   },
   subheading: {
     fontStyle: 'normal',
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#3C3C3C',
   },
-  subLink :{
+  subLink: {
     textDecorationLine: 'underline',
     fontSize: 16,
     fontWeight: 'bold',
