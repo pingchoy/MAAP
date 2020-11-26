@@ -1,21 +1,17 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity } from 'react-native';
-import { } from 'react-native-gesture-handler'
+import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView } from 'react-native';
+
 const dimensions = Dimensions.get('window');
 
 export default function Events({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Image style={styles.banner} source={require('../assets/eventsBanner.png')} />
+      <Image style={styles.banner} source={require('../assets/eventsBanner.png')}/>
 
       <View style={styles.headingView}>
-        <Text style={styles.heading}>Events</Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('CreateEvent')}>
-          <Image style={styles.add} source={require('../assets/add.png')} resizeMode='contain' />
-        </TouchableOpacity>
-
+        <Text style={styles.heading}>Incoming Invites</Text>
       </View>
 
       <StatusBar style="auto" />
@@ -30,13 +26,6 @@ const styles = StyleSheet.create({
     width: dimensions.width,
     top: 0,
   },
-  add: {
-    position: 'absolute',
-
-    width: 40,
-    right: 25,
-    top: -10,
-  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -44,11 +33,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headingView: {
-    flex: 1,
     position: 'absolute',
-    width: "100%",
+    width:"100%",
     justifyContent: 'center',
-    // alignItems: 'center',
+    alignItems: 'center',
     textAlign: 'center',
     top: 80,
   },
@@ -63,13 +51,4 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     alignSelf: "center",
   },
-  addButton: {
-    zIndex: 1,
-    height: 40,
-    // height: 40,
-    // width: 40,
-    // right: 25,
-    // top: -20,
-  }
-
 });

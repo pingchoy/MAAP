@@ -1,225 +1,180 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, Image, SafeAreaView, TextInput } from 'react-native';
+import { View, StyleSheet, Dimensions, Text, TouchableOpacity, Image, SafeAreaView, TextInput, } from 'react-native';
 import { SignUpButton } from '../components/SignUpButton';
 
-export default function SignUp({ navigation }) {
+const dimensions = Dimensions.get('window');
+
+export default function Login({ navigation }) {
   const [username, onChangeUsername] = React.useState('Email or Username');
   const [name, onChangeName] = React.useState('First Name');
   const [password, onChangePassword] = React.useState('Password');
   const [rePassword, onChangeRePassword] = React.useState('Re-enter password');
 
   const goToLogin = () => {
-    navigation.push('Login');
+    navigation.navigate('Login');
   }
 
   const goToGuest = () => {
-    navigation.push('Guest');
+    navigation.navigate('Guest');
   }
 
   return (
     <SafeAreaView style={styles.container}>
-        <StatusBar style="auto" />
-        <Image style={styles.banner} source={require('../assets/banner.png')}/>
+      <Image style={styles.banner} source={require('../assets/banner.png')} />
+
+      <View style={styles.inputView}>
         <Text style={styles.heading}>Sign Up</Text>
+      </View>
+
+      <View style={styles.inputView}>
         <TextInput
-            style={styles.usernameBody}
-            placeholder={username}
-            onChangeUsername={text => onChangeUsername(text)}
-            username={username}
-        /> 
-        <TextInput
-            style={styles.nameBody}
-            placeholder={name}
-            onChangeUsername={text => onChangeName(text)}
-            name={name}
-        /> 
-        <TextInput
-            style={styles.passwordBody}
-            secureTextEntry={true}
-            textContentType='password'
-            placeholder={password}
-            onChangePassword={text => onChangePassword(text)}
-            password={password}
+          style={styles.inputBody}
+          placeholder={username}
+          onChangeUsername={text => onChangeUsername(text)}
+          username={username}
         />
+      </View>
+      <View style={styles.inputView}>
         <TextInput
-            style={styles.rePasswordBody}
-            secureTextEntry={true}
-            textContentType='password'
-            placeholder={rePassword}
-            onChangePassword={text => onChangeRePassword(text)}
-            rePassword={rePassword}
+          style={styles.inputBody}
+          placeholder={name}
+          onChangeName={text => onChangeName(text)}
+          name={name}
         />
+      </View>
+      <View style={styles.inputView}>
+        <TextInput
+          style={styles.inputBody}
+          secureTextEntry={true}
+          textContentType='password'
+          placeholder={password}
+          onChangePassword={text => onChangePassword(text)}
+          password={password}
+        />
+      </View>
+      <View style={styles.inputView}>
+        <TextInput
+          style={styles.inputBody}
+          secureTextEntry={true}
+          textContentType='password'
+          placeholder={rePassword}
+          onChangeRePassword={text => onChangeRePassword(text)}
+          rePassword={rePassword}
+        />
+      </View>
+
+      <View style={styles.inputView}>
         <SignUpButton></SignUpButton>
-        <Text style={styles.subheading}>Already have an account?</Text>
-        <TouchableOpacity style={styles.signInBody}  onPress={goToLogin}>
-            <Text style={styles.signInText}>Sign In!</Text>
+      </View>
+
+      <View style={styles.textView}>
+        <View style={{ flexDirection: "row", justifyContent: "center", alignItems: 'center', marginBottom: 10 }}>
+          <Text style={styles.subheading}>Don’t have an account? </Text>
+          <TouchableOpacity onPress={goToLogin} >
+            <Text style={styles.subheading, styles.subLink}>Sign In!</Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity onPress={goToGuest} >
+          <Text style={{ fontStyle: 'italic', color: '#165F22', fontWeight: 'bold', }} >Or, login as a Guest</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.guestLinkBody} onPress={goToGuest}>
-            <Text style={styles.guestLinkText}>Or, login as a Guest</Text>
-        </TouchableOpacity>
+      </View>
+
+      <StatusBar style="auto" />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  banner: {
+    position: 'absolute',
+    height: 112,
+    width: dimensions.width,
+    top: 0,
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  inputView: {
+    width: "100%",
+    justifyContent: 'center',
+    alignItems: "center",
+    marginBottom: 30,
+    height: 55,
+    padding: 20,
+  },
   heading: {
-    position: 'absolute',
-    left: 24,
-    top: 224,
-    //fontFamily: 'Roboto',
     fontStyle: 'normal',
     fontWeight: 'bold',
     fontSize: 32,
-    lineHeight: 37,
     color: '#3C3C3C',
-  },
-  subheading: {
     position: 'absolute',
-    width: 234,
-    height: 24,
-    left: 51,
-    top: 800,      
-    //fontFamily: 'Roboto',
+    alignSelf: "flex-start",
+    margin: 20,
+  },
+
+  inputBody: {
+    position: 'absolute',
+    paddingLeft: 20,
+    height: 55,
+    width: '100%',
+    fontStyle: 'normal',
+    fontWeight: 'bold',
+    fontSize: 18,
+    lineHeight: 21,
+    color: '#3C3C3C',
+    backgroundColor: 'white',
+    borderRightColor: 'black',
+    borderColor: "black",
+    borderWidth: 1,
+    borderRadius: 10,
+  },
+
+
+  textView: {
+    position: 'absolute',
+    bottom: 0,
+    width: "100%",
+    justifyContent: 'center',
+    alignItems: "center",
+    marginBottom: 50,
+    marginTop: 30,
+    height: 55,
+  },
+
+  subheading: {
     fontStyle: 'normal',
     fontWeight: 'normal',
     fontSize: 20,
-    lineHeight: 23,
     color: '#3C3C3C',
   },
-  guestLinkBody: {
-    position: 'absolute',
-    width: 150,
-    height: 19,
-    left: 137,
-    top: 833,
-  },
-  guestLinkText: {
-    //fontFamily: 'Roboto',
-    fontStyle: 'italic',
-    fontWeight: 'bold',
+
+  subLink: {
+    textDecorationLine: 'underline',
     fontSize: 16,
-    lineHeight: 19,
-    textDecorationLine: 'underline',
+    fontWeight: 'bold',
     color: '#165F22',
-  },
-    banner: {
-      position: 'absolute',
-      width: 414,
-      height: 112,
-      left: 0,
-      top: 29,
-    },
-    usernameBody: {
-      position: 'absolute',
-      height: 55,
-      width: 366,
-      left: 24,
-      top: 323,
-      paddingLeft: 16,
-      //fontFamily: 'Roboto',
-      fontStyle: 'normal',
-      fontWeight: 'bold',
-      fontSize: 18,
-      lineHeight: 21,
-      color: '#3C3C3C',
-      backgroundColor: 'white',
-      borderRightColor: 'black',
-      borderColor: "black",
-      borderWidth: 1,
-      borderRadius: 10,
-  },
-  nameBody: {
-    position: 'absolute',
-    width: 366,
-    height: 55,
-    left: 24,
-    top: 395,
-    paddingLeft: 16,
-    //fontFamily: 'Roboto',
-    fontStyle: 'normal',
-    fontWeight: 'bold',
-    fontSize: 18,
-    lineHeight: 21,
-    color: '#3C3C3C',
-    backgroundColor: 'white',
-    borderRightColor: 'black',
-    borderColor: "black",
-    borderWidth: 1,
-    borderRadius: 10,
-    },
-  passwordBody: {
-      position: 'absolute',
-      width: 366,
-      height: 55,
-      left: 24,
-      top: 461,
-      paddingLeft: 16,
-      //fontFamily: 'Roboto',
-      fontStyle: 'normal',
-      fontWeight: 'bold',
-      fontSize: 18,
-      lineHeight: 21,
-      color: '#3C3C3C',
-      backgroundColor: 'white',
-      borderRightColor: 'black',
-      borderColor: "black",
-      borderWidth: 1,
-      borderRadius: 10,
-  },
-  rePasswordBody: {
-    position: 'absolute',
-    width: 366,
-    height: 55,
-    left: 24,
-    top: 527,    
-    paddingLeft: 16,
-    //fontFamily: 'Roboto',
-    fontStyle: 'normal',
-    fontWeight: 'bold',
-    fontSize: 18,
-    lineHeight: 21,
-    color: '#3C3C3C',
-    backgroundColor: 'white',
-    borderRightColor: 'black',
-    borderColor: "black",
-    borderWidth: 1,
-    borderRadius: 10,
-    },
-  fieldText: {
-      position: 'absolute',
-      height: 21.3272705078125,
-      width: 333,
-      left: 14,
-      top: 14.83642578125,
-      borderRadius: null,
-      //fontFamily: 'Roboto',
-      fontStyle: 'normal',
-      fontWeight: 'bold',
-      fontSize: 18,
-      lineHeight: 21,
-      color: '#3C3C3C',
-  },
-  signInBody: {
-    position: 'absolute',
-    width: 71,
-    height: 24,
-    left: 285,
-    top: 800,
-  },
-  signInText: {
-    //fontFamily: 'Roboto',
-    fontStyle: 'normal',
-    fontWeight: 'bold',
-    fontSize: 20,
-    lineHeight: 23,
-    textDecorationLine: 'underline',
-    color: '#165F22',
-  },
+  }
+
+
+  // guestLinkBody: {
+  //   position: 'absolute',
+  //   width: 150,
+  //   height: 19,
+  //   left: 137,
+  //   top: 833,
+  // },
+  // guestLinkText: {
+  //   //fontFamily: 'Roboto',
+  //   fontStyle: 'italic',
+  //   fontWeight: 'bold',
+  //   fontSize: 16,
+  //   lineHeight: 19,
+  //   textDecorationLine: 'underline',
+  //   color: '#165F22',
+  // },
+
 });
