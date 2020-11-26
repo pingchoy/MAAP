@@ -3,7 +3,6 @@ import React from 'react';
 import { TouchableOpacity, View, StyleSheet, Dimensions, Text, SafeAreaView, ScrollView  } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; 
 import { List, Searchbar  } from 'react-native-paper';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { } from 'react-native-gesture-handler'
 
 const dimensions = Dimensions.get('window');
@@ -97,7 +96,6 @@ const styles = StyleSheet.create({
     top:140,
     flex: 1,
     height: dimensions.height - 240,
-    // backgroundColor: 'black',
   },
   accordion: {
     flex: 1,
@@ -116,7 +114,7 @@ const styles = StyleSheet.create({
   },
 
   searchBar: {
-    marginHorizontal: 20,
+    width: dimensions.width-40,
     borderRadius: 25
   },
 
