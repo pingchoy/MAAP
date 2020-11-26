@@ -103,6 +103,7 @@ export default function NewEventScreen({ navigation }) {
                     onIndexChange={setIndex}
                     initialLayout={initialLayout}
                     renderTabBar={renderTabBar}
+                    swipeEnabled={false}
                 />
             </View>
             <View style={styles.bottomButtonView}>
