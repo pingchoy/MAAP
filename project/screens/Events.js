@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity } from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { } from 'react-native-gesture-handler'
 const dimensions = Dimensions.get('window');
 
@@ -13,9 +14,8 @@ export default function Events({ navigation }) {
       <View style={styles.headingView}>
         <Text style={styles.heading}>Events</Text>
         <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('CreateEvent')}>
-          <Image style={styles.add} source={require('../assets/add.png')} resizeMode='contain' />
+          <MaterialCommunityIcons style={styles.add} name="plus" color={"white"} size={50} />
         </TouchableOpacity>
-
       </View>
 
       <StatusBar style="auto" />
@@ -32,8 +32,6 @@ const styles = StyleSheet.create({
   },
   add: {
     position: 'absolute',
-
-    width: 40,
     right: 25,
     top: -10,
   },

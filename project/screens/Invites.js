@@ -33,10 +33,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headingView: {
+    flex: 1,
     position: 'absolute',
-    width:"100%",
+    width: "100%",
     justifyContent: 'center',
-    alignItems: 'center',
+    // alignItems: 'center',
     textAlign: 'center',
     top: 80,
   },
