@@ -4,6 +4,7 @@ import ProfileScreen from '../screens/Profile';
 import InvitesScreen from '../screens/Invites';
 import EventsScreen from '../screens/Events';
 import { Ionicons } from '@expo/vector-icons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
 const Tab = createBottomTabNavigator();
@@ -29,11 +30,39 @@ const Home = () => {
     //       activeTintColor: 'tomato',
     //       inactiveTintColor: 'gray',
     //     }}
+        tabBarOptions= {{ showIcon: true, activeTintColor: '#165F22' }}
       
       >
-        <Tab.Screen name="Profile" component={ProfileScreen} />
-        <Tab.Screen name="Events" component={EventsScreen} />
-        <Tab.Screen name="Invites" component={InvitesScreen} />
+        <Tab.Screen 
+          name="Profile" 
+          component={ProfileScreen} 
+          options={{
+            tabBarLabel: 'Profile',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="account" color={color} size={35} />
+            ),
+          }}
+        />
+        <Tab.Screen 
+          name="Events" 
+          component={EventsScreen} 
+          options={{
+            tabBarLabel: 'Events',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="calendar" color={color} size={35} />
+            ),
+          }}
+        />
+        <Tab.Screen 
+          name="Invites" 
+          component={InvitesScreen}
+          options={{
+            tabBarLabel: 'Invites',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="mail" color={color} size={35} />
+            ),
+          }} 
+        />
       </Tab.Navigator>
   );
 }
