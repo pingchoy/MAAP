@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
+import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, useWindowDimensions } from 'react-native';
 
 
 const dimensions = Dimensions.get('window');
@@ -7,10 +7,10 @@ const { height } = Dimensions.get('window');
 
 export default function CreateEventScreen({ navigation }) {
     const [code, onChangeCode] = React.useState('Enter an event code');
-
+    const windowHeight = useWindowDimensions().height;
     return (
 
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
             <View style={styles.backButtonView}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Image style={styles.backButton} source={require('../assets/backButton.png')} />
@@ -114,8 +114,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         lineHeight: 20,
         /* identical to box height */
-
-
         /* dark */
         color: '#3C3C3C',
     },
@@ -159,7 +157,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         /* darkgreen */
-
         backgroundColor: '#165F22',
         borderRadius: 5,
     },
@@ -168,6 +165,6 @@ const styles = StyleSheet.create({
         height: 112,
         width: dimensions.width,
         bottom: 0,
-        top: height - 70,
+        // top: height - 70,
     },
 })

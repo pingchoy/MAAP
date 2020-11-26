@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
+import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, useWindowDimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 
@@ -31,7 +31,7 @@ export default function NewEventScreen({ navigation }) {
         { key: 'third', title: 'Times' }
     ]);
     const [currentTab, setCurrentTab] = React.useState("Guests")
-
+    const windowHeight = useWindowDimensions().height;
     const renderScene = ({ route }) => {
 
         switch (route.key) {
@@ -64,7 +64,7 @@ export default function NewEventScreen({ navigation }) {
     )
     return (
 
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
             <View style={styles.backButtonView}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Image style={styles.backButton} source={require('../assets/backButton.png')} />
@@ -170,13 +170,11 @@ const styles = StyleSheet.create({
         left: "10%",
     },
     eventDetailsBoldText: {
-
         fontSize: 18,
         lineHeight: 20,
         fontWeight: "bold",
     },
     eventDetailsNormalText: {
-
         fontSize: 18,
         lineHeight: 20,
     },
