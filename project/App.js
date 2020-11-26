@@ -6,6 +6,7 @@ import GuestScreen from './screens/Guest';
 import CreateEventScreen from './screens/CreateEvent'
 import NewEventScreen from './screens/NewEvent'
 import AddGuestScreen from './screens/AddGuests'
+import AddLocationScreen from './screens/AddLocation'
 import ProfileSettings from './screens/ProfileSettings'
 import Home from './routes/Home';
 import { createStackNavigator } from "@react-navigation/stack";
@@ -107,6 +108,7 @@ export default function App({ navigation }) {
                 <Stack.Screen name="NewEvent" component={NewEventScreen} />
                 <Stack.Screen name="ProfileSettings" component={ProfileSettings} />
                 <Stack.Screen name="AddGuests" component={AddGuestScreen} />
+                <Stack.Screen name="AddLocations" component={AddLocationScreen} />
               </>
             )}
         </Stack.Navigator>
