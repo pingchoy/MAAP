@@ -4,9 +4,10 @@ import LoginScreen from './screens/Login';
 import SignUpScreen from './screens/SignUp';
 import GuestScreen from './screens/Guest';
 import CreateEventScreen from './screens/CreateEvent'
+import NewEventScreen from './screens/NewEvent'
 import Home from './routes/Home';
 import { createStackNavigator } from "@react-navigation/stack";
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, StackActions } from '@react-navigation/native';
 
 const Stack = createStackNavigator();
 export const AuthContext = React.createContext();
@@ -101,6 +102,7 @@ export default function App({ navigation }) {
               <>
                 <Stack.Screen name="Home" component={Home} />
                 <Stack.Screen name="CreateEvent" component={CreateEventScreen} />
+                <Stack.Screen name="NewEvent" component={NewEventScreen} />
               </>
             )}
         </Stack.Navigator>

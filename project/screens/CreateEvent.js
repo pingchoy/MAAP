@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
 
-import { LoginButton } from '../components/LoginButton'
 
 const dimensions = Dimensions.get('window');
 const { height } = Dimensions.get('window');
@@ -18,7 +17,7 @@ export default function CreateEventScreen({ navigation }) {
                 </TouchableOpacity>
             </View>
             <View style={styles.buttonView}>
-                <TouchableOpacity style={styles.buttonBody} >
+                <TouchableOpacity style={styles.buttonBody} onPress={() => navigation.navigate('NewEvent')}>
                     <Text style={styles.buttonText}>Create an Event</Text>
                 </TouchableOpacity>
             </View>
