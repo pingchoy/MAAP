@@ -3,9 +3,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoginScreen from './screens/Login';
 import SignUpScreen from './screens/SignUp';
 import GuestScreen from './screens/Guest';
+import CreateEventScreen from './screens/CreateEvent'
+import NewEventScreen from './screens/NewEvent'
+import AddGuestScreen from './screens/AddGuests'
+import AddLocationScreen from './screens/AddLocation'
+import ProfileSettings from './screens/ProfileSettings'
 import Home from './routes/Home';
 import { createStackNavigator } from "@react-navigation/stack";
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, StackActions } from '@react-navigation/native';
 
 const Stack = createStackNavigator();
 export const AuthContext = React.createContext();
@@ -97,8 +102,15 @@ export default function App({ navigation }) {
               <Stack.Screen name="Guest" component={GuestScreen} />
             </>
           ) : (
-            <Stack.Screen name="Home" component={Home} />
-          )}
+              <>
+                <Stack.Screen name="Home" component={Home} />
+                <Stack.Screen name="CreateEvent" component={CreateEventScreen} />
+                <Stack.Screen name="NewEvent" component={NewEventScreen} />
+                <Stack.Screen name="ProfileSettings" component={ProfileSettings} />
+                <Stack.Screen name="AddGuests" component={AddGuestScreen} />
+                <Stack.Screen name="AddLocations" component={AddLocationScreen} />
+              </>
+            )}
         </Stack.Navigator>
       </NavigationContainer>
     </AuthContext.Provider>

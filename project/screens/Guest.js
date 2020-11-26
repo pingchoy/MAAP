@@ -8,12 +8,12 @@ const dimensions = Dimensions.get('window');
 export default function Login({ navigation }) {
   const [username, onChangeUsername] = React.useState('Enter a username');
   const [code, onChangeCode] = React.useState('Enter an event code');
-  
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.backButtonView}>
-        <TouchableOpacity onPress={ () => navigation.goBack()}>
-          <Image style={styles.backButton} source={require('../assets/backButton.png')}/>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Image style={styles.backButton} source={require('../assets/backButton.png')} />
         </TouchableOpacity>
       </View>
       <View style={styles.inputView}>
@@ -38,7 +38,7 @@ export default function Login({ navigation }) {
       </View>
 
       <StatusBar style="auto" />
-      <Image style={styles.banner} source={require('../assets/bottomBanner.png')}/>
+      <Image style={styles.banner} source={require('../assets/bottomBanner.png')} />
     </SafeAreaView>
   );
 }
@@ -62,11 +62,11 @@ const styles = StyleSheet.create({
     top: 58,
   },
   inputView: {
-    width:"100%",
+    width: "100%",
     justifyContent: 'center',
     alignItems: "center",
     marginBottom: 30,
-    height:55,
+    height: 55,
     padding: 20,
   },
   heading: {
@@ -100,12 +100,12 @@ const styles = StyleSheet.create({
   textView: {
     position: 'absolute',
     bottom: 0,
-    width:"100%",
+    width: "100%",
     justifyContent: 'center',
     alignItems: "center",
     marginBottom: 50,
     marginTop: 30,
-    height:55,
+    height: 55,
   },
 
   subheading: {
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     color: '#3C3C3C',
   },
 
-  subLink :{
+  subLink: {
     textDecorationLine: 'underline',
     fontSize: 16,
     fontWeight: 'bold',

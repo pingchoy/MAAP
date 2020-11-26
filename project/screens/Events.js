@@ -3,6 +3,8 @@ import React from 'react';
 import { TouchableOpacity, View, StyleSheet, Dimensions, Text, SafeAreaView, ScrollView  } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; 
 import { List, Searchbar  } from 'react-native-paper';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { } from 'react-native-gesture-handler'
 
 const dimensions = Dimensions.get('window');
 
@@ -18,7 +20,7 @@ export default function Events({ navigation }) {
       <View style={styles.bannerView}>
         <View style={styles.headingView}>
           <Text style={styles.heading}>Events</Text>
-          <TouchableOpacity style={styles.addButton}>
+          <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('CreateEvent')}>
             <Ionicons name='md-add' size={65} color='white'/>
           </TouchableOpacity>
         </View>
