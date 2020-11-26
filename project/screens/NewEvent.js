@@ -7,7 +7,9 @@ import { render } from 'react-dom';
 const dimensions = Dimensions.get('window');
 const { height } = Dimensions.get('window');
 const FirstRoute = () => (
-    <View style={[styles.scene, { backgroundColor: '#ff4081' }]} />
+    <View style={[styles.scene, { backgroundColor: '#ff4081' }]} >
+
+    </View>
 );
 
 const SecondRoute = () => (
@@ -31,11 +33,18 @@ export default function NewEventScreen({ navigation }) {
     ]);
     const [currentTab, setCurrentTab] = React.useState("Guests")
 
-    const renderScene = SceneMap({
-        first: FirstRoute,
-        second: SecondRoute,
-        third: ThirdRoute
-    });
+    const renderScene = ({ route }) => {
+
+        switch (route.key) {
+            case 'first':
+                return <FirstRoute />
+            case 'second':
+                return <SecondRoute />
+            case 'third':
+                return <ThirdRoute />
+        }
+    }
+
 
     const renderTabBar = props => (
         <TabBar
