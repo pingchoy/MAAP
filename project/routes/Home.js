@@ -59,7 +59,7 @@ const Home = () => {
           options={{
             tabBarLabel: 'Invites',
             tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="mail" color={color} size={35} />
+              <MaterialCommunityIcons name="email" color={color} size={35} />
             ),
           }} 
         />
