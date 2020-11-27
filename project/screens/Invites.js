@@ -80,7 +80,7 @@ export default function Events({ navigation }) {
 
       <View style={styles.codeView}>
         <Text style={styles.codeText}>Have a Code? Enter event code </Text>
-        <TouchableOpacity onPress>
+        <TouchableOpacity onPress={() => navigation.navigate('CreateEvent')}>
           <Text style={styles.codeText, styles.codeTextLink}>here</Text>
         </TouchableOpacity>
       </View>
