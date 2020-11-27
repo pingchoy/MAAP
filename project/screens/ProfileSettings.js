@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, Dimensions, Text, SafeAreaView, Image, View } from 'react-native';
+import { TouchableOpacity, StyleSheet, Dimensions, Text, SafeAreaView, View, Image } from 'react-native';
 import { AuthContext } from '../App';
 
 const dimensions = Dimensions.get('window');
@@ -10,7 +10,11 @@ export default function ProfileSettings({ navigation }) {
   return (
 
     <SafeAreaView style={styles.container}>
-        <Image style={styles.banner} source={require('../assets/profileBanner.png')}/>
+        <View style={styles.bannerView}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Image style={styles.backButton} source={require('../assets/whiteBackButton.png')} />
+            </TouchableOpacity>
+        </View>
         <View style={styles.headingView}>
             <Text style={styles.heading}>Settings</Text>
         </View>
@@ -26,13 +30,18 @@ export default function ProfileSettings({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-    banner: {
-      position: 'absolute',
-      height: 300,
-      width: dimensions.width,
-      top: 0,
-      aspectRatio: 3/2,
-    },
+    bannerView: {
+        position: 'absolute',
+        height: 150,
+        width: dimensions.width,
+        top: 0,
+        backgroundColor: '#165f22',
+        shadowColor: '#000',
+        shadowOffset: { width: 1, height: 1 },
+        shadowOpacity:  0.75,
+        shadowRadius: 3,
+        elevation: 5,
+      },
     headingView: {
       flex: 1,
       position: 'absolute',
@@ -40,7 +49,7 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       // alignItems: 'center',
       textAlign: 'center',
-      top: 80,
+      top: "9%",
     },
     container: {
         flex: 1,
@@ -56,8 +65,13 @@ const styles = StyleSheet.create({
         fontSize: 32,
         lineHeight: 37,
         textAlign: 'center',
-        color: '#3C3C3C',
+        color: '#FFFFFF',
         alignSelf: "center",
+    },
+    backButton: {
+        position: 'absolute',
+        left: 23,
+        top: 58,
     },
     settings: {
       position: 'absolute',
