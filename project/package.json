@@ -5,7 +5,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "backend": "nodemon -r esm backend/src/server.js --ignore database.json"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.13.2",
@@ -13,8 +14,15 @@
     "@react-navigation/bottom-tabs": "^5.11.2",
     "@react-navigation/native": "^5.8.10",
     "@react-navigation/stack": "^5.12.8",
+    "async-lock": "^1.2.4",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "esm": "^3.2.25",
     "expo": "^39.0.4",
     "expo-status-bar": "~1.0.2",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "nodemon": "^2.0.6",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-39.0.4.tar.gz",
@@ -25,7 +33,8 @@
     "react-native-screens": "~2.10.1",
     "react-native-tab-view": "^2.15.2",
     "react-native-vector-icons": "^7.1.0",
-    "react-native-web": "~0.13.12"
+    "react-native-web": "~0.13.12",
+    "swagger-ui-express": "^4.1.5"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0"
