@@ -5,13 +5,16 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 
 
-export default function AddTimeScreen({ navigation }) {
+export default function AddTimeScreen({ route, navigation }) {
 
     const windowHeight = useWindowDimensions().height;
 
     const [date, setDate] = React.useState(new Date());
     const [mode, setMode] = React.useState('date');
     const [show, setShow] = React.useState(false);
+
+
+    const { handleDateTimeChange } = route.params
 
     const onChange = (event, selectedDate) => {
         const currentDate = selectedDate || date;
@@ -41,7 +44,9 @@ export default function AddTimeScreen({ navigation }) {
     return (
         <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
             <View style={styles.backButtonView}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
+                <TouchableOpacity onPress={() => {
+                    navigation.goBack()
+                }}>
                     <Image style={styles.backButton} source={require('../assets/backButton.png')} />
                 </TouchableOpacity>
             </View>
@@ -51,7 +56,10 @@ export default function AddTimeScreen({ navigation }) {
                 <View style={styles.checkButton} >
                     <Icon.Button
                         // Change this onPress to affect state of guests later on
-                        onPress={() => navigation.goBack()}
+                        onPress={() => {
+                            handleDateTimeChange(date)
+                            navigation.goBack()
+                        }}
                         name="check"
                         size={30}
                         backgroundColor="transparent"
@@ -74,7 +82,7 @@ export default function AddTimeScreen({ navigation }) {
                 </View>
 
                 <View style={styles.fromtimeHeaderView} >
-                    <Text style={styles.timeHeaderText}>Start Time: {date.getHours()}:{date.getMinutes()} {date.getHours() > 12 ? "PM" : "AM"}</Text>
+                    <Text style={styles.timeHeaderText}>Start Time: {date.getHours()}:{date.getUTCMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes()} {date.getHours() > 11 ? "PM" : "AM"}</Text>
                 </View>
                 <View style={styles.fromTimepickerButtonView}>
                     <TouchableOpacity style={styles.buttonBody} onPress={showTimepicker}>

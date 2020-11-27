@@ -8,15 +8,38 @@ const { height } = Dimensions.get('window');
 
 
 
-export default function AddGuestScreen({ navigation }) {
+export default function AddGuestScreen({ route, navigation }) {
 
-    const [friends, setFriends] = React.useState([{ username: "Brad#1314" }, { username: "Andrew#439" }])
+    const [friends, setFriends] = React.useState([{ username: "Brad#1314", disabled: false }, { username: "Andrew#439", disabled: false }])
+    const [invitedFriends, setInvitedFriends] = React.useState([])
     const [search, setSearch] = React.useState('')
     const windowHeight = useWindowDimensions().height;
+    const { guestList, handleGuestChange } = route.params
 
     const updateSearch = (search) => {
         setSearch(search);
     };
+
+    const handleInviteGuest = friend => {
+        // Disable button
+        let prevFriends = friends
+        prevFriends[prevFriends.findIndex(obj => obj.username === friend.username)].disabled = true
+        setFriends(prevFriends)
+
+        // Add new location to list
+        // Filter list
+        let temp = invitedFriends
+        temp.push(friend.username)
+        let filteredTemp = []
+        temp.map(friend => {
+            if (friend) {
+                if (filteredTemp.indexOf(friend) === -1) {
+                    filteredTemp.push(friend)
+                }
+            }
+        })
+        setInvitedFriends(filteredTemp)
+    }
 
     return (
 
@@ -33,11 +56,15 @@ export default function AddGuestScreen({ navigation }) {
                 <View style={styles.checkButton} >
                     <Icon.Button
                         // Change this onPress to affect state of guests later on
-                        onPress={() => navigation.goBack()}
+                        onPress={() => {
+                            handleGuestChange(invitedFriends)
+                            navigation.goBack()
+                        }}
                         name="check"
                         size={30}
                         backgroundColor="transparent"
                         color="green"
+
                     // onPress={this.loginWithFacebook}
                     >
                     </Icon.Button>
@@ -55,22 +82,26 @@ export default function AddGuestScreen({ navigation }) {
             </View>
             <ScrollView style={styles.friendListRowView}>
                 {friends.map((friend) => {
-                    return (
-                        <View style={styles.friendDetailsRow}>
-                            <View style={styles.friendDetails}><Icon
-                                name="user-circle-o"
-                                size={30}
-                            >  {friend.username}
-                            </Icon>
-                            </View>
+                    if (guestList.filter(f => f.username === friend.username).length === 0) {
+                        return (
+                            <View style={styles.friendDetailsRow}>
+                                <View style={styles.friendDetails}><Icon
+                                    name="user-circle-o"
+                                    size={30}
+                                >  {friend.username}
+                                </Icon>
+                                </View>
 
-                            <View style={styles.inviteButtonView}>
-                                <TouchableOpacity style={styles.buttonBody}>
-                                    <Text style={styles.buttonText}>Invite</Text>
-                                </TouchableOpacity>
+                                <View style={styles.inviteButtonView}>
+                                    <TouchableOpacity disabled={friends[friends.findIndex(obj => obj.username === friend.username)].disabled} style={styles.buttonBody} onPress={() => handleInviteGuest(friend)}
+                                        style={friends[friends.findIndex(obj => obj.username === friend.username)].disabled ? styles.disabledButtonBody : styles.buttonBody}
+                                    >
+                                        <Text style={styles.buttonText}>Invite</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                        </View>
-                    )
+                        )
+                    }
                 })}
 
             </ScrollView>
@@ -79,7 +110,7 @@ export default function AddGuestScreen({ navigation }) {
             >
                 <Text style={styles.subtitle}>Or, send an invite link to a friend</Text>
                 <Text>
-                    <Text style={styles.codeText}>k7MA3   </Text><Icon.Button name="copy" iconStyle={{ top: 5, }} color='black' backgroundColor='transparent' size={50}></Icon.Button>
+                    <Text style={styles.codeText}>k7MA3 </Text><Icon.Button name="copy" iconStyle={{ top: 5, }} color='black' backgroundColor='transparent' size={50}></Icon.Button>
                 </Text>
             </View>
 
@@ -174,6 +205,21 @@ const styles = StyleSheet.create({
         marginBottom: 30,
         height: 55,
         padding: 20,
+    },
+    disabledButtonBody: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: -6,
+        bottom: 0,
+        /* darkgreen */
+        height: 40,
+        backgroundColor: '#165F22',
+        borderRadius: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity: 0.5
+
     },
     buttonBody: {
         position: 'absolute',
