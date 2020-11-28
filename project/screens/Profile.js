@@ -3,6 +3,7 @@ import { TouchableOpacity, StyleSheet, Dimensions, Text, SafeAreaView, Image, Vi
 import { AuthContext } from '../App';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Avatar } from 'react-native-paper';
 
 const dimensions = Dimensions.get('window');
 
@@ -14,119 +15,135 @@ export default function Profile({ navigation }) {
   return (
 
     <SafeAreaView style={styles.container}>
-        <Image style={styles.banner} source={require('../assets/profileBanner.png')}/>
-        
+      <View style={styles.bannerView}>
         <View style={styles.headingView}>
           <Text style={styles.heading}>Anton#7029</Text>
-          <Image style={styles.profilePicture} source={require('../assets/profilePicture.png')}/>
-          <TouchableOpacity onPress={() => navigation.navigate('ProfileSettings')} >
-            <MaterialCommunityIcons style={styles.settings} name="settings" color={"#165F22"} size={50} />
+          <TouchableOpacity style={styles.settings} onPress={() => navigation.navigate('ProfileSettings')} >
+            <MaterialCommunityIcons  name="settings" color={"#165F22"} size={50} />
           </TouchableOpacity>
         </View>
+        <View style={{flex: 2, alignItems: 'center', justifyContent: 'center'}}>
+          <Avatar.Image style={styles.profilePicture} size={110} source={require('../assets/profilePicture.png')} />
+        </View>
+      </View>
 
+      <View style={styles.contentView}>
         <View style={styles.subheadingView}>
-          <Text style={styles.friendsText}>Friends</Text>
-          <TouchableOpacity>
-            <MaterialCommunityIcons style={styles.plus} name="plus" color={"#165F22"} size={50}/>
+          <Text style={styles.subHeading}>Friends</Text>
+          <TouchableOpacity style={{justifyContent: "center", alignItems: "center", paddingRight: 20}}>
+            <MaterialCommunityIcons name="plus" color={"#165F22"} size={50}/>
           </TouchableOpacity>
         </View>
 
         <ScrollView style={styles.listsView}>
                 {friends.map((friend) => {
                     return (
-                        <View style={styles.friendDetailsRow}>
-                            <View style={styles.friendDetails}><Icon
+                        <View style={styles.friendView}>
+                              <Icon
                                 name="user-circle-o"
-                                size={30}
-                            >  {friend.username}
-                            </Icon>
-                            </View>
+                                size={60}
+                              />
+                              <Text style={styles.friendName}>{friend.username}</Text>
                         </View>
                     )
                 })}
 
-            </ScrollView>
+        </ScrollView>
+
+      </View>      
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-    banner: {
-      position: 'absolute',
-      height: 300,
-      width: dimensions.width,
-      top: 0,
-      aspectRatio: 3/2,
-    },
-    headingView: {
-      flex: 1,
-      position: 'absolute',
-      width: "100%",
-      justifyContent: 'center',
-      // alignItems: 'center',
-      textAlign: 'center',
-      top: 80,
-    },
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    heading: {
-        position: 'absolute',
-        //fontFamily: 'Roboto',
-        fontStyle: 'normal',
-        fontWeight: 'bold',
-        fontSize: 32,
-        lineHeight: 37,
-        textAlign: 'center',
-        color: '#3C3C3C',
-        alignSelf: "center",
-    },
-    subheadingView: {
-      position: 'absolute',
-      //fontFamily: 'Roboto',
-      top: '40%',
-      width: "100%",
-      fontStyle: 'normal',
-      fontWeight: 'bold',
-      fontSize: 32,
-      lineHeight: 37,
-      textAlign: 'center',
-      color: '#3C3C3C',
-      alignSelf: "center",
-    },
-    settings: {
-      position: 'absolute',
-      right: 25,
-      top: -10,
-    },
-    profilePicture: {
-      position: "absolute",
-      alignSelf: 'center',
-      top: dimensions.height/20,
-    },
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bannerView: {
+    position: 'absolute',
+    height: 200,
+    width: dimensions.width,
+    top: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 1, height: 1 },
+    shadowOpacity:  0.75,
+    shadowRadius: 3,
+    elevation: 5,
+    backgroundColor: '#FFFFFF',
+  },
+  headingView: {
+    flex: 1,
+    width: dimensions.width,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  heading: {
+    position: 'absolute',
+    //fontFamily: 'Roboto',
+    fontStyle: 'normal',
+    fontWeight: 'bold',
+    fontSize: 32,
+    lineHeight: 37,
+    textAlign: 'center',
+    color: '#3C3C3C',
+  },
+  settings: {
+    position: 'absolute',
+    right: 20,
+    top: 22,
+  },
+  profilePicture: {
+    borderStyle: 'dotted' // Not sure how to get rid of the purple border otherwise...
+  },    
+  contentView: {
+    position: 'absolute',
+    top:200,
+    width: dimensions.width,
+    height: dimensions.height - 290,
+    flex: 1,
+
+  },
+  subheadingView: {
+    paddingLeft: 40,
+    flexDirection: 'row',
+    justifyContent: "space-between",
+    alignItems: 'center',
+    position: 'absolute',
+    height: 70,
+    width: dimensions.width,
+
+  },  
+  subHeading: {
+
+    fontStyle: 'normal',
+    fontWeight: 'bold',
+    fontSize: 25,
+    lineHeight: 24,
+    color: '#3C3C3C',
+
+  },
     listsView: {
       width: dimensions.width,
       position: 'absolute',
-      top: "47%",
       flex: 1,
-      height: dimensions.height - 240,
-      left: "10%"
+      height: dimensions.height - 360,
+      bottom: 0,
+      paddingLeft: 40,
     },
-    friendsText: {
-      fontFamily: 'Montserrat',
+    friendView:{
+      marginBottom: 10,
+      flexDirection: "row",
+      alignItems: 'center',
+    },
+    friendName: {
+      paddingLeft: 20, 
       fontStyle: 'normal',
-      fontWeight: 'bold',
-      fontSize: 25,
-      lineHeight: 24,
-      color: '#3C3C3C',
-      left: "10%",
-      top: "10%"
-    },
-    plus: {
-      left: "80%",
-      top: "-60%",
+      fontWeight: 'normal',
+      fontSize: 20,
+      lineHeight: 23,
     }
 });

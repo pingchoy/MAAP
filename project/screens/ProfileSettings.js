@@ -11,12 +11,15 @@ export default function ProfileSettings({ navigation }) {
 
     <SafeAreaView style={styles.container}>
         <View style={styles.bannerView}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Image style={styles.backButton} source={require('../assets/whiteBackButton.png')} />
+            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                <Image source={require('../assets/whiteBackButton.png')} />
             </TouchableOpacity>
-        </View>
-        <View style={styles.headingView}>
             <Text style={styles.heading}>Settings</Text>
+
+        </View>
+
+        <View style={styles.settingsView}>
+           
         </View>
 
         <View style={styles.bottomButtonView}>
@@ -32,7 +35,7 @@ export default function ProfileSettings({ navigation }) {
 const styles = StyleSheet.create({
     bannerView: {
         position: 'absolute',
-        height: 150,
+        height: 125,
         width: dimensions.width,
         top: 0,
         backgroundColor: '#165f22',
@@ -41,16 +44,24 @@ const styles = StyleSheet.create({
         shadowOpacity:  0.75,
         shadowRadius: 3,
         elevation: 5,
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: 'center',
+        paddingLeft: 20,
       },
-    headingView: {
-      flex: 1,
-      position: 'absolute',
-      width: "100%",
-      justifyContent: 'center',
-      // alignItems: 'center',
-      textAlign: 'center',
-      top: "9%",
+    settingsView: {
+        height: dimensions.height-245, 
+        position: 'absolute',
+        top: 125,
+        width: dimensions.width,
+        justifyContent: 'center',
+        alignItems: 'center',
+
+
     },
+
+
+
     container: {
         flex: 1,
         backgroundColor: '#fff',
@@ -64,15 +75,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 32,
         lineHeight: 37,
-        textAlign: 'center',
         color: '#FFFFFF',
-        alignSelf: "center",
     },
     backButton: {
-        position: 'absolute',
-        left: 23,
-        top: 58,
-    },
+        alignSelf: 'flex-start',
+    },    
     settings: {
       position: 'absolute',
       right: 25,
@@ -80,42 +87,22 @@ const styles = StyleSheet.create({
     },    
     logoutButtonBody: {
         position: 'absolute',
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
-        /* darkgreen */
-        height: 60,
-        backgroundColor: '#FC5A5A',
+        width: dimensions.width-60,
+        height: 63,
+        backgroundColor: '#b10b0b',
         borderRadius: 30,
         alignItems: 'center',
         justifyContent: 'center'
     },
     bottomButtonView: {
         position: 'absolute',
-        width: 350,
-        height: 53,
-        // left: 24,
-        // top: 298,
+        width: dimensions.width,
         bottom: 0,
         justifyContent: 'center',
         alignItems: "center",
-        marginBottom: 30,
-        height: 55,
+        height: 120,
         padding: 20,
-    },
-    buttonBody: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
-        /* darkgreen */
-        height: 60,
-        backgroundColor: '#165F22',
-        borderRadius: 30,
-        alignItems: 'center',
-        justifyContent: 'center'
+ 
     },
     buttonText: {
         position: 'absolute',
@@ -124,9 +111,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         lineHeight: 22,
         display: 'flex',
-        alignItems: 'center',
-        textAlign: 'center',
-        /* light */
         color: '#FFFFFF',
     },
 });
