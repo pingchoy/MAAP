@@ -8,8 +8,8 @@ const { height } = Dimensions.get('window');
 export default function CreateEventScreen({ navigation }) {
     const [code, onChangeCode] = React.useState('Enter an event code');
     const windowHeight = useWindowDimensions().height;
-    return (
 
+    return (
         <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
             <View style={styles.backButtonView}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -22,22 +22,23 @@ export default function CreateEventScreen({ navigation }) {
                 </TouchableOpacity>
             </View>
             <View style={styles.subtextView}>
-                <Text style={styles.subtext}>OR</Text>
+            <Text  style={styles.subtext}>OR</Text>
             </View>
+            <View style={styles.subButtonView}>
+                <View style={styles.inputView}>
+                    <TextInput
+                        placeholder={code}
+                        onChangePassword={text => onChangeCode(text)}
+                        code={code}
+                        style={styles.inputBody}
+                    />
+                </View>
+                <View style={styles.goButtonView}>
+                    <TouchableOpacity style={styles.goButtonBody} >
+                        <Text style={styles.buttonText}>Go!</Text>
+                    </TouchableOpacity>
+                </View>
 
-            <View style={styles.inputView}>
-                <TextInput
-                    placeholder={code}
-                    onChangePassword={text => onChangeCode(text)}
-                    code={code}
-                    style={styles.inputBody}
-                />
-            </View>
-
-            <View style={styles.goButtonView}>
-                <TouchableOpacity style={styles.goButtonBody} >
-                    <Text style={styles.buttonText}>Go!</Text>
-                </TouchableOpacity>
             </View>
 
             <Image style={styles.banner} source={require('../assets/bottomBanner.png')} />
@@ -60,24 +61,16 @@ const styles = StyleSheet.create({
         top: 58,
     },
     buttonView: {
-        position: 'absolute',
-        width: 350,
+        flex: 5,
+        width: dimensions.width,
         height: 53,
-        left: 24,
-        top: 298,
-        justifyContent: 'center',
+        justifyContent: 'flex-end',
         alignItems: "center",
-        marginBottom: 30,
-        height: 55,
-        padding: 20,
+
     },
     buttonBody: {
         position: 'absolute',
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
-        /* darkgreen */
+        width: dimensions.width - 40,
         height: 50,
         backgroundColor: '#165F22',
         borderRadius: 30,
@@ -97,18 +90,15 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
     },
     subtextView: {
-        position: 'absolute',
-        width: 19,
+        width: dimensions.width,
         height: 19,
-        // left: 170,
-        top: 369,
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     subtext: {
+        flex: 1,
         position: 'absolute',
-        left: "0%",
-        right: "-36.84%",
-        top: "0%",
-        bottom: "-5.26%",
         fontStyle: 'italic',
         fontWeight: 'bold',
         fontSize: 18,
@@ -117,17 +107,21 @@ const styles = StyleSheet.create({
         /* dark */
         color: '#3C3C3C',
     },
+    subButtonView: {
+        flexDirection: 'row', 
+        flex: 5, 
+        width: dimensions.width-40,
+        alignItems: 'flex-start',
+        justifyContent: 'center'
+    },
     inputView: {
-        position: 'absolute',
-        width: 203,
+        flex: 3,
         height: 51,
-        left: 24,
-        top: 413,
         borderRadius: 10,
+        paddingRight: 20,
     },
     inputBody: {
         position: 'absolute',
-        paddingLeft: 20,
         height: 55,
         width: '100%',
         fontStyle: 'normal',
@@ -140,25 +134,19 @@ const styles = StyleSheet.create({
         borderColor: "black",
         borderWidth: 1,
         borderRadius: 10,
+        paddingLeft: 20,
     },
     goButtonView: {
-        position: 'absolute',
-        width: 95,
+        flex: 1,
         height: 53,
-        left: 270,
-        top: 413,
     },
     goButtonBody: {
-        position: 'absolute',
-        left: "0%",
-        right: "0%",
-        top: "0%",
-        bottom: "0%",
         alignItems: 'center',
         justifyContent: 'center',
         /* darkgreen */
         backgroundColor: '#165F22',
         borderRadius: 5,
+        height: 53
     },
     banner: {
         position: 'absolute',

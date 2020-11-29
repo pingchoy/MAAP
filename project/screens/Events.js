@@ -7,15 +7,61 @@ import { } from 'react-native-gesture-handler'
 
 const dimensions = Dimensions.get('window');
 
+// Can keep past boolean if we don't want to check if it's before current date
+// Need to add onPress methods for each event 
+const data= [
+  {
+    title: 'Movie at Matthew\'s',
+    description: '7pm-9pm, 25th Nov. 2020',
+    owner: false,
+    past: false
+  },
+  {
+    title: 'Anton\'s House',
+    description: '7pm-9pm, 26th Nov. 2020',
+    owner: true,
+    past: false
+  },
+  {
+    title: 'Dinner Date',
+    description: '7pm-9pm, 10th Oct. 2020',
+    owner: true,
+    past: true
+  },
+
+]
+
+
 export default function Events({ navigation }) {
   const [expandedUpcoming, setExpandedUpcoming] = React.useState(true);
   const [expandedPast, setExpandedPast] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
-  const onChangeSearch = query => setSearchQuery(query);
+  const [filteredData, setFilteredData] = React.useState(data);
+
+  const searchFilterFunction = (text) => {
+    if (text){
+      // Inserted text is not blank
+      // Filter the initial data
+      // Update filteredDate
+      const newData = data.filter(function (item) {
+        const itemData = item.title
+          ? item.title.toUpperCase()
+          : ''.toUpperCase();
+        const textData = text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+      });
+      setFilteredData(newData);
+      setSearchQuery(text);
+    } else {
+      // Inserted text is blank
+      // Update filteredData with the original
+      setFilteredData(data);
+      setSearchQuery(text);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-
       <View style={styles.bannerView}>
         <View style={styles.headingView}>
           <Text style={styles.heading}>Events</Text>
@@ -26,7 +72,7 @@ export default function Events({ navigation }) {
         <View style={styles.searchBarView}>
           <Searchbar
             placeholder="Search"
-            onChangeText={onChangeSearch}
+            onChangeText={searchFilterFunction}
             value={searchQuery}
             style={styles.searchBar}
           />
@@ -43,17 +89,29 @@ export default function Events({ navigation }) {
         theme={{ colors: { primary: '#000' }}}
         expanded={expandedUpcoming}
         onPress={() => setExpandedUpcoming(!expandedUpcoming)}>
-        <List.Item 
-          title="Movie at Matthew's"
-          description="7pm-9pm, 25th Nov. 2020"
-          style={styles.accordionItem}
-        />
-        <List.Item 
-          title="Anton's House"
-          description="7pm-9pm, 26th Nov. 2020"
-          style={styles.accordionItem}
-          right={props => <List.Icon {...props} icon="crown" color="#165f22" />}
-        />
+          {filteredData.map(d=>{
+            if (!d.past){
+              if (d.owner){
+                return (
+                  <List.Item 
+                    title={d.title}
+                    description={d.description}
+                    style={styles.accordionItem}
+                    right={props => <List.Icon {...props} icon="crown" color="#165f22" />}
+                  />
+                )
+              }
+              else {
+                return(
+                  <List.Item 
+                    title={d.title}
+                    description={d.description}
+                    style={styles.accordionItem}
+                  />
+                )
+              }
+            }
+          })}
       </List.Accordion>
 
       <List.Accordion
@@ -63,14 +121,29 @@ export default function Events({ navigation }) {
         theme={{ colors: { primary: '#000' }}}
         expanded={expandedPast}
         onPress={() => setExpandedPast(!expandedPast)}>
-
-        <List.Item 
-          title="Dinner Date"
-          description="7pm-9pm, 10th Oct. 2020"
-          style={styles.accordionItem}
-          right={props => <List.Icon {...props} icon="crown" color="#165f22" />}
-        />
-
+          {filteredData.map(d=>{
+            if (d.past){
+              if(d.owner) {
+                return(
+                  <List.Item 
+                    title={d.title}
+                    description={d.description}
+                    style={styles.accordionItem}
+                    right={props => <List.Icon {...props} icon="crown" color="#165f22" />}
+                  />
+                )
+              }
+              else{
+                return(
+                  <List.Item 
+                    title={d.title}
+                    description={d.description}
+                    style={styles.accordionItem}
+                  />
+                )
+              }
+            }
+          })}
       </List.Accordion>
 
     </List.Section>

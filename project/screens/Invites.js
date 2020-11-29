@@ -21,7 +21,29 @@ const data =
 
 export default function Events({ navigation }) {
   const [searchQuery, setSearchQuery] = React.useState('');
-  const onChangeSearch = query => setSearchQuery(query);
+  const [filteredData, setFilteredData] = React.useState(data);
+
+  const searchFilterFunction = (text) => {
+    if (text){
+      // Inserted text is not blank
+      // Filter the initial data
+      // Update filteredDate
+      const newData = data.filter(function (item) {
+        const itemData = item.title
+          ? item.title.toUpperCase()
+          : ''.toUpperCase();
+        const textData = text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+      });
+      setFilteredData(newData);
+      setSearchQuery(text);
+    } else {
+      // Inserted text is blank
+      // Update filteredData with the original
+      setFilteredData(data);
+      setSearchQuery(text);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -32,14 +54,14 @@ export default function Events({ navigation }) {
         <View style={styles.searchBarView}>
           <Searchbar
             placeholder="Search"
-            onChangeText={onChangeSearch}
+            onChangeText={searchFilterFunction}
             value={searchQuery}
             style={styles.searchBar}
           />
         </View>  
       </View>
       <ScrollView style={styles.listsView}>
-        {data.map((d) => {
+        {filteredData.map((d) => {
           return (
             <View style={styles.inviteView}>
               <View style={styles.inviteDetails}> 
