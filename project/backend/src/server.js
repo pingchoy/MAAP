@@ -7,29 +7,34 @@ import cors from 'cors';
 import { InputError, AccessError, } from './error';
 import swaggerDocument from '../data/swagger.json';
 import {
-  getEmailFromAuthorization,
+  getUserIdFromAuthorization,
   login,
   logout,
   register,
   save,
-  getQuizzesFromAdmin,
-  addQuiz,
-  startQuiz,
-  endQuiz,
-  submitAnswers,
-  getResults,
-  assertOwnsQuiz,
-  getQuiz,
-  playerJoin,
-  updateQuiz,
-  sessionStatus,
-  assertOwnsSession,
-  removeQuiz,
-  sessionResults,
-  advanceQuiz,
-  getQuestion,
-  getAnswers,
-  hasStarted,
+  assertValidEventId,
+  assertEventHost,
+  assertEventGuest,
+  createEvent,
+  getEvent,
+  getJoinedEvents,
+  joinEventWithId,
+  joinEventWithCode,
+  editEventSettings,
+  leaveEvent,
+  setEventStatus,
+  sendInvite,
+  addLocation,
+  addTime,
+  voteLocation,
+  voteTime,
+  unvoteLocation,
+  unvoteTime,
+  deleteEvent,
+  getFriends,
+  getInvites,
+  setFriends,
+  setInvites
 } from './service';
 
 const app = express();
@@ -37,6 +42,10 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true, }));
 app.use(bodyParser.json({ limit: '50mb', }));
+
+/***************************************************************
+                       Helper Functions
+***************************************************************/
 
 // Wraps an sync function fn in a try-catch that shoots off any errors
 const catchErrors = fn => async (req, res) => {
@@ -55,134 +64,172 @@ const catchErrors = fn => async (req, res) => {
   }
 };
 
+// Verifies the token of the request and passes the userId onto the given
+// callback
+const authed = fn => async (req, res) => {
+  const userId = getUserIdFromAuthorization(req.header('Authorization'));
+  await fn(req, res, userId);
+};
+
 /***************************************************************
                        Auth Functions
 ***************************************************************/
 
-const authed = fn => async (req, res) => {
-  const email = getEmailFromAuthorization(req.header('Authorization'));
-  await fn(req, res, email);
-};
-
-app.post('/admin/auth/login', catchErrors(async (req, res) => {
+app.post('/auth/login', catchErrors(async (req, res) => {
   const { email, password, } = req.body;
   const token = await login(email, password);
   return res.json({ token, });
 }));
 
-app.post('/admin/auth/register', catchErrors(async (req, res) => {
-  const { email, password, name, } = req.body;
-  const token = await register(email, password, name);
+app.post('/auth/logout', catchErrors(authed(async (req, res, userId) => {
+  await logout(userId);
+  return res.status(200).send({});
+})));
+
+app.post('/auth/register', catchErrors(async (req, res) => {
+  const { email, name, password, } = req.body;
+  const token = await register(email, name, password);
   return res.json({ token, });
 }));
 
-app.post('/admin/auth/logout', catchErrors(authed(async (req, res, email) => {
-  await logout(email);
-  return res.json({});
+/***************************************************************
+                       Event Functions
+***************************************************************/
+
+app.post('/event', catchErrors(authed(async (req, res, userId) => {
+  await createEvent(userId);
+  return res.status(200).send({});
+})));
+
+app.get('/event', catchErrors(authed(async (req, res, userId) => {
+  const { eventId, } = req.body;
+  await assertValidEventId(eventId);
+  return res.json(await getEvent(eventId));
+})));
+
+app.get('/event/joined', catchErrors(authed(async (req, res, userId) => {
+  return res.json(await getJoinedEvents(userId));
+})));
+
+app.put('/event/join/id', catchErrors(authed(async (req, res, userId) => {
+  const { eventId, } = req.body;
+  await assertValidEventId(eventId);
+  await joinEventWithId(userId, eventId);
+  return res.status(200).send({});
+})));
+
+app.put('/event/join/code', catchErrors(authed(async (req, res, userId) => {
+  const { eventCode, } = req.body;
+  await joinEventWithCode(userId, eventCode);
+  return res.status(200).send({});
+})));
+
+app.put('/event/settings', catchErrors(authed(async (req, res, userId) => {
+  const { eventId, newName, newPermissions } = req.body;
+  await assertValidEventId(eventId);
+  await assertEventHost(userId, eventId);
+  await editEventSettings(eventId, newName, newPermissions);
+  return res.status(200).send({});
+})));
+
+app.put('/event/leave', catchErrors(authed(async (req, res, userId) => {
+  const { eventId, } = req.body;
+  await assertValidEventId(eventId);
+  await assertEventGuest(userId, eventId);
+  await leaveEvent(userId, eventId);
+  return res.status(200).send({});
+})));
+
+app.put('/event/status', catchErrors(authed(async (req, res, userId) => {
+  const { eventId, status, } = req.body;
+  await assertValidEventId(eventId);
+  await assertEventGuest(userId, eventId);
+  await setEventStatus(userId, eventId, status);
+  return res.status(200).send({});
+})));
+
+app.put('/event/invite', catchErrors(authed(async (req, res, userId) => {
+  const { eventId, friendId, } = req.body;
+  await assertValidEventId(eventId);
+  await assertEventGuest(userId, eventId);
+  await sendInvite(userId, eventId, friendId);
+  return res.status(200).send({});
+})));
+
+app.post('/event/location', catchErrors(authed(async (req, res, userId) => {
+  const { eventId, location, } = req.body;
+  await assertValidEventId(eventId);
+  await assertEventGuest(userId, eventId);
+  await addLocation(userId, eventId, location);
+  return res.status(200).send({});
+})));
+
+app.post('/event/time', catchErrors(authed(async (req, res, userId) => {
+  const { eventId, time, } = req.body;
+  await assertValidEventId(eventId);
+  await assertEventGuest(userId, eventId);
+  await addTime(userId, eventId, time);
+  return res.status(200).send({});
+})));
+
+app.put('/event/vote/location', catchErrors(authed(async (req, res, userId) => {
+  const { eventId, location, } = req.body;
+  await assertValidEventId(eventId);
+  await assertEventGuest(userId, eventId);
+  await voteLocation(userId, eventId, location);
+  return res.status(200).send({});
+})));
+
+app.put('/event/vote/time', catchErrors(authed(async (req, res, userId) => {
+  const { eventId, time, } = req.body;
+  await assertValidEventId(eventId);
+  await assertEventGuest(userId, eventId);
+  await voteTime(userId, eventId, time);
+  return res.status(200).send({});
+})));
+
+app.put('/event/unvote/location', catchErrors(authed(async (req, res, userId) => {
+  const { eventId, location, } = req.body;
+  await assertValidEventId(eventId);
+  await assertEventGuest(userId, eventId);
+  await unvoteLocation(userId, eventId, location);
+  return res.status(200).send({});
+})));
+
+app.put('/event/unvote/time', catchErrors(authed(async (req, res, userId) => {
+  const { eventId, time, } = req.body;
+  await assertValidEventId(eventId);
+  await assertEventGuest(userId, eventId);
+  await unvoteTime(userId, eventId, time);
+  return res.status(200).send({});
+})));
+
+app.delete('/event', catchErrors(authed(async (req, res, userId) => {
+  const { eventId, } = req.body;
+  await assertValidEventId(eventId);
+  await assertEventHost(userId, eventId);
+  await deleteEvent(eventId);
+  return res.status(200).send({});
 })));
 
 /***************************************************************
-                       Quiz Functions
+                          User Functions
 ***************************************************************/
 
-app.get('/admin/quiz', catchErrors(authed(async (req, res, email) => {
-  return res.json({ quizzes: await getQuizzesFromAdmin(email), });
-})));
-
-app.post('/admin/quiz/new', catchErrors(authed(async (req, res, email) => {
-  return res.json({ quizId: await addQuiz(req.body.name, email), });
-})));
-
-app.get('/admin/quiz/:quizid', catchErrors(authed(async (req, res, email) => {
-  const { quizid, } = req.params;
-  await assertOwnsQuiz(email, quizid);
-  return res.json(await getQuiz(quizid));
-})));
-
-app.put('/admin/quiz/:quizid', catchErrors(authed(async (req, res, email) => {
-  const { quizid, } = req.params;
-  const { questions, name, thumbnail, } = req.body;
-  await assertOwnsQuiz(email, quizid);
-  await updateQuiz(quizid, questions, name, thumbnail);
-  return res.status(200).send({});
-})));
-
-app.delete('/admin/quiz/:quizid', catchErrors(authed(async (req, res, email) => {
-  const { quizid, } = req.params;
-  await assertOwnsQuiz(email, quizid);
-  await removeQuiz(quizid);
-  return res.status(200).send({});
-})));
-
-app.post('/admin/quiz/:quizid/start', catchErrors(authed(async (req, res, email) => {
-  const { quizid, } = req.params;
-  await assertOwnsQuiz(email, quizid);
-  await startQuiz(quizid);
-  return res.status(200).json({});
-})));
-
-app.post('/admin/quiz/:quizid/advance', catchErrors(authed(async (req, res, email) => {
-  const { quizid, } = req.params;
-  await assertOwnsQuiz(email, quizid);
-  const stage = await advanceQuiz(quizid);
-  return res.status(200).json({ stage, });
-})));
-
-app.post('/admin/quiz/:quizid/end', catchErrors(authed(async (req, res, email) => {
-  const { quizid, } = req.params;
-  await assertOwnsQuiz(email, quizid);
-  await endQuiz(quizid);
-  return res.status(200).send({});
-})));
-
-app.get('/admin/session/:sessionid/status', catchErrors(authed(async (req, res, email) => {
-  const { sessionid, } = req.params;
-  await assertOwnsSession(email, sessionid);
-  return res.status(200).json({ results: await sessionStatus(sessionid), });
-})));
-
-app.get('/admin/session/:sessionid/results', catchErrors(authed(async (req, res, email) => {
-  const { sessionid, } = req.params;
-  await assertOwnsSession(email, sessionid);
-  return res.status(200).json({ results: await sessionResults(sessionid), });
-})));
-
-/***************************************************************
-                       Play Functions
-***************************************************************/
-
-app.post('/play/join/:sessionid', catchErrors(async (req, res) => {
-  const { sessionid, } = req.params;
-  const { name, } = req.body;
-  const playerId = await playerJoin(name, sessionid);
+app.get('/user/friends', catchErrors(async (req, res) => {
   return res.status(200).send({ playerId, });
 }));
 
-app.get('/play/:playerid/status', catchErrors(async (req, res) => {
-  const { playerid, } = req.params;
-  return res.status(200).send({ started: await hasStarted(playerid), });
+app.get('/user/invites', catchErrors(async (req, res) => {
+  return res.status(200).send({ playerId, });
 }));
 
-app.get('/play/:playerid/question', catchErrors(async (req, res) => {
-  const { playerid, } = req.params;
-  return res.status(200).send({ question: await getQuestion(playerid), });
+app.put('/user/friends', catchErrors(async (req, res) => {
+  return res.status(200).send({ playerId, });
 }));
 
-app.get('/play/:playerid/answer', catchErrors(async (req, res) => {
-  const { playerid, } = req.params;
-  return res.status(200).send({ answerIds: await getAnswers(playerid), });
-}));
-
-app.put('/play/:playerid/answer', catchErrors(async (req, res) => {
-  const { playerid, } = req.params;
-  const { answerIds, } = req.body;
-  await submitAnswers(playerid, answerIds);
-  return res.status(200).send({});
-}));
-
-app.get('/play/:playerid/results', catchErrors(async (req, res) => {
-  const { playerid, } = req.params;
-  return res.status(200).send(await getResults(playerid));
+app.put('/user/invites', catchErrors(async (req, res) => {
+  return res.status(200).send({ playerId, });
 }));
 
 /***************************************************************

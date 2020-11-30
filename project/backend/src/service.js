@@ -5,27 +5,31 @@ import { InputError, AccessError, } from './error';
 
 const lock = new AsyncLock();
 
-const JWT_SECRET = 'llamallamaduck';
+const JWT_SECRET = 'tomatofrog';
 const DATABASE_FILE = './backend/data/database.json';
 
 /***************************************************************
-                       State Management
+                    Data and State Management
 ***************************************************************/
 
-let admins = {};
-let quizzes = {};
-let sessions = {};
+let users = {};
+let events = {};
+
+const STATUS = {
+  GOING: 0,
+  MAYBE: 1,
+  NOTGOING: 2,
+};
 
 const sessionTimeouts = {};
 
-const update = (admins, quizzes, sessions) =>
+const update = (users, events) =>
   new Promise((resolve, reject) => {
     lock.acquire('saveData', () => {
       try {
         fs.writeFileSync(DATABASE_FILE, JSON.stringify({
-          admins,
-          quizzes,
-          sessions,
+          users,
+          events,
         }, null, 2));
         resolve();
       } catch {
@@ -34,21 +38,21 @@ const update = (admins, quizzes, sessions) =>
     });
   });
 
-export const save = () => update(admins, quizzes, sessions);
+export const save = () => update(users, events);
+
 export const reset = () => {
-  update({}, {}, {});
-  admins = {};
-  quizzes = {};
-  sessions = {};
+  update({}, {});
+  users = {};
+  events = {};
 };
 
+// Startup
 try {
   const data = JSON.parse(fs.readFileSync(DATABASE_FILE));
-  admins = data.admins;
-  quizzes = data.quizzes;
-  sessions = data.sessions;
+  users = data.users;
+  events = data.events;
 } catch {
-  console.log('WARNING: No database found, create a new one');
+  console.log('No database found, creating a new one');
   save();
 }
 
@@ -56,29 +60,56 @@ try {
                        Helper Functions
 ***************************************************************/
 
-const newSessionId = _ => generateId(Object.keys(sessions), 999999);
-const newQuizId = _ => generateId(Object.keys(quizzes));
-const newPlayerId = _ => generateId(Object.keys(sessions).map(s => Object.keys(sessions[s].players)));
+const newUserId = _ => generateId(Object.keys(users));
+const newEventId = _ => generateId(Object.keys(events));
 
 export const userLock = callback => new Promise((resolve, reject) => {
   lock.acquire('userAuthLock', callback(resolve, reject));
 });
 
-export const quizLock = callback => new Promise((resolve, reject) => {
-  lock.acquire('quizMutateLock', callback(resolve, reject));
+export const eventLock = callback => new Promise((resolve, reject) => {
+  lock.acquire('eventMutateLock', callback(resolve, reject));
 });
 
-export const sessionLock = callback => new Promise((resolve, reject) => {
-  lock.acquire('sessionMutateLock', callback(resolve, reject));
-});
+const getUserWithEmail = email => {
+  for (const [userId, user] of Object.entries(users)) {
+    if (user.email === email) {
+      return [userId, user];
+    }
+  }
 
-const copy = x => JSON.parse(JSON.stringify(x));
+  return null;
+};
+
 const randNum = max => Math.round(Math.random() * (max - Math.floor(max / 10)) + Math.floor(max / 10));
+
+const generateToken = userId => jwt.sign({ userId, }, JWT_SECRET, { algorithm: 'HS256', });
+
+const generateEventCode = () => {
+  let R = Math.random().toString(36).substring(5);
+  let unique = false;
+
+  while (!unique) {
+    unique = true;
+    for (eventId in Object.keys(events)) {
+      if (events[eventId].code === R) {
+        unique = false;
+        R = Math.random().toString(36).substring(5);
+        break;
+      }
+    };
+  }
+
+  return R;
+}
+
 const generateId = (currentList, max = 999999999) => {
   let R = randNum(max);
+
   while (currentList.includes(R)) {
     R = randNum(max);
   }
+
   return R.toString();
 };
 
@@ -86,321 +117,296 @@ const generateId = (currentList, max = 999999999) => {
                        Auth Functions
 ***************************************************************/
 
-export const getEmailFromAuthorization = authorization => {
+export const getUserIdFromAuthorization = authorization => {
   try {
     const token = authorization.replace('Bearer ', '');
-    const { email, } = jwt.verify(token, JWT_SECRET);
-    if (!(email in admins)) {
-      throw new AccessError('Invalid Token');
+    const { userId, } = jwt.verify(token, JWT_SECRET);
+    if (!(userId in users)) {
+      throw new AccessError('Invalid token');
     }
-    return email;
+    return userId;
   } catch {
     throw new AccessError('Invalid token');
   }
 };
 
 export const login = (email, password) => userLock((resolve, reject) => {
-  if (email in admins) {
-    if (admins[email].password === password) {
-      admins[email].sessionActive = true;
-      resolve(jwt.sign({ email, }, JWT_SECRET, { algorithm: 'HS256', }));
+  let [userId, user] = getUserWithEmail(email);
+  if (user !== null) {
+    if (user.password === password) {
+      user.sessionActive = true;
+      resolve(generateToken(userId));
     }
   }
+
   reject(new InputError('Invalid username or password'));
 });
 
-export const logout = (email) => userLock((resolve, reject) => {
-  admins[email].sessionActive = false;
+// Assumes userId is valid
+export const logout = userId => userLock((resolve, reject) => {
+  uesrs[userId].sessionActive = false;
   resolve();
 });
 
-export const register = (email, password, name) => userLock((resolve, reject) => {
-  if (email in admins) {
+export const register = (email, name, password) => userLock((resolve, reject) => {
+  if (getUserWithEmail(email) !== null) {
     reject(new InputError('Email address already registered'));
   }
-  admins[email] = {
+
+  const userId = newUserId();
+  users[userId] = {
+    email,
     name,
     password,
+    invites: [],
+    friends: [],
     sessionActive: true,
   };
-  const token = jwt.sign({ email, }, JWT_SECRET, { algorithm: 'HS256', });
-  resolve(token);
+
+  resolve(generateToken(userId));
 });
 
 /***************************************************************
-                       Quiz Functions
+                       Event Functions
 ***************************************************************/
 
-const newQuizPayload = (name, owner) => ({
-  name,
-  owner,
-  questions: [],
-  thumbnail: null,
-  active: null,
-  createdAt: new Date().toISOString(),
-});
-
-export const assertOwnsQuiz = (email, quizId) => quizLock((resolve, reject) => {
-  if (!(quizId in quizzes)) {
-    reject(new InputError('Invalid quiz ID'));
-  } else if (quizzes[quizId].owner !== email) {
-    reject(new InputError('Admin does not own this Quiz'));
-  } else {
-    resolve();
+export const assertValidEventId = eventId => eventLock((resolve, reject) => {
+  if (!(eventId in events)) {
+    reject(new InputError('Invalid event ID'));
   }
-});
 
-export const getQuizzesFromAdmin = email => quizLock((resolve, reject) => {
-  resolve(Object.keys(quizzes).filter(key => quizzes[key].owner === email).map(key => ({
-    id: parseInt(key, 10),
-    createdAt: quizzes[key].createdAt,
-    name: quizzes[key].name,
-    thumbnail: quizzes[key].thumbnail,
-    owner: quizzes[key].owner,
-    active: getActiveSessionIdFromQuizId(key),
-    oldSessions: getInactiveSessionsIdFromQuizId(key),
-  })));
-});
-
-export const addQuiz = (name, email) => quizLock((resolve, reject) => {
-  if (name === undefined) {
-    reject(new InputError('Must provide a name for new quiz'));
-  } else {
-    const newId = newQuizId();
-    quizzes[newId] = newQuizPayload(name, email);
-    resolve(newId);
-  }
-});
-
-export const getQuiz = quizId => quizLock((resolve, reject) => {
-  resolve({
-    ...quizzes[quizId],
-    active: getActiveSessionIdFromQuizId(quizId),
-    oldSessions: getInactiveSessionsIdFromQuizId(quizId),
-  });
-});
-
-export const updateQuiz = (quizId, questions, name, thumbnail) => quizLock((resolve, reject) => {
-  if (questions) { quizzes[quizId].questions = questions; }
-  if (name) { quizzes[quizId].name = name; }
-  if (thumbnail) { quizzes[quizId].thumbnail = thumbnail; }
   resolve();
 });
 
-export const removeQuiz = quizId => quizLock((resolve, reject) => {
-  delete quizzes[quizId];
+// Assumes userId and eventId are valid
+export const assertEventHost = (userId, eventId) => eventLock((resolve, reject) => {
+  if (!(events[eventId].host !== userId)) {
+    reject(new InputError('Not a host of this event'));
+  }
+
   resolve();
 });
 
-export const startQuiz = quizId => quizLock((resolve, reject) => {
-  if (quizHasActiveSession(quizId)) {
-    reject(new InputError('Quiz already has active session'));
-  } else {
-    const id = newSessionId();
-    sessions[id] = newSessionPayload(quizId);
-    resolve(id);
+// Assumes userId and eventId are valid. Note that the host of an event
+// is also a guest of that event.
+export const assertEventGuest = (userId, eventId) => eventLock((resolve, reject) => {
+  if (!(userId in events[eventId].guests)) {
+    reject(new InputError('Not a guest in this event'));
   }
-});
 
-export const advanceQuiz = quizId => quizLock((resolve, reject) => {
-  const session = getActiveSessionFromQuizIdThrow(quizId);
-  if (!session.active) {
-    reject(new InputError('Cannot advance a quiz that is not active'));
-  } else {
-    const totalQuestions = session.questions.length;
-    session.position += 1;
-    session.answerAvailable = false;
-    session.isoTimeLastQuestionStarted = new Date().toISOString();
-    if (session.position >= totalQuestions) {
-      endQuiz(quizId);
-    } else {
-      // const questionDuration = quizQuestionGetDuration(session.questions[session.position]);
-      const questionDuration = 2;
-      if (sessionTimeouts[session.id]) {
-        clearTimeout(sessionTimeouts[session.id]);
-      }
-      sessionTimeouts[session.id] = setTimeout(() => {
-        session.answerAvailable = true;
-      }, questionDuration * 1000);
-    }
-    resolve(session.position);
-  }
-});
-
-export const endQuiz = quizId => quizLock((resolve, reject) => {
-  const session = getActiveSessionFromQuizIdThrow(quizId);
-  session.active = false;
   resolve();
 });
 
-/***************************************************************
-                       Session Functions
-***************************************************************/
+// Assumes userId is valid
+export const createEvent = userId => eventLock((resolve, reject) => {
+  const eventId = newEventId();
+  const eventCode = generateEventCode();
 
-const quizHasActiveSession = quizId => Object.keys(sessions).filter(s => sessions[s].quizId === quizId && sessions[s].active).length > 0;
-
-const getActiveSessionFromQuizIdThrow = quizId => {
-  if (!quizHasActiveSession(quizId)) {
-    throw new InputError('Quiz has no active session');
-  }
-  const sessionId = getActiveSessionIdFromQuizId(quizId);
-  if (sessionId !== null) {
-    return sessions[sessionId];
-  }
-  return null;
-};
-
-const getActiveSessionIdFromQuizId = quizId => {
-  const activeSessions = Object.keys(sessions).filter(s => sessions[s].quizId === quizId && sessions[s].active);
-  if (activeSessions.length === 1) {
-    return parseInt(activeSessions[0], 10);
-  }
-  return null;
-};
-
-const getInactiveSessionsIdFromQuizId = quizId =>
-  Object.keys(sessions).filter(sid => sessions[sid].quizId === quizId && !sessions[sid].active).map(s => parseInt(s, 10));
-
-const getActiveSessionFromSessionId = sessionId => {
-  if (sessionId in sessions) {
-    if (sessions[sessionId].active) {
-      return sessions[sessionId];
-    }
-  }
-  throw new InputError('Session ID is not an active session');
-};
-
-const sessionIdFromPlayerId = playerId => {
-  for (const sessionId of Object.keys(sessions)) {
-    if (Object.keys(sessions[sessionId].players).filter(p => p === playerId).length > 0) {
-      return sessionId;
-    }
-  }
-  throw new InputError('Player ID does not refer to valid player id');
-};
-
-const newSessionPayload = quizId => ({
-  quizId,
-  position: -1,
-  isoTimeLastQuestionStarted: null,
-  players: {},
-  questions: copy(quizzes[quizId].questions),
-  active: true,
-  answerAvailable: false,
-});
-
-const newPlayerPayload = (name, numQuestions) => ({
-  name: name,
-  answers: Array(numQuestions).fill({
-    questionStartedAt: null,
-    answeredAt: null,
-    answerIds: [],
-    correct: false,
-  }),
-});
-
-export const sessionStatus = sessionId => {
-  const session = sessions[sessionId];
-  return {
-    active: session.active,
-    answerAvailable: session.answerAvailable,
-    isoTimeLastQuestionStarted: session.isoTimeLastQuestionStarted,
-    position: session.position,
-    questions: session.questions,
-    players: Object.keys(session.players).map(player => session.players[player].name),
+  events[eventId] = {
+    name: 'Untitled Event',
+    host: userId,
+    code: eventCode,
+    permissions: {
+      guestsCanInvite: true,
+      guestsCanAddLocations: true,
+      guestsCanAddTimes: true,
+    },
+    guests: {userId: STATUS.GOING},
+    locations: {},
+    times: {},
   };
-};
 
-export const assertOwnsSession = async (email, sessionId) => {
-  await assertOwnsQuiz(email, sessions[sessionId].quizId);
-};
-
-export const sessionResults = sessionId => sessionLock((resolve, reject) => {
-  const session = sessions[sessionId];
-  if (session.active) {
-    reject(new InputError('Cannot get results for active session'));
-  } else {
-    resolve(Object.keys(session.players).map(pid => session.players[pid]));
-  }
+  resolve(events[eventId]);
 });
 
-export const playerJoin = (name, sessionId) => sessionLock((resolve, reject) => {
-  if (name === undefined) {
-    reject(new InputError('Name must be supplied'));
-  } else {
-    const session = getActiveSessionFromSessionId(sessionId);
-    if (session.position > 0) {
-      reject(new InputError('Session has already begun'));
-    } else {
-      const id = newPlayerId();
-      session.players[id] = newPlayerPayload(name, session.questions.length);
-      resolve(parseInt(id, 10));
-    }
-  }
+// Assumes eventId is valid
+export const getEvent = eventId => eventLock((resolve, reject) => {
+  resolve(events[eventId]);
 });
 
-export const hasStarted = playerId => sessionLock((resolve, reject) => {
-  const session = getActiveSessionFromSessionId(sessionIdFromPlayerId(playerId));
-  if (session.isoTimeLastQuestionStarted !== null) {
-    resolve(true);
-  } else {
-    resolve(false);
-  }
+// Assumes userId is valid
+export const getJoinedEvents = userId => eventLock((resolve, reject) => {
+  resolve(Object.keys(events).filter(eventId => userId in events[eventId].guests));
 });
 
-export const getQuestion = playerId => sessionLock((resolve, reject) => {
-  const session = getActiveSessionFromSessionId(sessionIdFromPlayerId(playerId));
-  if (session.position === -1) {
-    reject(new InputError('Session has not started yet'));
-  } else {
-    resolve({
-      // ...quizQuestionPublicReturn(session.questions[session.position]),
-      isoTimeLastQuestionStarted: session.isoTimeLastQuestionStarted,
-    });
+// Assumes userId and eventId are valid
+export const joinEventWithId = (userId, eventId) => eventLock((resolve, reject) => {
+  const joinedEvents = Object.keys(events).filter(eId => userId in events[eId].guests);
+  if (eventId in joinedEvents) {
+    reject(new InputError('Already joined event'));
   }
+
+  events[eventId].guests[userId] = STATUS.MAYBE;
+  resolve();
 });
 
-export const getAnswers = playerId => sessionLock((resolve, reject) => {
-  const session = getActiveSessionFromSessionId(sessionIdFromPlayerId(playerId));
-  if (session.position === -1) {
-    reject(new InputError('Session has not started yet'));
-  } else if (!session.answerAvailable) {
-    reject(new InputError('Question time has not been completed'));
-  } else {
-    // resolve(quizQuestionGetCorrectAnswers(session.questions[session.position]));
-    resolve();
+// Assumes userId is valid
+export const joinEventWithCode = (userId, eventCode) => eventLock((resolve, reject) => {
+  let eventId = Object.keys(events).find(eventId => events[eventId].code === eventCode);
+
+  if (eventId === undefined) {
+    reject(new InputError('Invalid event code'));
   }
+
+  if (eventId in getJoinedEvents(userId)) {
+    reject(new InputError('Already joined event'));
+  }
+
+  events[eventId].guests[userId] = STATUS.MAYBE;
+  resolve();
 });
 
-export const submitAnswers = (playerId, answerList) => sessionLock((resolve, reject) => {
-  if (answerList === undefined || answerList.length === 0) {
-    reject(new InputError('Answers must be provided'));
-  } else {
-    const session = getActiveSessionFromSessionId(sessionIdFromPlayerId(playerId));
-    if (session.position === -1) {
-      reject(new InputError('Session has not started yet'));
-    } else if (session.answerAvailable) {
-      reject(new InputError('Can\'t answer question once answer is available'));
-    } else {
-      session.players[playerId].answers[session.position] = {
-        questionStartedAt: session.isoTimeLastQuestionStarted,
-        answeredAt: new Date().toISOString(),
-        answerIds: answerList,
-        // correct: JSON.stringify(quizQuestionGetCorrectAnswers(session.questions[session.position]).sort()) === JSON.stringify(answerList.sort()),
-        correct: true,
-      };
-      resolve();
-    }
-  }
+// Assumes eventId is valid and the user performing this action is a host
+export const editEventSettings = (eventId, newName, newPermissions) => eventLock((resolve, reject) => {
+  if (newName) { events[eventId].name = newName; }
+  if (newPermissions) { quizzes[quizId].permissions = newPermissions; }
+  resolve();
 });
 
-export const getResults = playerId => sessionLock((resolve, reject) => {
-  const session = sessions[sessionIdFromPlayerId(playerId)];
-  if (session.active) {
-    reject(new InputError('Session is ongoing, cannot get results yet'));
-  } else if (session.position === -1) {
-    reject(new InputError('Session has not started yet'));
-  } else {
-    resolve(session.players[playerId].answers);
+// Assumes userId and eventId are valid and userId is a guest in eventId
+export const leaveEvent = (userId, eventId) => eventLock((resolve, reject) => {
+  delete events[eventId].guests[userId];
+  resolve();
+});
+
+// Assumes userId and eventId are valid and userId is a guest in eventId
+export const setEventStatus = (userId, eventId, status) => eventLock((resolve, reject) => {
+  if (!(status in Object.keys(STATUS))) {
+    reject(new InputError('Invalid status'));
   }
+
+  events[eventId].guests[userId] = STATUS[status];
+  resolve();
+});
+
+// Assumes userId and eventId are valid and the user performing this action is a guest
+export const sendInvite = (userId, eventId, friendId) => eventLock((resolve, reject) => {
+  if (!(events[eventId].host !== userId) && !events[eventId].permissions.guestsCanInvite) {
+    reject(new InputError('Unpermitted action'));
+  }
+
+  if (!(friendId in users)) {
+    reject(new InputError('Invalid friend ID'));
+  }
+
+  if (eventId in users[friendId].invites) {
+    reject(new InputError('Friend has already been invited to this event'));
+  }
+
+  users[friendId].invites.push(eventId);
+  resolve();
+});
+
+// Assumes userId and eventId are valid and the user performing this action is a guest
+export const addLocation = (userId, eventId, location) => eventLock((resolve, reject) => {
+  if (!(events[eventId].host !== userId) && !events[eventId].permissions.guestsCanAddLocations) {
+    reject(new InputError('Unpermitted action'));
+  }
+
+  if (location in events[eventId].locations) {
+    reject(new InputError('Location has already been added to this event'));
+  }
+
+  events[eventId].locations[location] = [];
+  resolve();
+});
+
+// Assumes userId and eventId are valid and the user performing this action is a guest
+export const addTime = (userId, eventId, time) => eventLock((resolve, reject) => {
+  if (!(events[eventId].host !== userId) && !events[eventId].permissions.guestsCanAddTimes) {
+    reject(new InputError('Unpermitted action'));
+  }
+
+  if (time in events[eventId].times) {
+    reject(new InputError('Time has already been added to this event'));
+  }
+
+  events[eventId].times[time] = [];
+  resolve();
+});
+
+// Assumes userId and eventId are valid and the user performing this action is a guest
+export const voteLocation = (userId, eventId, location) => eventLock((resolve, reject) => {
+  if (!(location in events[eventId].locations)) {
+    reject(new InputError('Location has not been added'));
+  }
+
+  if (userId in events[eventId].locations[location]) {
+    reject(new InputError('Already voted for this location'));
+  }
+
+  events[eventId].locations[location].push(userId);
+  resolve();
+});
+
+// Assumes userId and eventId are valid and the user performing this action is a guest
+export const voteTime = (userId, eventId, time) => eventLock((resolve, reject) => {
+  if (!(time in events[eventId].times)) {
+    reject(new InputError('Time has not been added'));
+  }
+
+  if (userId in events[eventId].times[time]) {
+    reject(new InputError('Already voted for this time'));
+  }
+
+  events[eventId].times[time].push(userId);
+  resolve();
+});
+
+// Assumes userId and eventId are valid and the user performing this action is a guest
+export const unvoteLocation = (userId, eventId, location) => eventLock((resolve, reject) => {
+  if (!(location in events[eventId].locations)) {
+    reject(new InputError('Location has not been added'));
+  }
+
+  if (!(userId in events[eventId].locations[location])) {
+    reject(new InputError('Have not voted for this location'));
+  }
+
+  events[eventId].locations[location].splice(indexOf(userId), 1);
+  resolve();
+});
+
+// Assumes userId and eventId are valid and the user performing this action is a guest
+export const unvoteTime = (userId, eventId, time) => eventLock((resolve, reject) => {
+  if (!(time in events[eventId].times)) {
+    reject(new InputError('Time has not been added'));
+  }
+
+  if (!(userId in events[eventId].times[time])) {
+    reject(new InputError('Have not voted for this time'));
+  }
+
+  events[eventId].times[time].splice(indexOf(userId), 1);
+  resolve();
+});
+
+// Assumes userId and eventId are valid and the user performing this action is a host
+export const deleteEvent = eventId => eventLock((resolve, reject) => {
+  delete events[eventId];
+  resolve();
+});
+
+/***************************************************************
+                          User Functions
+***************************************************************/
+
+// Assumes userId is valid
+export const getFriends = userId => userLock((resolve, reject) => {
+  resolve();
+});
+
+// Assumes userId is valid
+export const getInvites = userId => userLock((resolve, reject) => {
+  resolve();
+});
+
+// Assumes userId is valid
+export const setFriends = (userId, newFriends) => userLock((resolve, reject) => {
+  resolve();
+});
+
+// Assumes userId is valid
+export const setInvites = (userId, newInvites) => userLock((resolve, reject) => {
+  resolve();
 });

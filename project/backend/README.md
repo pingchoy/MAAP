@@ -4,40 +4,35 @@ service is totally different - COMP6080's backend supported a Kahoot-like game.
 
 
 
-
-
-temporary planning
-
-ignore all the code atm, it's just ripped from comp6080
-
-
-data structure plan below
-
-user = {
-    id: unique int
-    firstName: string
-    loginName: unique string (email/username)
-    password: string (hash)
-    invites: [event.id, ...]
-    events: [event.id, ...]
-    friends: [user.id, ...]
-}
-
-PERMISSION = one of GUESTS_INVITE, GUESTS_ADD_LOCATIONS, GUESTS_ADD_TIMES
 STATUS = one of GOING, MAYBE, NOTGOING
 
-event = {
-    id: unique int
-    name: string
-    host: user.id
-    code: unique string
-    permissions: [PERMISSION, ...]
-    guests: [{user.id: user.id, status: STATUS}, ...]
-    locations: [{name: string, votes: int}, ...]
-    times: [{time: time, votes: int}, ...]
+{
+  "users": {
+    id: {
+      email: unique string
+      name: string
+      password: string
+      invites: [event.id, ...]
+      friends: [user.id, ...]
+      sessionActive: boolean
+    },
+    ...
+  },
+  "events": {
+    id: {
+      name: string
+      host: user.id
+      code: unique string
+      permissions: {
+        guestsCanInvite: boolean,
+        guestsCanAddLocations: boolean,
+        guestsCanAddTimes: boolean,
+      },
+      guests: {user.id: STATUS, ...}
+      locations: {location: [user.id], ...}
+      times: {time: [user.id], ...}
+    },
+    ...
+  }
 }
 
-database stores {
-    users: [user, ...]
-    events: [event, ...]
-}
