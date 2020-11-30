@@ -45,7 +45,7 @@ export default function EventSettings({ navigation }) {
                 </View>
             </View>
             <View style={styles.bottomButtonView}>
-                <TouchableOpacity style={styles.deleteButtonBody} onPress={() => signOut()} >
+                <TouchableOpacity style={styles.deleteButtonBody} >
                     <Text style={styles.buttonText}>Delete Event</Text>
                 </TouchableOpacity>
             </View>
