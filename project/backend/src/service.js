@@ -16,9 +16,9 @@ let users = {};
 let events = {};
 
 const STATUS = {
-  GOING: 0,
-  MAYBE: 1,
-  NOTGOING: 2,
+  GOING: 'GOING',
+  MAYBE: 'MAYBE',
+  NOTGOING: 'NOTGOING',
 };
 
 const sessionTimeouts = {};
