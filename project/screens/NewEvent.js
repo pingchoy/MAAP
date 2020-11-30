@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, useWindowDimensions } from 'react-native';
+import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, useWindowDimensions, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+var Upvote = require('react-upvote');
 
 const dimensions = Dimensions.get('window');
 const { height } = Dimensions.get('window');
@@ -30,13 +31,15 @@ export default function NewEventScreen({ navigation }) {
         { key: 'second', title: 'Locations' },
         { key: 'third', title: 'Times' }
     ]);
+    const [eventName, setEventName] = React.useState("New Event")
     const [currentTab, setCurrentTab] = React.useState("Guests")
     const [timeList, setTimesList] = React.useState([])
     const [locationList, setLocationList] = React.useState([])
     const [guestList, setGuestList] = React.useState([])
     const [, updateState] = React.useState();
     const forceUpdate = React.useCallback(() => updateState({}), []);
-
+    const [modalVisible, setModalVisible] = React.useState(false);
+    const [newEventName, setNewEventName] = React.useState("")
     const windowHeight = useWindowDimensions().height;
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -51,6 +54,32 @@ export default function NewEventScreen({ navigation }) {
         }
     }
 
+    const handleAddLocationVote = (location) => {
+        let tempList = locationList
+
+        tempList.map(l => {
+            if (l.name === location.name) {
+                l.votes++
+            }
+        })
+
+        setLocationList(tempList)
+        forceUpdate()
+    }
+
+
+    const handleAddTimeVote = (time) => {
+        let tempList = timeList
+
+        tempList.map(t => {
+            if (t.date === time.date) {
+                t.votes++
+            }
+        })
+
+        setTimesList(tempList)
+        forceUpdate()
+    }
     const renderScene = ({ route }) => {
 
         switch (route.key) {
@@ -63,10 +92,8 @@ export default function NewEventScreen({ navigation }) {
                                     <Icon
                                         name="question"
                                         size={30}
-                                        backgroundColor="orange"
+                                        backgroundColor="white"
                                         color="orange"
-
-                                    // onPress={this.loginWithFacebook}
                                     >
                                     </Icon>
                                     <Text style={styles.guestUsernameText}>   {guest.username}</Text>
@@ -80,25 +107,52 @@ export default function NewEventScreen({ navigation }) {
                     <ScrollView style={[styles.scene, { backgroundColor: 'white' }]} >
                         {locationList.map((location) => {
                             return (
-                                <Text style={styles.locationInformationText}>
-                                    <Text>{location.name}</Text>
-                                </Text>
+                                <View style={{ flexDirection: 'row' }}>
+                                    <Icon.Button
+                                        name="chevron-up"
+                                        size={30}
+                                        iconStyle={styles.upvoteButton}
+                                        backgroundColor="white"
+                                        color="black"
+                                        onPress={() => {
+                                            handleAddLocationVote(location)
+                                        }}
+                                    ><Text> {location.votes}</Text></Icon.Button>
+                                    <Text style={styles.locationInformationText}>{location.name}</Text>
+                                </View>
+
 
                             )
-                        })}
-                    </ScrollView>)
+                        })
+                        }
+                    </ScrollView >)
             case 'third':
                 return (
                     <ScrollView style={[styles.scene, { backgroundColor: 'white' }]} >
                         {timeList.map((time) => {
                             return (
-                                <Text style={styles.timeInformationText} numberOfLines={2}>
-                                    <Text>{time.date.getHours()}:{time.date.getUTCMinutes() < 10 ? '0' + time.date.getMinutes() : time.date.getMinutes()}{time.date.getHours() > 12 ? "pm" : "am"}</Text>
-                                    <Text> {days[time.date.getDay()]}</Text>
-                                    <Text> {time.date.getDate()}{nth(time.date.getDate())}</Text>
-                                    <Text> {months[time.date.getMonth()]}</Text>
 
-                                </Text>
+
+                                <View style={{ flexDirection: 'row' }}>
+                                    <Icon.Button
+                                        name="chevron-up"
+                                        size={30}
+                                        iconStyle={styles.upvoteButton}
+                                        backgroundColor="white"
+                                        color="black"
+                                        onPress={() => {
+                                            handleAddTimeVote(time)
+                                        }}
+                                    ><Text> {time.votes}</Text></Icon.Button>
+                                    <Text style={styles.timeInformationText} numberOfLines={2}>
+                                        <Text>{time.date.getHours()}:{time.date.getUTCMinutes() < 10 ? '0' + time.date.getMinutes() : time.date.getMinutes()}{time.date.getHours() > 12 ? "pm" : "am"}</Text>
+                                        <Text> {days[time.date.getDay()]}</Text>
+                                        <Text> {time.date.getDate()}{nth(time.date.getDate())}</Text>
+                                        <Text> {months[time.date.getMonth()]}</Text>
+
+                                    </Text>
+                                </View>
+
 
                             )
                         })}
@@ -183,6 +237,9 @@ export default function NewEventScreen({ navigation }) {
         forceUpdate()
     }
 
+    const onChangeText = (text) => {
+        setNewEventName(text)
+    }
     return (
 
         <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
@@ -193,14 +250,20 @@ export default function NewEventScreen({ navigation }) {
             </View>
             <View style={styles.headerView} >
 
-                <Text style={styles.headerText}>New Event</Text>
+                <Text style={styles.headerText} numberOfLines={3}>
+                    <Text>{((eventName).length > 20) ?
+                        (((eventName).substring(0, 20 - 3)) + '...') :
+                        eventName}
+                    </Text>
+                    {/* {eventName} */}
+                </Text>
                 <View style={styles.editButton} >
                     <Icon.Button
                         name="edit"
                         size={30}
-                        backgroundColor="transparent"
+                        backgroundColor="white"
                         color="black"
-                    // onPress={this.loginWithFacebook}
+                        onPress={() => setModalVisible(!modalVisible)}
                     >
                     </Icon.Button>
                 </View>
@@ -208,7 +271,7 @@ export default function NewEventScreen({ navigation }) {
                     <Icon.Button
                         name="gear"
                         size={30}
-                        backgroundColor="transparent"
+                        backgroundColor="white"
                         color="black"
                         onPress={() => navigation.navigate('EventSettings')}
                     >
@@ -245,6 +308,42 @@ export default function NewEventScreen({ navigation }) {
                     <Text style={styles.buttonText}>Add {currentTab}</Text>
                 </TouchableOpacity>
             </View>
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => {
+                    Alert.alert("Modal has been closed.");
+                }}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <Text style={styles.modalText}>New Event Name:</Text>
+                        <TextInput
+                            style={styles.modalInput}
+                            onChangeText={text => onChangeText(text)}
+                            value={newEventName}
+                        />
+                        <TouchableOpacity
+                            style={{ ...styles.openButton, backgroundColor: "#2196F3", width: 150, }}
+                            onPress={() => {
+                                setEventName(newEventName)
+                                setModalVisible(!modalVisible);
+                            }}
+                        >
+                            <Text style={styles.textStyle}>Save & Close</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={{ ...styles.openButton, backgroundColor: "red" }}
+                            onPress={() => {
+                                setModalVisible(!modalVisible);
+                            }}
+                        >
+                            <Text style={styles.textStyle}>Close</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView >
 
     )
@@ -282,6 +381,7 @@ const styles = StyleSheet.create({
         left: "20%",
     },
     headerText: {
+        width: 180,
         position: 'absolute',
         fontStyle: "normal",
         fontWeight: "bold",
@@ -322,6 +422,7 @@ const styles = StyleSheet.create({
     scene: {
         flex: 1,
         marginTop: 20,
+        // width: "100%"
 
     },
     bottomButtonView: {
@@ -366,22 +467,29 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "600",
         width: "60%",
-        marginTop: 20,
-        left: "40%",
-        marginBottom: 20,
+        marginTop: 10,
+        left: "60%",
+        // marginBottom: 10,
         display: 'flex',
     },
     locationInformationText: {
+        bottom: -15,
+        marginLeft: "20%",
         fontSize: 18,
+        // lineHeight: 10,
         fontWeight: "600",
-        marginTop: 20,
+        // backgroundColor: "black",
         left: "50%",
-        width: "50%",
-        marginBottom: 20,
-        display: 'flex',
-        // backgroundColor: 
-    },
 
+    },
+    upvoteButton: {
+        left: 10,
+
+        height: 50,
+
+        right: 0,
+
+    },
     guestInformationText: {
         fontSize: 18,
         fontWeight: "600",
@@ -403,8 +511,57 @@ const styles = StyleSheet.create({
         width: 60,
         left: "60%",
         top: -5,
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "#e5e5e5",
+        borderRadius: 20,
+        padding: 35,
+        width: "80%",
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5
+    },
+    openButton: {
+        backgroundColor: "#F194FF",
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2,
+        marginTop: 20,
+        width: 100,
+    },
+    textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    modalText: {
+        fontWeight: "bold",
+        marginBottom: 15,
+        fontSize: 20,
+        textAlign: "center"
+    },
+    modalInput: {
+        backgroundColor: "white",
+        marginBottom: 15,
+        textAlign: "center",
+        width: "100%",
+        height: 40,
+        borderColor: 'gray',
+        borderWidth: 1,
+        // width: 00,
     }
-
-
 
 })
