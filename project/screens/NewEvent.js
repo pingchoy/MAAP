@@ -187,7 +187,7 @@ export default function NewEventScreen({ navigation }) {
 
         <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
             <View style={styles.backButtonView}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
+                <TouchableOpacity onPress={() => navigation.navigate('Home')}>
                     <Image style={styles.backButton} source={require('../assets/backButton.png')} />
                 </TouchableOpacity>
             </View>
@@ -201,6 +201,16 @@ export default function NewEventScreen({ navigation }) {
                         backgroundColor="transparent"
                         color="black"
                     // onPress={this.loginWithFacebook}
+                    >
+                    </Icon.Button>
+                </View>
+                <View style={styles.settingsButton} >
+                    <Icon.Button
+                        name="gear"
+                        size={30}
+                        backgroundColor="transparent"
+                        color="black"
+                        onPress={() => navigation.navigate('EventSettings')}
                     >
                     </Icon.Button>
                 </View>
@@ -229,7 +239,7 @@ export default function NewEventScreen({ navigation }) {
             <View style={styles.bottomButtonView}>
                 <TouchableOpacity style={styles.buttonBody} onPress={() => navigation.navigate('Add'.concat(currentTab),
                     {
-                        handleDateTimeChange: handleDateTimeChange, handleLocationChange: handleLocationChange, handleGuestChange: handleGuestChange,
+                        handleLocationChange: handleLocationChange, handleDateTimeChange: handleDateTimeChange, handleGuestChange: handleGuestChange,
                         guestList: guestList, locationList: locationList
                     })}>
                     <Text style={styles.buttonText}>Add {currentTab}</Text>
@@ -386,6 +396,13 @@ const styles = StyleSheet.create({
         fontWeight: "600",
         marginTop: 20,
 
+    }
+    ,
+    settingsButton: {
+        position: 'absolute',
+        width: 60,
+        left: "60%",
+        top: -5,
     }
 
 
