@@ -22,7 +22,7 @@ export default function CreateEventScreen({ navigation }) {
                 </TouchableOpacity>
             </View>
             <View style={styles.subtextView}>
-            <Text  style={styles.subtext}>OR</Text>
+                <Text  style={styles.subtext}>OR</Text>
             </View>
             <View style={styles.subButtonView}>
                 <View style={styles.inputView}>

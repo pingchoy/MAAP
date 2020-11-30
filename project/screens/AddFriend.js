@@ -1,124 +1,57 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, useWindowDimensions } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome'
-import { SearchBar, withTheme } from 'react-native-elements'
+import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, } from 'react-native';
 
 const dimensions = Dimensions.get('window');
-const { height } = Dimensions.get('window');
 
-
-
-export default function AddFriendScreen({ route, navigation }) {
-
-    const [friends, setFriends] = React.useState([{ username: "Brad#1314", disabled: false }, { username: "Andrew#439", disabled: false }])
-    const [invitedFriends, setInvitedFriends] = React.useState([])
-    const [search, setSearch] = React.useState('')
-    const windowHeight = useWindowDimensions().height;
-    const { guestList, handleGuestChange } = route.params
-
-    const updateSearch = (search) => {
-        setSearch(search);
-    };
-
-    const handleInviteGuest = friend => {
-        // Disable button
-        let prevFriends = friends
-        prevFriends[prevFriends.findIndex(obj => obj.username === friend.username)].disabled = true
-        setFriends(prevFriends)
-
-        // Add new location to list
-        // Filter list
-        let temp = invitedFriends
-        temp.push(friend.username)
-        let filteredTemp = []
-        temp.map(friend => {
-            if (friend) {
-                if (filteredTemp.indexOf(friend) === -1) {
-                    filteredTemp.push(friend)
-                }
-            }
-        })
-        setInvitedFriends(filteredTemp)
+//TODO - notification/red border for invalid username
+const AddFriendScreen = ({navigation}) => {
+    const [username, setUsername] = React.useState('Username#0000')
+    const processRequest = () =>{
+        // This should probably not go back, but rather it should clear the username text and give a notification.
+        navigation.goBack()
     }
-
     return (
+        <SafeAreaView style={styles.container}>
 
-        <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
-
-            <View style={styles.backButtonView}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Image style={styles.backButton} source={require('../assets/backButton.png')} />
+            <View style={styles.headingView}>
+                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                    <Image source={require('../assets/whiteBackButton.png')} />
                 </TouchableOpacity>
+                <Text style={styles.heading}>Add Friend</Text>
             </View>
-            <View style={styles.headerView} >
 
-                <Text style={styles.headerText}>Add Friends</Text>
-                <View style={styles.checkButton} >
-                    <Icon.Button
-                        // Change this onPress to affect state of guests later on
-                        onPress={() => {
-                            handleGuestChange(invitedFriends)
-                            navigation.goBack()
-                        }}
-                        name="check"
-                        size={30}
-                        backgroundColor="transparent"
-                        color="green"
+            <View style={styles.detailsView}>
+                <Text style={styles.subHeadingText}>Add your friend on 'appname'</Text>
+                <Text style={styles.explanationText}>You will need both their username and a tag. Keep in mind that username is case sensitive.</Text>
+            </View>
 
-                    // onPress={this.loginWithFacebook}
-                    >
-                    </Icon.Button>
+            <View style={styles.buttonInputView}>
+
+                <Text style={styles.usernameText}>USERNAME</Text>
+
+                <TextInput
+                    style={styles.inputBody}
+                    placeholder={username}
+                    onChangeUsername={text => setUserName(text)}
+                    username={username}
+                />
+                <View style={{alignSelf:'flex-start', marginLeft: 20, flex: 1, flexDirection: "row"}}>
+                    <Text style={styles.yourUsernameText}>Your username and tag is </Text> 
+                    <Text style={styles.myUsernameText}>Anton#7029</Text>
+                </View>
+                <View style={styles.buttonView}>
+                    <TouchableOpacity style={styles.buttonBody} onPress={processRequest}>
+                        <Text style={styles.buttonText}>Send Friend Request</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
-            <View style={styles.searchBarView}>
-                <SearchBar
-                    placeholder="Search..."
-                    onChangeText={updateSearch}
-                    value={search}
-                    lightTheme
-                    containerStyle={{ borderRadius: 30, }}
-                    inputContainerStyle={{ backgroundColor: 'transparent', height: 30, }}
-                />
-            </View>
-            <ScrollView style={styles.friendListRowView}>
-                {friends.map((friend) => {
-                    if (guestList.filter(f => f.username === friend.username).length === 0) {
-                        return (
-                            <View style={styles.friendDetailsRow}>
-                                <View style={styles.friendDetails}><Icon
-                                    name="user-circle-o"
-                                    size={30}
-                                >  {friend.username}
-                                </Icon>
-                                </View>
 
-                                <View style={styles.inviteButtonView}>
-                                    <TouchableOpacity disabled={friends[friends.findIndex(obj => obj.username === friend.username)].disabled} style={styles.buttonBody} onPress={() => handleInviteGuest(friend)}
-                                        style={friends[friends.findIndex(obj => obj.username === friend.username)].disabled ? styles.disabledButtonBody : styles.buttonBody}
-                                    >
-                                        <Text style={styles.buttonText}>Invite</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        )
-                    }
-                })}
-
-            </ScrollView>
-
-            <View style={styles.inviteCodeView}
-            >
-                <Text style={styles.subtitle}>Or, send an invite link to a friend</Text>
-                <Text>
-                    <Text style={styles.codeText}>k7MA3 </Text><Icon.Button name="copy" iconStyle={{ top: 5, }} color='black' backgroundColor='transparent' size={50}></Icon.Button>
-                </Text>
-            </View>
-
-        </SafeAreaView >
-
+        </SafeAreaView>
     )
+} 
 
-}
+
+export default AddFriendScreen;
 
 const styles = StyleSheet.create({
     container: {
@@ -127,108 +60,111 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    backButtonView: {
+    headingView: {
         position: 'absolute',
-        left: 23,
-        top: 58,
+        height: 100,
+        width: dimensions.width,
+        top: 0,
+        backgroundColor: '#165f22',
+        shadowColor: '#000',
+        shadowOffset: { width: 1, height: 1 },
+        shadowOpacity:  0.75,
+        shadowRadius: 3,
+        elevation: 5,
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: 'center',
+        paddingLeft: 20,
+    },
+    backButton: {
+        alignSelf: 'flex-start',
+    },    
+    heading:{
+        position: 'absolute',
+        //fontFamily: 'Roboto',
+        fontStyle: 'normal',
+        fontWeight: 'bold',
+        fontSize: 24,
+        color: '#FFFFFF',
+    },
+    detailsView:{
+        width: dimensions.width,
+        flex: 1,
+        justifyContent: 'flex-end',
+        alignItems: "center",
+        margin: 30
+    },
+    buttonInputView:{
+        width: dimensions.width,
+        flex:2,
+        justifyContent: 'flex-start',
+        alignItems: "center",
+    },
+    subHeadingText:{
+        //fontFamily: 'Roboto',
+        fontStyle: 'normal',
+        fontWeight: 'bold',
+        fontSize: 25,
+        color: '#000000',
+        paddingBottom: 10,
+    },
+    explanationText: {
+        //fontFamily: 'Roboto',
+        fontStyle: 'normal',
+        fontSize: 20,
+        color: '#444444',
+        textAlign: 'center'
+    },
+    usernameText: {
+        alignSelf:'flex-start',
+        //fontFamily: 'Roboto',
+        fontStyle: 'normal',
+        fontWeight: 'bold',
+        fontSize: 20,
+        color: '#444444',
+        paddingLeft: 20,
+    },
+    inputBody: {
+        paddingLeft: 20,
+        width: dimensions.width- 40,
+        height: 55,
+        fontStyle: 'normal',
+        fontWeight: 'bold',
+        fontSize: 18,
+        color: '#3C3C3C',
+        backgroundColor: 'white',
+        borderRightColor: 'black',
+        borderColor: "black",
+        borderWidth: 1,
+        borderRadius: 10,
+        marginVertical:10,
+    },
+    yourUsernameText:{
+        //fontFamily: 'Roboto',
+        fontStyle: 'normal',
+        fontWeight: 'bold',
+        fontSize: 16,
+        color: '#444444',
+    },
+    myUsernameText: {
+        color: '#555555',
+        //fontFamily: 'Roboto',
+        fontStyle: 'normal',
+        fontWeight: 'bold',
+        fontSize: 16,
+
     },
     buttonView: {
-        position: 'absolute',
-        width: 350,
+        flex: 5,
+        width: dimensions.width,
         height: 53,
-        left: 24,
-        top: 298,
-        justifyContent: 'center',
         alignItems: "center",
-        marginBottom: 30,
-        height: 55,
-        padding: 20,
-    },
-    headerView: {
-        position: 'absolute',
-        width: "100%",
-        top: "7%",
-        left: "20%",
-    },
-    headerText: {
-        position: 'absolute',
-        fontStyle: "normal",
-        fontWeight: "bold",
-        fontSize: 32,
-        lineHeight: 37,
-        display: 'flex',
-        alignItems: 'center'
-    },
-    checkButton: {
-        position: 'absolute',
-        width: 70,
-        left: "60%",
-        top: -5,
-        // backgroundColor: "black",
-    },
-    eventDetailsView: {
-        position: 'absolute',
-        width: 250,
-        height: 150,
-        top: "20%",
-        left: "10%",
-    },
-    eventDetailsBoldText: {
-
-        fontSize: 18,
-        lineHeight: 20,
-        fontWeight: "bold",
-    },
-    eventDetailsNormalText: {
-
-        fontSize: 18,
-        lineHeight: 20,
-    },
-    tabBar: {
-        position: 'absolute',
-        width: 360,
-        top: "30%",
-        height: "55%",
-    },
-    scene: {
-        flex: 1,
-    },
-    bottomButtonView: {
-        position: 'absolute',
-        width: 350,
-        height: 53,
-        // left: 24,
-        // top: 298,
-        bottom: 0,
-        justifyContent: 'center',
-        alignItems: "center",
-        marginBottom: 30,
-        height: 55,
-        padding: 20,
-    },
-    disabledButtonBody: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: -6,
-        bottom: 0,
-        /* darkgreen */
-        height: 40,
-        backgroundColor: '#165F22',
-        borderRadius: 30,
-        alignItems: 'center',
-        justifyContent: 'center',
-        opacity: 0.5
 
     },
     buttonBody: {
         position: 'absolute',
-        left: 0,
-        right: 0,
-        top: -6,
-        bottom: 0,
-        /* darkgreen */
-        height: 40,
+        width: dimensions.width - 40,
+        height: 50,
         backgroundColor: '#165F22',
         borderRadius: 30,
         alignItems: 'center',
@@ -246,55 +182,4 @@ const styles = StyleSheet.create({
         /* light */
         color: '#FFFFFF',
     },
-    friendDetails: {
-        left: 0,
-        // top: -5
-    },
-    friendDetailsRow: {
-        marginTop: 15,
-        marginBottom: 15
-    },
-    friendListRowView: {
-        position: 'absolute',
-        left: 20,
-        width: "100%",
-        top: "22%"
-    },
-    inviteButtonView: {
-        position: 'absolute',
-        left: "60%",
-        width: "30%",
-        right: 0,
-
-    },
-    searchBarView: {
-        position: 'absolute',
-        top: "15%",
-        width: "80%",
-        // height: 20,
-        // backgroundColor: 'white'
-
-    },
-    inviteCodeView: {
-        flex: 1,
-        bottom: "-70%"
-    },
-    subtitle: {
-        lineHeight: 21,
-        fontSize: 20,
-        fontWeight: 'bold',
-        fontStyle: 'italic',
-        color: '#3C3C3C'
-    },
-    codeText: {
-        // marginTop: 10,
-        fontWeight: "bold",
-        fontSize: 48,
-        color: '#165F22',
-    }
-
-
-
-
-
 })

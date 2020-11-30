@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { TouchableOpacity, View, StyleSheet, Dimensions, Text, SafeAreaView, ScrollView  } from 'react-native';
+import { TouchableOpacity, View, StyleSheet, Dimensions, Text, SafeAreaView, ScrollView, Image  } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; 
 import { List, Searchbar  } from 'react-native-paper';
 import { } from 'react-native-gesture-handler'
@@ -97,7 +97,7 @@ export default function Events({ navigation }) {
                     title={d.title}
                     description={d.description}
                     style={styles.accordionItem}
-                    right={props => <List.Icon {...props} icon="crown" color="#165f22" />}
+                    right={props => <Image {...props} style={{height:50, width:50}} source={require('../assets/AdminImage.png')}></Image>}
                   />
                 )
               }
@@ -129,7 +129,7 @@ export default function Events({ navigation }) {
                     title={d.title}
                     description={d.description}
                     style={styles.accordionItem}
-                    right={props => <List.Icon {...props} icon="crown" color="#165f22" />}
+                    right={props => <Image {...props} style={{height:50, width:50}} source={require('../assets/AdminImage.png')}></Image>}
                   />
                 )
               }
@@ -157,6 +157,12 @@ export default function Events({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  adminText:{
+    fontStyle: 'normal',
+    fontWeight: 'bold',
+    fontSize: 18,
+    lineHeight: 22,
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
