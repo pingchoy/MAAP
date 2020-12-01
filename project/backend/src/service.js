@@ -132,19 +132,20 @@ export const getUserIdFromAuthorization = authorization => {
 
 export const login = (email, password) => userLock((resolve, reject) => {
   let [userId, user] = getUserWithEmail(email);
-  if (user !== null) {
-    if (user.password === password) {
-      user.sessionActive = true;
-      resolve(generateToken(userId));
-    }
+  if (user === null || user.password !== password) {
+    reject(new InputError('Invalid username or password'));
   }
 
-  reject(new InputError('Invalid username or password'));
+  users[userId].sessionActive = true;
+
+  save();
+  resolve(generateToken(userId));
 });
 
 // Assumes userId is valid
 export const logout = userId => userLock((resolve, reject) => {
-  uesrs[userId].sessionActive = false;
+  users[userId].sessionActive = false;
+  save();
   resolve();
 });
 
@@ -163,6 +164,7 @@ export const register = (email, name, password) => userLock((resolve, reject) =>
     sessionActive: true,
   };
 
+  save();
   resolve(generateToken(userId));
 });
 
@@ -213,10 +215,11 @@ export const createEvent = userId => eventLock((resolve, reject) => {
     },
     guests: {userId: STATUS.GOING},
     locations: {},
-    times: {},
+    times: [],
   };
 
-  resolve(events[eventId]);
+  save();
+  resolve(eventId);
 });
 
 // Assumes eventId is valid
@@ -224,6 +227,13 @@ export const getEvent = eventId => eventLock((resolve, reject) => {
   resolve(events[eventId]);
 });
 
+// Assumes userId and eventId are valid and the user performing this action is a host
+export const deleteEvent = eventId => eventLock((resolve, reject) => {
+  delete events[eventId];
+  save();
+  resolve();
+});
+  
 // Assumes userId is valid
 export const getJoinedEvents = userId => eventLock((resolve, reject) => {
   resolve(Object.keys(events).filter(eventId => userId in events[eventId].guests));
@@ -237,6 +247,8 @@ export const joinEventWithId = (userId, eventId) => eventLock((resolve, reject) 
   }
 
   events[eventId].guests[userId] = STATUS.MAYBE;
+
+  save();
   resolve();
 });
 
@@ -253,19 +265,29 @@ export const joinEventWithCode = (userId, eventCode) => eventLock((resolve, reje
   }
 
   events[eventId].guests[userId] = STATUS.MAYBE;
+
+  save();
   resolve();
 });
 
 // Assumes eventId is valid and the user performing this action is a host
 export const editEventSettings = (eventId, newName, newPermissions) => eventLock((resolve, reject) => {
-  if (newName) { events[eventId].name = newName; }
-  if (newPermissions) { quizzes[quizId].permissions = newPermissions; }
+  if (newName) {
+    events[eventId].name = newName;
+  }
+
+  if (newPermissions) {
+    quizzes[quizId].permissions = newPermissions;
+  }
+
+  save();
   resolve();
 });
 
 // Assumes userId and eventId are valid and userId is a guest in eventId
 export const leaveEvent = (userId, eventId) => eventLock((resolve, reject) => {
   delete events[eventId].guests[userId];
+  save();
   resolve();
 });
 
@@ -276,13 +298,15 @@ export const setEventStatus = (userId, eventId, status) => eventLock((resolve, r
   }
 
   events[eventId].guests[userId] = STATUS[status];
+
+  save();
   resolve();
 });
 
 // Assumes userId and eventId are valid and the user performing this action is a guest
 export const sendInvite = (userId, eventId, friendId) => eventLock((resolve, reject) => {
   if (!(events[eventId].host !== userId) && !events[eventId].permissions.guestsCanInvite) {
-    reject(new InputError('Unpermitted action'));
+    reject(new AccessError('Unpermitted action'));
   }
 
   if (!(friendId in users)) {
@@ -294,13 +318,15 @@ export const sendInvite = (userId, eventId, friendId) => eventLock((resolve, rej
   }
 
   users[friendId].invites.push(eventId);
+
+  save();
   resolve();
 });
 
 // Assumes userId and eventId are valid and the user performing this action is a guest
 export const addLocation = (userId, eventId, location) => eventLock((resolve, reject) => {
   if (!(events[eventId].host !== userId) && !events[eventId].permissions.guestsCanAddLocations) {
-    reject(new InputError('Unpermitted action'));
+    reject(new AccessError('Unpermitted action'));
   }
 
   if (location in events[eventId].locations) {
@@ -308,20 +334,28 @@ export const addLocation = (userId, eventId, location) => eventLock((resolve, re
   }
 
   events[eventId].locations[location] = [];
+
+  save();
   resolve();
 });
 
 // Assumes userId and eventId are valid and the user performing this action is a guest
-export const addTime = (userId, eventId, time) => eventLock((resolve, reject) => {
+export const addTime = (userId, eventId, start, end) => eventLock((resolve, reject) => {
   if (!(events[eventId].host !== userId) && !events[eventId].permissions.guestsCanAddTimes) {
-    reject(new InputError('Unpermitted action'));
+    reject(new AccessError('Unpermitted action'));
   }
 
-  if (time in events[eventId].times) {
+  if (events[eventId].times.find(time => time.start === start && time.end === end) !== undefined) {
     reject(new InputError('Time has already been added to this event'));
   }
 
-  events[eventId].times[time] = [];
+  events[eventId].times.push({
+    start: start,
+    end: end,
+    voters: []
+  });
+
+  save();
   resolve();
 });
 
@@ -336,20 +370,26 @@ export const voteLocation = (userId, eventId, location) => eventLock((resolve, r
   }
 
   events[eventId].locations[location].push(userId);
+
+  save();
   resolve();
 });
 
 // Assumes userId and eventId are valid and the user performing this action is a guest
-export const voteTime = (userId, eventId, time) => eventLock((resolve, reject) => {
-  if (!(time in events[eventId].times)) {
+export const voteTime = (userId, eventId, start, end) => eventLock((resolve, reject) => {
+  const timeIdx = events[eventId].times.findIndex(time => time.start === start && time.end === end);
+
+  if (timeIdx === -1) {
     reject(new InputError('Time has not been added'));
   }
 
-  if (userId in events[eventId].times[time]) {
+  if (userId in events[eventId].times[timeIdx].voters) {
     reject(new InputError('Already voted for this time'));
   }
 
-  events[eventId].times[time].push(userId);
+  events[eventId].times[timeIdx].voters.push(userId);
+
+  save();
   resolve();
 });
 
@@ -363,27 +403,29 @@ export const unvoteLocation = (userId, eventId, location) => eventLock((resolve,
     reject(new InputError('Have not voted for this location'));
   }
 
-  events[eventId].locations[location].splice(indexOf(userId), 1);
+  const userIdIdx = events[eventId].locations[location].indexOf(userId);
+  events[eventId].locations[location].splice(userIdIdx, 1);
+
+  save();
   resolve();
 });
 
 // Assumes userId and eventId are valid and the user performing this action is a guest
-export const unvoteTime = (userId, eventId, time) => eventLock((resolve, reject) => {
-  if (!(time in events[eventId].times)) {
+export const unvoteTime = (userId, eventId, start, end) => eventLock((resolve, reject) => {
+  const timeIdx = events[eventId].times.findIndex(time => time.start === start && time.end === end);
+
+  if (timeIdx === -1) {
     reject(new InputError('Time has not been added'));
   }
 
-  if (!(userId in events[eventId].times[time])) {
+  if (!(userId in events[eventId].times[timeIdx].voters)) {
     reject(new InputError('Have not voted for this time'));
   }
 
-  events[eventId].times[time].splice(indexOf(userId), 1);
-  resolve();
-});
+  const userIdIdx = events[eventId].times[timeIdx].voters.indexOf(userId);
+  events[eventId].times[timeIdx].voters.splice(userIdIdx, 1);
 
-// Assumes userId and eventId are valid and the user performing this action is a host
-export const deleteEvent = eventId => eventLock((resolve, reject) => {
-  delete events[eventId];
+  save();
   resolve();
 });
 
@@ -393,20 +435,42 @@ export const deleteEvent = eventId => eventLock((resolve, reject) => {
 
 // Assumes userId is valid
 export const getFriends = userId => userLock((resolve, reject) => {
-  resolve();
+  resolve(users[userId].friends);
 });
 
 // Assumes userId is valid
 export const getInvites = userId => userLock((resolve, reject) => {
-  resolve();
+  resolve(users[userId].invites);
 });
 
 // Assumes userId is valid
 export const setFriends = (userId, newFriends) => userLock((resolve, reject) => {
+  if (!Array.isArray(newFriends)) {
+    reject(new InputError('Invalid friends array'));
+  }
+
+  if (newFriends.filter(friendId => !(friendId in users)) !== []) {
+    reject(new InputError('Invalid friends array'));
+  }
+
+  users[userId].friends = newFriends;
+
+  save();
   resolve();
 });
 
 // Assumes userId is valid
 export const setInvites = (userId, newInvites) => userLock((resolve, reject) => {
+  if (!Array.isArray(newInvites)) {
+    reject(new InputError('Invalid invites array'));
+  }
+
+  if (newInvites.filter(eventId => !(eventId in events)) !== []) {
+    reject(new InputError('Invalid invites array'));
+  }
+
+  users[userId].invites = newInvites;
+
+  save();
   resolve();
 });

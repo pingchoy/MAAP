@@ -97,18 +97,25 @@ app.post('/auth/register', catchErrors(async (req, res) => {
 ***************************************************************/
 
 app.post('/event', catchErrors(authed(async (req, res, userId) => {
-  await createEvent(userId);
-  return res.status(200).send({});
+  return res.json({eventId: await createEvent(userId)});
 })));
 
 app.get('/event', catchErrors(authed(async (req, res, userId) => {
   const { eventId, } = req.body;
   await assertValidEventId(eventId);
-  return res.json(await getEvent(eventId));
+  return res.json({event: await getEvent(eventId)});
 })));
 
+app.delete('/event', catchErrors(authed(async (req, res, userId) => {
+    const { eventId, } = req.body;
+    await assertValidEventId(eventId);
+    await assertEventHost(userId, eventId);
+    await deleteEvent(eventId);
+    return res.status(200).send({});
+})));
+ 
 app.get('/event/joined', catchErrors(authed(async (req, res, userId) => {
-  return res.json(await getJoinedEvents(userId));
+  return res.json({events: await getJoinedEvents(userId)});
 })));
 
 app.put('/event/join/id', catchErrors(authed(async (req, res, userId) => {
@@ -148,11 +155,11 @@ app.put('/event/status', catchErrors(authed(async (req, res, userId) => {
   return res.status(200).send({});
 })));
 
-app.put('/event/invite', catchErrors(authed(async (req, res, userId) => {
-  const { eventId, friendId, } = req.body;
+app.put('/event/invite', catchErrors(authed(async (req, res, thisUserId) => {
+  const { eventId, userId, } = req.body;
   await assertValidEventId(eventId);
-  await assertEventGuest(userId, eventId);
-  await sendInvite(userId, eventId, friendId);
+  await assertEventGuest(thisUserId, eventId);
+  await sendInvite(thisUserId, eventId, userId);
   return res.status(200).send({});
 })));
 
@@ -165,10 +172,10 @@ app.post('/event/location', catchErrors(authed(async (req, res, userId) => {
 })));
 
 app.post('/event/time', catchErrors(authed(async (req, res, userId) => {
-  const { eventId, time, } = req.body;
+  const { eventId, start, end, } = req.body;
   await assertValidEventId(eventId);
   await assertEventGuest(userId, eventId);
-  await addTime(userId, eventId, time);
+  await addTime(userId, eventId, start, end);
   return res.status(200).send({});
 })));
 
@@ -181,10 +188,10 @@ app.put('/event/vote/location', catchErrors(authed(async (req, res, userId) => {
 })));
 
 app.put('/event/vote/time', catchErrors(authed(async (req, res, userId) => {
-  const { eventId, time, } = req.body;
+  const { eventId, start, end, } = req.body;
   await assertValidEventId(eventId);
   await assertEventGuest(userId, eventId);
-  await voteTime(userId, eventId, time);
+  await voteTime(userId, eventId, start, end);
   return res.status(200).send({});
 })));
 
@@ -197,18 +204,10 @@ app.put('/event/unvote/location', catchErrors(authed(async (req, res, userId) =>
 })));
 
 app.put('/event/unvote/time', catchErrors(authed(async (req, res, userId) => {
-  const { eventId, time, } = req.body;
+  const { eventId, start, end, } = req.body;
   await assertValidEventId(eventId);
   await assertEventGuest(userId, eventId);
-  await unvoteTime(userId, eventId, time);
-  return res.status(200).send({});
-})));
-
-app.delete('/event', catchErrors(authed(async (req, res, userId) => {
-  const { eventId, } = req.body;
-  await assertValidEventId(eventId);
-  await assertEventHost(userId, eventId);
-  await deleteEvent(eventId);
+  await unvoteTime(userId, eventId, start, end);
   return res.status(200).send({});
 })));
 
@@ -216,21 +215,25 @@ app.delete('/event', catchErrors(authed(async (req, res, userId) => {
                           User Functions
 ***************************************************************/
 
-app.get('/user/friends', catchErrors(async (req, res) => {
-  return res.status(200).send({ playerId, });
-}));
+app.get('/user/friends', catchErrors(authed(async (req, res, userId) => {
+  return res.status(200).send({userIds: await getFriends(userId)});
+})));
 
-app.get('/user/invites', catchErrors(async (req, res) => {
-  return res.status(200).send({ playerId, });
-}));
+app.get('/user/invites', catchErrors(authed(async (req, res, userId) => {
+  return res.status(200).send({eventIds: await getInvites(userId)});
+})));
 
-app.put('/user/friends', catchErrors(async (req, res) => {
-  return res.status(200).send({ playerId, });
-}));
+app.put('/user/friends', catchErrors(authed(async (req, res, userId) => {
+  const { userIds, } = req.body;
+  await setFriends(userId, userIds);
+  return res.status(200).send({});
+})));
 
-app.put('/user/invites', catchErrors(async (req, res) => {
-  return res.status(200).send({ playerId, });
-}));
+app.put('/user/invites', catchErrors(authed(async (req, res, userId) => {
+  const { eventIds, } = req.body;
+  await setInvites(userId, eventIds);
+  return res.status(200).send({});
+})));
 
 /***************************************************************
                        Running Server
