@@ -93,26 +93,26 @@ export default function Events({ navigation }) {
               if (!d.past) {
                 if (d.owner) {
                   return (
+                    <List.Item
+                      title={d.title}
+                      description={d.description}
+                      style={styles.accordionItem}
+                      right={props => <List.Icon {...props} icon="crown" color="#165f22" />}
+                    // Need to update this to navigate to the correct event later
+
+                    />
+                  )
+                }
+                else {
+                  return (
                     <TouchableOpacity
                       onPress={() => { navigation.navigate("GuestEvent") }}>
                       <List.Item
                         title={d.title}
                         description={d.description}
                         style={styles.accordionItem}
-                        right={props => <List.Icon {...props} icon="crown" color="#165f22" />}
-                      // Need to update this to navigate to the correct event later
-
                       />
                     </TouchableOpacity>
-                  )
-                }
-                else {
-                  return (
-                    <List.Item
-                      title={d.title}
-                      description={d.description}
-                      style={styles.accordionItem}
-                    />
                   )
                 }
               }
@@ -140,11 +140,14 @@ export default function Events({ navigation }) {
                 }
                 else {
                   return (
-                    <List.Item
-                      title={d.title}
-                      description={d.description}
-                      style={styles.accordionItem}
-                    />
+                    <TouchableOpacity
+                      onPress={() => { navigation.navigate("GuestEvent") }}>
+                      <List.Item
+                        title={d.title}
+                        description={d.description}
+                        style={styles.accordionItem}
+                      />
+                    </TouchableOpacity>
                   )
                 }
               }
