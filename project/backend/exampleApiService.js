@@ -15,17 +15,16 @@ const API_BASE_URL = 'http://localhost:5000';
 async function makeAPIRequest(endpoint, givenMethod, givenBody = {}) {
   const reqOptions = {
     headers: {
+      // getToken() is some function that retrieves the token of the current user,
+      // probably from local storage. It's ok if getToken() returns a non-token
+      // value as that'll be caught by the backend and cause an appropriate
+      // error to be thrown. It's also ok if this authorization header is provided
+      // when it isn't necessary - it'll just be ignored.
       Authorization: `Bearer ${getToken()}`,
       'Content-Type': 'application/json',
     },
     method: givenMethod,
   };
-
-  // getToken() is some function that retrieves the token of the current user,
-  // probably from local storage. It's ok if getToken() returns a non-token
-  // value as that'll be caught by the backend and cause an appropriate
-  // error to be thrown. It's also ok if this authorization header is provided
-  // when it isn't necessary - it'll just be ignored.
 
   if (givenMethod !== 'GET' && givenBody !== {}) {
     reqOptions.body = JSON.stringify(givenBody);
