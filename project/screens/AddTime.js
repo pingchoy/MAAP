@@ -9,31 +9,53 @@ export default function AddTimeScreen({ route, navigation }) {
 
     const windowHeight = useWindowDimensions().height;
 
-    const [date, setDate] = React.useState(new Date());
+    const [startDate, setStartDate] = React.useState(new Date());
+    const [endDate, setEndDate] = React.useState(new Date())
     const [mode, setMode] = React.useState('date');
     const [show, setShow] = React.useState(false);
+    const [showEnd, setShowEnd] = React.useState(false);
 
 
     const { handleDateTimeChange } = route.params
 
     const onChange = (event, selectedDate) => {
-        const currentDate = selectedDate || date;
+        const currentDate = selectedDate || startDate;
         setShow(Platform.OS === 'ios');
-        setDate(currentDate);
+        setStartDate(currentDate);
     };
 
-    const showMode = (currentMode) => {
-        setShow(true);
-        setMode(currentMode);
+    const onEndChange = (event, selectedDate) => {
+        const currentDate = selectedDate || endDate;
+        setShowEnd(Platform.OS === 'ios');
+        setEndDate(currentDate);
+    }
+
+    const showMode = (currentMode, isStart) => {
+        if (isStart) {
+            setShow(true);
+            setMode(currentMode);
+        } else {
+            setShowEnd(true);
+            setMode(currentMode);
+        }
     };
 
     const showDatepicker = () => {
-        showMode('date');
+        showMode('date', true);
     };
 
     const showTimepicker = () => {
-        showMode('time');
+        showMode('time', true);
     };
+
+    const showEndDatepicker = () => {
+        showMode('date', false);
+    };
+
+    const showEndTimepicker = () => {
+        showMode('time', false);
+    };
+
 
 
 
@@ -57,7 +79,7 @@ export default function AddTimeScreen({ route, navigation }) {
                     <Icon.Button
                         // Change this onPress to affect state of guests later on
                         onPress={() => {
-                            handleDateTimeChange(date)
+                            handleDateTimeChange(startDate, endDate)
                             navigation.goBack()
                         }}
                         name="check"
@@ -71,32 +93,61 @@ export default function AddTimeScreen({ route, navigation }) {
             </View>
             <View style={styles.datePickerView}>
 
-                <View style={styles.fromdateHeaderView} >
-                    <Text style={styles.timeHeaderText}>Start Date: {date.getUTCDate()}/{date.getMonth()}/{date.getFullYear()}</Text>
+                <View style={styles.startDateHeaderView} >
+                    <Text style={styles.timeHeaderText}>Start Date: {startDate.getUTCDate()}/{startDate.getMonth()}/{startDate.getFullYear()}</Text>
                 </View>
-                <View style={styles.fromDatepickerButtonView}>
+                <View style={styles.startDatePickerButtonView}>
 
                     <TouchableOpacity style={styles.buttonBody} onPress={showDatepicker}>
-                        <Text style={styles.buttonText}>Select Date</Text>
+                        <Text style={styles.buttonText}>Select Start Date</Text>
                     </TouchableOpacity>
                 </View>
 
-                <View style={styles.fromtimeHeaderView} >
-                    <Text style={styles.timeHeaderText}>Start Time: {date.getHours()}:{date.getUTCMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes()} {date.getHours() > 11 ? "PM" : "AM"}</Text>
+                <View style={styles.startTimeHeaderView} >
+                    <Text style={styles.timeHeaderText}>Start Time: {startDate.getHours()}:{startDate.getUTCMinutes() < 10 ? "0" + startDate.getMinutes() : startDate.getMinutes()} {startDate.getHours() > 11 ? "PM" : "AM"}</Text>
                 </View>
-                <View style={styles.fromTimepickerButtonView}>
+                <View style={styles.startTimepickerButtonView}>
                     <TouchableOpacity style={styles.buttonBody} onPress={showTimepicker}>
-                        <Text style={styles.buttonText}>Select Time</Text>
+                        <Text style={styles.buttonText}>Select Start Time</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.endDateHeaderView} >
+                    <Text style={styles.timeHeaderText}>End Date: {endDate.getUTCDate()}/{endDate.getMonth()}/{endDate.getFullYear()}</Text>
+                </View>
+                <View style={styles.endDatePickerButtonView}>
+
+                    <TouchableOpacity style={styles.buttonBody} onPress={showEndDatepicker}>
+                        <Text style={styles.buttonText}>Select End Date</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.endTimeHeaderView} >
+                    <Text style={styles.timeHeaderText}>End Time: {endDate.getHours()}:{endDate.getUTCMinutes() < 10 ? "0" + endDate.getMinutes() : endDate.getMinutes()} {endDate.getHours() > 11 ? "PM" : "AM"}</Text>
+                </View>
+                <View style={styles.endTimepickerButtonView}>
+                    <TouchableOpacity style={styles.buttonBody} onPress={showEndTimepicker}>
+                        <Text style={styles.buttonText}>Select End Time</Text>
                     </TouchableOpacity>
                 </View>
                 {show && (
                     <DateTimePicker
                         testID="dateTimePicker"
-                        value={date}
+                        value={startDate}
                         mode={mode}
                         is24Hour={true}
                         display="default"
                         onChange={onChange}
+                    />
+                )}
+                {showEnd && (
+                    <DateTimePicker
+                        testID="dateTimePicker"
+                        value={endDate}
+                        mode={mode}
+                        is24Hour={true}
+                        display="default"
+                        onChange={onEndChange}
                     />
                 )}
             </View>
@@ -162,13 +213,13 @@ const styles = StyleSheet.create({
         alignItems: 'center'
 
     },
-    fromTimepickerButtonView: {
+    startTimepickerButtonView: {
         position: 'absolute',
         top: 290,
 
         width: "50%",
     },
-    fromDatepickerButtonView: {
+    startDatePickerButtonView: {
         position: 'absolute',
         top: 140,
         width: "50%",
@@ -214,7 +265,7 @@ const styles = StyleSheet.create({
         // left: 0,
         // top: 0,
     },
-    fromdateHeaderView: {
+    startDateHeaderView: {
         position: 'absolute',
 
         width: "100%",
@@ -222,11 +273,37 @@ const styles = StyleSheet.create({
         // paddingBottom: 40,
 
     },
-    fromtimeHeaderView: {
+    startTimeHeaderView: {
         position: 'absolute',
         width: "100%",
         top: 150,
         alignItems: 'center',
 
-    }
+    },
+    endDateHeaderView: {
+        position: 'absolute',
+        top: 300,
+        width: "100%",
+        alignItems: 'center',
+        // paddingBottom: 40,
+
+    },
+    endTimeHeaderView: {
+        position: 'absolute',
+        width: "100%",
+        top: 450,
+        alignItems: 'center',
+
+    },
+    endTimepickerButtonView: {
+        position: 'absolute',
+        top: 590,
+        width: "50%",
+    },
+    endDatePickerButtonView: {
+        position: 'absolute',
+        top: 440,
+        width: "50%",
+    },
+
 })

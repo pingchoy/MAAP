@@ -72,7 +72,7 @@ export default function NewEventScreen({ navigation }) {
         let tempList = timeList
 
         tempList.map(t => {
-            if (t.date === time.date) {
+            if (t.startDate === time.startDate) {
                 t.votes++
             }
         })
@@ -145,10 +145,10 @@ export default function NewEventScreen({ navigation }) {
                                         }}
                                     ><Text> {time.votes}</Text></Icon.Button>
                                     <Text style={styles.timeInformationText} numberOfLines={2}>
-                                        <Text>{time.date.getHours()}:{time.date.getUTCMinutes() < 10 ? '0' + time.date.getMinutes() : time.date.getMinutes()}{time.date.getHours() > 12 ? "pm" : "am"}</Text>
-                                        <Text> {days[time.date.getDay()]}</Text>
-                                        <Text> {time.date.getDate()}{nth(time.date.getDate())}</Text>
-                                        <Text> {months[time.date.getMonth()]}</Text>
+                                        <Text>{time.startDate.getHours()}:{time.startDate.getUTCMinutes() < 10 ? '0' + time.startDate.getMinutes() : time.startDate.getMinutes()}{time.startDate.getHours() > 12 ? "pm" : "am"}</Text>
+                                        <Text> {days[time.startDate.getDay()]}</Text>
+                                        <Text> {time.startDate.getDate()}{nth(time.startDate.getDate())}</Text>
+                                        <Text> {months[time.startDate.getMonth()]}</Text>
 
                                     </Text>
                                 </View>
@@ -179,14 +179,14 @@ export default function NewEventScreen({ navigation }) {
         />
     )
 
-    const handleDateTimeChange = (date) => {
+    const handleDateTimeChange = (startDate, endDate) => {
 
         // Add new time to time list
         let temp = timeList
         // Check for duplicate times
 
-        if (timeList.filter(t => t.date.getTime() === date.getTime()).length === 0) {
-            temp.push({ date: date, votes: 0 })
+        if (timeList.filter(t => t.startDate.getTime() === startDate.getTime()).length === 0) {
+            temp.push({ startDate: startDate, endDate: endDate, votes: 0 })
         }
         setTimesList(temp)
         forceUpdate()
