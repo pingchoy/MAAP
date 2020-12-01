@@ -1,15 +1,15 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { TouchableOpacity, View, StyleSheet, Dimensions, Text, SafeAreaView, ScrollView  } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; 
-import { List, Searchbar  } from 'react-native-paper';
+import { TouchableOpacity, View, StyleSheet, Dimensions, Text, SafeAreaView, ScrollView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { List, Searchbar } from 'react-native-paper';
 import { } from 'react-native-gesture-handler'
 
 const dimensions = Dimensions.get('window');
 
 // Can keep past boolean if we don't want to check if it's before current date
 // Need to add onPress methods for each event 
-const data= [
+const data = [
   {
     title: 'Movie at Matthew\'s',
     description: '7pm-9pm, 25th Nov. 2020',
@@ -39,7 +39,7 @@ export default function Events({ navigation }) {
   const [filteredData, setFilteredData] = React.useState(data);
 
   const searchFilterFunction = (text) => {
-    if (text){
+    if (text) {
       // Inserted text is not blank
       // Filter the initial data
       // Update filteredDate
@@ -66,7 +66,7 @@ export default function Events({ navigation }) {
         <View style={styles.headingView}>
           <Text style={styles.heading}>Events</Text>
           <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('CreateEvent')}>
-            <Ionicons name='md-add' size={65} color='white'/>
+            <Ionicons name='md-add' size={65} color='white' />
           </TouchableOpacity>
         </View>
         <View style={styles.searchBarView}>
@@ -76,79 +76,84 @@ export default function Events({ navigation }) {
             value={searchQuery}
             style={styles.searchBar}
           />
-        </View>  
+        </View>
 
       </View>
 
-   <ScrollView style={styles.listsView}>
-    <List.Section style={{flex: 1}}>
-      <List.Accordion
-        title="Upcoming"
-        style={{ flex: 1, marginHorizontal: 10}}
-        titleStyle={styles.accordionTitle}
-        theme={{ colors: { primary: '#000' }}}
-        expanded={expandedUpcoming}
-        onPress={() => setExpandedUpcoming(!expandedUpcoming)}>
-          {filteredData.map(d=>{
-            if (!d.past){
-              if (d.owner){
-                return (
-                  <List.Item 
-                    title={d.title}
-                    description={d.description}
-                    style={styles.accordionItem}
-                    right={props => <List.Icon {...props} icon="crown" color="#165f22" />}
-                  />
-                )
-              }
-              else {
-                return(
-                  <List.Item 
-                    title={d.title}
-                    description={d.description}
-                    style={styles.accordionItem}
-                  />
-                )
-              }
-            }
-          })}
-      </List.Accordion>
+      <ScrollView style={styles.listsView}>
+        <List.Section style={{ flex: 1 }}>
+          <List.Accordion
+            title="Upcoming"
+            style={{ flex: 1, marginHorizontal: 10 }}
+            titleStyle={styles.accordionTitle}
+            theme={{ colors: { primary: '#000' } }}
+            expanded={expandedUpcoming}
+            onPress={() => setExpandedUpcoming(!expandedUpcoming)}>
+            {filteredData.map(d => {
+              if (!d.past) {
+                if (d.owner) {
+                  return (
+                    <TouchableOpacity
+                      onPress={() => { navigation.navigate("GuestEvent") }}>
+                      <List.Item
+                        title={d.title}
+                        description={d.description}
+                        style={styles.accordionItem}
+                        right={props => <List.Icon {...props} icon="crown" color="#165f22" />}
+                      // Need to update this to navigate to the correct event later
 
-      <List.Accordion
-        title="Past"
-        style={styles.accordion}
-        titleStyle={styles.accordionTitle}
-        theme={{ colors: { primary: '#000' }}}
-        expanded={expandedPast}
-        onPress={() => setExpandedPast(!expandedPast)}>
-          {filteredData.map(d=>{
-            if (d.past){
-              if(d.owner) {
-                return(
-                  <List.Item 
-                    title={d.title}
-                    description={d.description}
-                    style={styles.accordionItem}
-                    right={props => <List.Icon {...props} icon="crown" color="#165f22" />}
-                  />
-                )
+                      />
+                    </TouchableOpacity>
+                  )
+                }
+                else {
+                  return (
+                    <List.Item
+                      title={d.title}
+                      description={d.description}
+                      style={styles.accordionItem}
+                    />
+                  )
+                }
               }
-              else{
-                return(
-                  <List.Item 
-                    title={d.title}
-                    description={d.description}
-                    style={styles.accordionItem}
-                  />
-                )
+            })}
+          </List.Accordion>
+
+          <List.Accordion
+            title="Past"
+            style={styles.accordion}
+            titleStyle={styles.accordionTitle}
+            theme={{ colors: { primary: '#000' } }}
+            expanded={expandedPast}
+            onPress={() => setExpandedPast(!expandedPast)}>
+            {filteredData.map(d => {
+              if (d.past) {
+                if (d.owner) {
+                  return (
+                    <List.Item
+                      title={d.title}
+                      description={d.description}
+                      style={styles.accordionItem}
+                      right={props => <List.Icon {...props} icon="crown" color="#165f22" />}
+                    />
+                  )
+                }
+                else {
+                  return (
+                    <List.Item
+                      title={d.title}
+                      description={d.description}
+                      style={styles.accordionItem}
+                    />
+                  )
+                }
               }
-            }
-          })}
-      </List.Accordion>
+            })}
+          </List.Accordion>
 
-    </List.Section>
+        </List.Section>
 
-    </ScrollView>
+      </ScrollView>
 
 
       <StatusBar style="auto" />
@@ -166,7 +171,7 @@ const styles = StyleSheet.create({
   listsView: {
     width: dimensions.width,
     position: 'absolute',
-    top:140,
+    top: 140,
     flex: 1,
     height: dimensions.height - 240,
   },
@@ -182,12 +187,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
 
   },
-  accordionItem:{
+  accordionItem: {
     marginHorizontal: 10,
   },
 
   searchBar: {
-    width: dimensions.width-40,
+    width: dimensions.width - 40,
     borderRadius: 25
   },
 
@@ -199,7 +204,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#165f22',
     shadowColor: '#000',
     shadowOffset: { width: 1, height: 1 },
-    shadowOpacity:  0.75,
+    shadowOpacity: 0.75,
     shadowRadius: 3,
     elevation: 5,
   },
@@ -225,7 +230,7 @@ const styles = StyleSheet.create({
     top: 20,
   },
 
-  searchBarView : {
+  searchBarView: {
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1
