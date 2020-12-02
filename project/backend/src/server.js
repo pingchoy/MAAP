@@ -100,22 +100,22 @@ app.post('/event', catchErrors(authed(async (req, res, userId) => {
   return res.json({eventId: await createEvent(userId)});
 })));
 
-app.get('/event', catchErrors(authed(async (req, res, userId) => {
-  const { eventId, } = req.body;
+app.get('/event/joined', catchErrors(authed(async (req, res, userId) => {
+  return res.json({eventIds: await getJoinedEvents(userId)});
+})));
+
+app.get('/event/:eventId', catchErrors(authed(async (req, res, userId) => {
+  const { eventId, } = req.params;
   await assertValidEventId(eventId);
   return res.json({event: await getEvent(eventId)});
 })));
 
 app.delete('/event', catchErrors(authed(async (req, res, userId) => {
-    const { eventId, } = req.body;
-    await assertValidEventId(eventId);
-    await assertEventHost(userId, eventId);
-    await deleteEvent(eventId);
-    return res.status(200).send({});
-})));
- 
-app.get('/event/joined', catchErrors(authed(async (req, res, userId) => {
-  return res.json({events: await getJoinedEvents(userId)});
+  const { eventId, } = req.body;
+  await assertValidEventId(eventId);
+  await assertEventHost(userId, eventId);
+  await deleteEvent(eventId);
+  return res.status(200).send({});
 })));
 
 app.put('/event/join/id', catchErrors(authed(async (req, res, userId) => {

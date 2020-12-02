@@ -10,16 +10,13 @@
     },
     "tags": [
         {
-            "name": "Auth",
-            "description": "Things associated with accessing the app"
+            "name": "Auth"
         },
         {
-            "name": "Event",
-            "description": "Things associated with events"
+            "name": "Event"
         },
         {
-            "name": "User",
-            "description": "Things associated with a specific user"
+            "name": "User"
         }
     ],
     "schemes": [
@@ -69,7 +66,7 @@
             "EventId": {
                 "type": "string",
                 "description": "Event ID provided by the backend",
-                "example": "516234"
+                "example": "785204001"
             },
             "EventCode": {
                 "type": "string",
@@ -104,8 +101,8 @@
                     }
                 },
                 "example": {
-                    "375693": "GOING",
-                    "027549": "MAYBE"
+                    "916046007": "GOING",
+                    "145765407": "MAYBE"
                 }
             },
             "EventLocations": {
@@ -192,7 +189,7 @@
             "UserId": {
                 "type": "string",
                 "description": "User ID provided by the backend",
-                "example": "121512"
+                "example": "916046007"
             },
             "Location": {
                 "type": "string",
@@ -235,7 +232,7 @@
                 "in": "header",
                 "schema": {
                     "type": "string",
-                    "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhheWRlbkB1bnN3LmVkdS5hdSIsImlhdCI6MTYwMzk0MzIzMH0.b37PfwlcH_cue6yhgvDt2IiNvhRACf79hTNtacYB94Q"
+                    "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxNDU3NjU0MDciLCJpYXQiOjE2MDY4OTM1MTN9.37xoSLKeCX9cYygOyxQhMo9t-u9-6PityfJB6XQi1zI"
                 },
                 "required": true,
                 "description": "Bearer [token]"
@@ -273,6 +270,19 @@
             },
             "EventId": {
                 "in": "body",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "eventId": {
+                            "$ref": "#/components/fields/EventId"
+                        }
+                    }
+                }
+            },
+            "EventIdPath": {
+                "in": "path",
+                "name": "eventId",
+                "required": true,
                 "schema": {
                     "type": "object",
                     "properties": {
@@ -436,15 +446,15 @@
                         }
                     }
                 },
-                "Events": {
-                    "description": "A list of events",
+                "EventIds": {
+                    "description": "A list of event IDs",
                     "schema": {
                         "type": "object",
                         "properties": {
-                            "events": {
+                            "eventIds": {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/components/fields/Event"
+                                    "$ref": "#/components/fields/EventId"
                                 }
                             }
                         }
@@ -551,20 +561,6 @@
                     "403": { "$ref": "#/components/responses/403" }
                 }
             },
-            "get": {
-                "summary": "Get an event",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/EventId" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Event" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            },
             "delete": {
                 "summary": "Delete an event",
                 "security": [{ "bearerAuth": [] }],
@@ -580,6 +576,22 @@
                 }
             }
         },
+        "/event/{eventId}": {
+          "get": {
+              "summary": "Get an event",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/EventIdPath" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Event" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+        },
         "/event/joined": {
             "get": {
                 "summary": "Get all events that the user has joined",
@@ -589,7 +601,7 @@
                     { "$ref": "#/components/parameters/Authorization" }
                 ],
                 "responses": {
-                    "200": { "$ref": "#/components/responses/200/Events" },
+                    "200": { "$ref": "#/components/responses/200/EventIds" },
                     "403": { "$ref": "#/components/responses/403" }
                 }
             }
