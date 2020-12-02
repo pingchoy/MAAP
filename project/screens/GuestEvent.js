@@ -23,7 +23,7 @@ const ThirdRoute = () => (
 const initialLayout = { width: Dimensions.get('window').width };
 
 
-export default function NewEventScreen({ navigation }) {
+export default function GuestEventScreen({ navigation }) {
     const [code, onChangeCode] = React.useState('Enter an event code');
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
@@ -257,26 +257,8 @@ export default function NewEventScreen({ navigation }) {
                     </Text>
                     {/* {eventName} */}
                 </Text>
-                <View style={styles.editButton} >
-                    <Icon.Button
-                        name="edit"
-                        size={30}
-                        backgroundColor="white"
-                        color="black"
-                        onPress={() => setModalVisible(!modalVisible)}
-                    >
-                    </Icon.Button>
-                </View>
-                <View style={styles.settingsButton} >
-                    <Icon.Button
-                        name="gear"
-                        size={30}
-                        backgroundColor="white"
-                        color="black"
-                        onPress={() => navigation.navigate('EventSettings')}
-                    >
-                    </Icon.Button>
-                </View>
+
+
             </View>
             <View style={styles.eventDetailsView}>
                 <Text>
@@ -299,22 +281,11 @@ export default function NewEventScreen({ navigation }) {
                     swipeEnabled={false}
                 />
             </View>
-            <View style={styles.bottomButtonView}>
-                <TouchableOpacity style={styles.buttonBody} onPress={() => navigation.navigate('Add'.concat(currentTab),
-                    {
-                        handleLocationChange: handleLocationChange, handleDateTimeChange: handleDateTimeChange, handleGuestChange: handleGuestChange,
-                        guestList: guestList, locationList: locationList
-                    })}>
-                    <Text style={styles.buttonText}>Add {currentTab}</Text>
-                </TouchableOpacity>
-            </View>
+
             <Modal
                 animationType="slide"
                 transparent={true}
                 visible={modalVisible}
-                onRequestClose={() => {
-                    Alert.alert("Modal has been closed.");
-                }}
             >
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
