@@ -2,23 +2,6 @@ import React, { useEffect } from 'react';
 import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, useWindowDimensions, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-var Upvote = require('react-upvote');
-
-const dimensions = Dimensions.get('window');
-const { height } = Dimensions.get('window');
-const FirstRoute = () => (
-    <View style={[styles.scene, { backgroundColor: '#ff4081' }]} >
-
-    </View>
-);
-
-const SecondRoute = () => (
-    <View style={[styles.scene, { backgroundColor: '#673ab7' }]} />
-);
-
-const ThirdRoute = () => (
-    <View style={[styles.scene, { backgroundColor: 'purple' }]} />
-);
 
 const initialLayout = { width: Dimensions.get('window').width };
 
@@ -240,6 +223,7 @@ export default function GuestEventScreen({ navigation }) {
     const onChangeText = (text) => {
         setNewEventName(text)
     }
+
     return (
 
         <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
@@ -257,7 +241,11 @@ export default function GuestEventScreen({ navigation }) {
                     </Text>
                     {/* {eventName} */}
                 </Text>
-
+                <View style={styles.settingsButton} >
+                    <TouchableOpacity>
+                        <Text style={{ color: 'red' }}>Leave Event</Text>
+                    </TouchableOpacity>
+                </View>
 
             </View>
             <View style={styles.eventDetailsView}>
@@ -270,6 +258,35 @@ export default function GuestEventScreen({ navigation }) {
                 <Text>
                     <Text style={styles.eventDetailsBoldText}>Time:</Text><Text style={styles.eventDetailsNormalText}> 6:30pm Sat. 14 Nov.</Text>
                 </Text>
+            </View>
+            <View style={styles.choiceView}>
+                <Icon.Button
+                    name="check-circle"
+                    size={50}
+                    iconStyle={styles.upvoteButton}
+                    backgroundColor="white"
+                    color="green"
+
+                ></Icon.Button>
+                <Text style={styles.choiceText}> Going</Text>
+                <Icon.Button
+                    name="question-circle"
+                    size={50}
+                    iconStyle={styles.upvoteButton}
+                    backgroundColor="white"
+                    color="orange"
+
+                ></Icon.Button>
+                <Text style={styles.choiceText}>Maybe</Text>
+                <Icon.Button
+                    name="times-circle"
+                    size={50}
+                    iconStyle={styles.upvoteButton}
+                    backgroundColor="white"
+                    color="red"
+
+                ></Icon.Button>
+                <Text style={styles.choiceText}> Not Going</Text>
             </View>
             <View style={styles.tabBar}>
                 <TabView
@@ -387,7 +404,7 @@ const styles = StyleSheet.create({
     tabBar: {
         position: 'absolute',
         width: 360,
-        top: "30%",
+        top: "45%",
         height: "55%",
     },
     scene: {
@@ -533,6 +550,21 @@ const styles = StyleSheet.create({
         borderColor: 'gray',
         borderWidth: 1,
         // width: 00,
+    },
+    choiceView: {
+        position: 'absolute',
+        flexDirection: 'row',
+        // backgroundColor: "black",
+        top: "30%",
+        height: 100,
+        width: "80%",
+    },
+    choiceText: {
+        fontWeight: "bold",
+        lineHeight: 25,
+        marginTop: 60,
+        left: -50
+
     }
 
 })
