@@ -1,6 +1,8 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, Dimensions, Text, SafeAreaView, View, Image } from 'react-native';
 import { AuthContext } from '../App';
+import { List } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 
 const dimensions = Dimensions.get('window');
 
@@ -19,7 +21,22 @@ export default function ProfileSettings({ navigation }) {
         </View>
 
         <View style={styles.settingsView}>
-           
+            <List.Section style={{ paddingLeft: 20, width: dimensions.width,}}>
+                <List.Subheader>User Settings</List.Subheader>
+                <List.Item title="My Account" left={() => <List.Icon icon="account" />} />
+                <List.Item
+                    title="Privacy & Safety"
+                    left={() => <List.Icon color="#000" icon="shield" />}
+                />
+            </List.Section>
+            <List.Section style={{ paddingLeft: 20, width: dimensions.width,}}>
+                <List.Subheader>App Settings</List.Subheader>
+                <List.Item title="Notifications" left={() => <List.Icon icon="bell" />} />
+                <List.Item
+                    title="Language"
+                    left={() => <List.Icon color="#000" icon="translate" />}
+                />
+            </List.Section>
         </View>
 
         <View style={styles.bottomButtonView}>
@@ -59,9 +76,6 @@ const styles = StyleSheet.create({
 
 
     },
-
-
-
     container: {
         flex: 1,
         backgroundColor: '#fff',

@@ -30,7 +30,7 @@ export default function Profile({ navigation }) {
       <View style={styles.contentView}>
         <View style={styles.subheadingView}>
           <Text style={styles.subHeading}>Friends</Text>
-          <TouchableOpacity style={{justifyContent: "center", alignItems: "center", paddingRight: 20}}>
+          <TouchableOpacity onPress={() => navigation.navigate('AddFriend')} style={{justifyContent: "center", alignItems: "center", paddingRight: 20}}>
             <MaterialCommunityIcons name="plus" color={"#165F22"} size={50}/>
           </TouchableOpacity>
         </View>

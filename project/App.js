@@ -8,6 +8,7 @@ import NewEventScreen from './screens/NewEvent'
 import AddGuestScreen from './screens/AddGuests'
 import AddLocationScreen from './screens/AddLocation'
 import AddTimeScreen from './screens/AddTime'
+import AddFriendScreen from './screens/AddFriend'
 import ProfileSettings from './screens/ProfileSettings'
 import EventSettingsScreen from './screens/EventSettings'
 import GuestEventScreen from './screens/GuestEvent'
@@ -113,6 +114,7 @@ export default function App({ navigation }) {
                 <Stack.Screen name="AddGuests" component={AddGuestScreen} />
                 <Stack.Screen name="AddLocations" component={AddLocationScreen} />
                 <Stack.Screen name="AddTimes" component={AddTimeScreen} />
+                <Stack.Screen name="AddFriend" component={AddFriendScreen} />
                 <Stack.Screen name="EventSettings" component={EventSettingsScreen} />
                 <Stack.Screen name="GuestEvent" component={GuestEventScreen} />
               </>
