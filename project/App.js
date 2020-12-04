@@ -74,6 +74,23 @@ export default function App({ navigation }) {
     bootstrapAsync();
   }, []);
 
+  const setToken = async (token) => {
+    try {
+      await AsyncStorage.setItem('userToken', token)
+    } catch (e) {
+      // saving error
+      console.log(e)
+    }
+  }
+
+  const removeToken = async () => {
+    try {
+      await AsyncStorage.removeItem('userToken')
+    } catch(e) {
+      // remove error
+    }
+  }
+
   const authContext = React.useMemo(
     () => ({
       login: async ({username, password}) => {
@@ -93,17 +110,21 @@ export default function App({ navigation }) {
           })
         }).then(res=>res.json())
         .then(body=>{
-          if (console.error !== null){
-            console.log(body.token)
-            dispatch({ type: 'LOGIN', token: body.token })
+          if (body.error !== undefined){
+            //error stuff
           } else{
-            // Do error stuff
+            setToken(body.token)
+            dispatch({ type: 'LOGIN', token: body.token })
+
           }
         })
         .catch(err=>alert(err))
 
       },
-      signOut: () => dispatch({ type: 'SIGN_OUT' }),
+      signOut: () => {
+        removeToken()
+        dispatch({ type: 'SIGN_OUT' })
+      },
       signUp: async ({email, name, password}) => {
 
         fetch(`${API_BASE_URL}/auth/register` , {
@@ -119,11 +140,12 @@ export default function App({ navigation }) {
           })
         }).then(res=>res.json())
         .then(body=>{
-          if (console.error !== null){
-            console.log(body.token)
-            dispatch({ type: 'LOGIN', token: body.token })
+          if (body.error !== undefined){
+            //error stuff
           } else{
-            // Do error stuff
+            setToken(body.token)
+            dispatch({ type: 'LOGIN', token: body.token })
+
           }
         })
         .catch(err=>alert(err))
@@ -132,34 +154,6 @@ export default function App({ navigation }) {
     }),
     []
   );
-
-  async function makeAPIRequest(endpoint, givenMethod, givenBody) {
-    try {
-      userToken = await AsyncStorage.getItem('userToken');
-    } catch (e) {
-      // Restoring token failed
-    }
-    const reqOptions = {
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
-      },
-      method: 'POST',
-    };
-  
-    if (givenMethod !== 'GET' && givenBody !== {}) {
-      reqOptions.body = JSON.stringify(givenBody);
-    }
-    console.log(reqOptions)
-    const res = await fetch(`${API_BASE_URL}/${endpoint}`, reqOptions);
-    const body = await res.json();
-    console.log('end?')
-    if (res.status >= 200 && res.status < 400) {
-      return body;
-    }
-  
-    throw new Error(body.error);
-  }
 
 
   return (
