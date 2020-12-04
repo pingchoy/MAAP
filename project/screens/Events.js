@@ -6,6 +6,7 @@ import { List, Searchbar } from 'react-native-paper';
 import { } from 'react-native-gesture-handler'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const API_BASE_URL = 'http://192.168.0.18:5000';
 const dimensions = Dimensions.get('window');
 
 // Can keep past boolean if we don't want to check if it's before current date
@@ -38,6 +39,7 @@ export default function Events({ navigation }) {
   const [expandedPast, setExpandedPast] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [filteredData, setFilteredData] = React.useState(data);
+  const [fetchedData, setFetchedData] = React.useState([]);
 
   const searchFilterFunction = (text) => {
     if (text) {
@@ -68,12 +70,64 @@ export default function Events({ navigation }) {
 
       try {
         userToken = await AsyncStorage.getItem('userToken');
+        getEvents(userToken)
       } catch (e) {
         // Restoring token failed
         alert(e)
       }
     };
+    const getEvents = (token) => {
+      fetch(`${API_BASE_URL}/event/joined` , {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        method: 'GET',
+      }).then(res=>res.json())
+      .then(body=>{
+        if (body.error !== undefined){
+          //error stuff
+        } else{
+          parseEvents(body.eventIds)
 
+        }
+      })
+      .catch(err=>alert(err))
+    }
+    const parseEvents = (eventIds) => {
+      eventIds.foreach((id) => {
+        fetch(`${API_BASE_URL}/event/${id}` , {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          path: {
+            eventId:`${id}`
+          },
+          method: 'GET',
+        }).then(res=>res.json())
+        .then(body=>{
+          if (body.error !== undefined){
+            //error stuff
+          } else{
+            addToEventsJSON(body.event)
+  
+          }
+        })
+        .catch(err=>alert(err))
+      })
+    }
+    const addToEventsJSON = (event) => {
+      setFetchedData(...fetchedData, 
+        {title: event.name,
+          description: 'DESCRIPTION, PAST AND OWNER TO BE DETERMINED',
+          past: false,
+          owner: true,
+        }
+      )
+    }
     bootstrapAsync();
   }, []);
 

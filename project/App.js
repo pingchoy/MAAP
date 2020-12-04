@@ -15,7 +15,7 @@ import GuestEventScreen from './screens/GuestEvent'
 import Home from './routes/Home';
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer, StackActions } from '@react-navigation/native';
-import { json } from 'body-parser';
+
 
 const API_BASE_URL = 'http://192.168.0.18:5000';
 const Stack = createStackNavigator();
