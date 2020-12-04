@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, useWindowDimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { SearchBar, withTheme } from 'react-native-elements'
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const dimensions = Dimensions.get('window');
 const { height } = Dimensions.get('window');
 
@@ -15,7 +15,40 @@ export default function AddGuestScreen({ route, navigation }) {
     const [search, setSearch] = React.useState('')
     const windowHeight = useWindowDimensions().height;
     const { guestList, handleGuestChange } = route.params
+    const [token, setToken] = React.useState('')
+    const [API_BASE_URL, setAPIURL] = React.useState('')
+    const [, updateState] = React.useState();
+    const forceUpdate = React.useCallback(() => updateState({}), []);
 
+    React.useEffect(() => {
+        (async () => {
+            let api = await AsyncStorage.getItem('api')
+            let token2 = await AsyncStorage.getItem('userToken')
+            setToken(token2)
+            setAPIURL(api)
+
+            getFriends(token2, api)
+        })()
+
+    }, [])
+
+    const getFriends = (token, api) => {
+        fetch(`${api}/user/friends`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'GET',
+        }).then(res => res.json())
+            .then(body => {
+                let temp = []
+                body.userIds.map((user) => {
+                    temp.push({ username: user, disabled: false })
+                })
+                setFriends(temp)
+            })
+    }
     const updateSearch = (search) => {
         setSearch(search);
     };

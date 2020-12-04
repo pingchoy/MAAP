@@ -159,7 +159,9 @@ app.put('/event/status', catchErrors(authed(async (req, res, userId) => {
 })));
 
 app.put('/event/invite', catchErrors(authed(async (req, res, thisUserId) => {
+
   const { eventId, userId, } = req.body;
+  console.log("Inviting new user: " + userId)
   await assertValidEventId(eventId);
   await assertEventGuest(thisUserId, eventId);
   await sendInvite(thisUserId, eventId, userId);
@@ -219,6 +221,7 @@ app.put('/event/unvote/time', catchErrors(authed(async (req, res, userId) => {
 ***************************************************************/
 
 app.get('/user/friends', catchErrors(authed(async (req, res, userId) => {
+  console.log("Getting Friends")
   return res.status(200).send({ userIds: await getFriends(userId) });
 })));
 

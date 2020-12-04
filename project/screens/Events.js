@@ -112,7 +112,7 @@ export default function Events({ navigation }) {
                 if (d.owner) {
                   return (
                     <List.Item
-                      onPress={() => {  }}
+                      onPress={() => { }}
                       title={d.title}
                       description={d.description}
                       style={styles.accordionItem}

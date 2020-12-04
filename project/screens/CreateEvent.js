@@ -23,16 +23,19 @@ export default function CreateEventScreen({ navigation }) {
         })
             .then((res) => res.json())
             .then(body => {
-                alert(body.eventId)
+                navigation.navigate('NewEvent', { eventId: body.eventId })
             })
 
     }
 
-    React.useEffect(async () => {
-        let api = await AsyncStorage.getItem('api')
-        let token2 = await AsyncStorage.getItem('userToken')
-        setToken(token2)
-        setAPIURL(api)
+    React.useEffect(() => {
+        (async () => {
+            let api = await AsyncStorage.getItem('api')
+            let token2 = await AsyncStorage.getItem('userToken')
+            setToken(token2)
+            setAPIURL(api)
+        })()
+
     }, [])
     return (
         <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
@@ -44,7 +47,7 @@ export default function CreateEventScreen({ navigation }) {
             <View style={styles.buttonView}>
                 <TouchableOpacity style={styles.buttonBody} onPress={() => {
                     handleCreateEvent()
-                    navigation.navigate('NewEvent')
+
                 }}>
                     <Text style={styles.buttonText}>Create an Event</Text>
                 </TouchableOpacity>
