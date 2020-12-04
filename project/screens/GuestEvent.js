@@ -6,7 +6,7 @@ import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 const initialLayout = { width: Dimensions.get('window').width };
 
 
-export default function GuestEventScreen({ navigation }) {
+export default function GuestEventScreen({ route, navigation }) {
     const [code, onChangeCode] = React.useState('Enter an event code');
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
@@ -26,6 +26,18 @@ export default function GuestEventScreen({ navigation }) {
     const windowHeight = useWindowDimensions().height;
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const [token, setToken] = React.useState('')
+    const [API_BASE_URL, setAPIURL] = React.useState('')
+    const { eventId } = route.params
+
+    React.useEffect(() => {
+        (async () => {
+            let api = await AsyncStorage.getItem('api')
+            let token2 = await AsyncStorage.getItem('userToken')
+            setToken(token2)
+            setAPIURL(api)
+        })()
+    }, [])
 
     const nth = (d) => {
         if (d > 3 && d < 21) return 'th';
@@ -43,6 +55,19 @@ export default function GuestEventScreen({ navigation }) {
         tempList.map(l => {
             if (l.name === location.name) {
                 l.votes++
+                fetch(`${API_BASE_URL}/event/vote/location`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': token
+                    },
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        "eventId": eventId,
+                        "location": l.name,
+                    })
+                })
+
             }
         })
 
@@ -55,8 +80,22 @@ export default function GuestEventScreen({ navigation }) {
         let tempList = timeList
 
         tempList.map(t => {
-            if (t.date === time.date) {
+            if (t.startDate === time.startDate) {
                 t.votes++
+
+                fetch(`${API_BASE_URL}/event/vote/time`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': token
+                    },
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        "eventId": eventId,
+                        "start": t.startDate,
+                        "end": t.endDate
+                    })
+                })
             }
         })
 
@@ -224,6 +263,52 @@ export default function GuestEventScreen({ navigation }) {
         setNewEventName(text)
     }
 
+    const handleGoing = () => {
+        fetch(`${API_BASE_URL}/event/event/status`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'PUT',
+            body: JSON.stringify({
+                "eventId": eventId,
+                "status": "GOING"
+            })
+        })
+    }
+
+
+    const handleMaybe = () => {
+        fetch(`${API_BASE_URL}/event/event/status`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'PUT',
+            body: JSON.stringify({
+                "eventId": eventId,
+                "status": "MAYBE"
+            })
+        })
+    }
+
+    const handleNotGoing = () => {
+        fetch(`${API_BASE_URL}/event/event/status`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'PUT',
+            body: JSON.stringify({
+                "eventId": eventId,
+                "status": "NOT GOING"
+            })
+        })
+    }
+
     return (
 
         <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
@@ -266,7 +351,7 @@ export default function GuestEventScreen({ navigation }) {
                     iconStyle={styles.upvoteButton}
                     backgroundColor="white"
                     color="green"
-
+                    onPress={() => handleGoing()}
                 ></Icon.Button>
                 <Text style={styles.choiceText}> Going</Text>
                 <Icon.Button
@@ -276,6 +361,7 @@ export default function GuestEventScreen({ navigation }) {
                     backgroundColor="white"
                     color="orange"
 
+                    onPress={() => handleMaybe()}
                 ></Icon.Button>
                 <Text style={styles.choiceText}>Maybe</Text>
                 <Icon.Button
@@ -284,10 +370,11 @@ export default function GuestEventScreen({ navigation }) {
                     iconStyle={styles.upvoteButton}
                     backgroundColor="white"
                     color="red"
-
+                    onPress={() => handleNotGoing()}
                 ></Icon.Button>
                 <Text style={styles.choiceText}> Not Going</Text>
             </View>
+
             <View style={styles.tabBar}>
                 <TabView
                     navigationState={{ index, routes }}
@@ -296,6 +383,7 @@ export default function GuestEventScreen({ navigation }) {
                     initialLayout={initialLayout}
                     renderTabBar={renderTabBar}
                     swipeEnabled={false}
+
                 />
             </View>
 
