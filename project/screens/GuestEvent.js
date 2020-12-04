@@ -264,7 +264,7 @@ export default function GuestEventScreen({ route, navigation }) {
     }
 
     const handleGoing = () => {
-        fetch(`${API_BASE_URL}/event/event/status`, {
+        fetch(`${API_BASE_URL}/event/status`, {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
@@ -280,7 +280,7 @@ export default function GuestEventScreen({ route, navigation }) {
 
 
     const handleMaybe = () => {
-        fetch(`${API_BASE_URL}/event/event/status`, {
+        fetch(`${API_BASE_URL}/event/status`, {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
@@ -295,7 +295,7 @@ export default function GuestEventScreen({ route, navigation }) {
     }
 
     const handleNotGoing = () => {
-        fetch(`${API_BASE_URL}/event/event/status`, {
+        fetch(`${API_BASE_URL}/event/status`, {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
@@ -309,6 +309,19 @@ export default function GuestEventScreen({ route, navigation }) {
         })
     }
 
+    const handleLeaveEvent = () => {
+        fetch(`${API_BASE_URL}/event/leave`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'PUT',
+            body: JSON.stringify({
+                "eventId": eventId,
+            })
+        })
+    }
     return (
 
         <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
@@ -327,7 +340,8 @@ export default function GuestEventScreen({ route, navigation }) {
                     {/* {eventName} */}
                 </Text>
                 <View style={styles.settingsButton} >
-                    <TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => handleLeaveEvent()}>
                         <Text style={{ color: 'red' }}>Leave Event</Text>
                     </TouchableOpacity>
                 </View>
