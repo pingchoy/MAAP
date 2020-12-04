@@ -59,6 +59,7 @@ export default function App({ navigation }) {
 
       try {
         userToken = await AsyncStorage.getItem('userToken');
+
       } catch (e) {
         // Restoring token failed
       }
@@ -76,6 +77,7 @@ export default function App({ navigation }) {
   const setToken = async (token) => {
     try {
       await AsyncStorage.setItem('userToken', token)
+      await AsyncStorage.setItem('api', API_BASE_URL)
     } catch (e) {
       // saving error
       console.log(e)
