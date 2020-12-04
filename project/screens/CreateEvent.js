@@ -22,7 +22,7 @@ export default function CreateEventScreen({ navigation }) {
                 </TouchableOpacity>
             </View>
             <View style={styles.subtextView}>
-                <Text  style={styles.subtext}>OR</Text>
+                <Text style={styles.subtext}>OR</Text>
             </View>
             <View style={styles.subButtonView}>
                 <View style={styles.inputView}>
@@ -108,9 +108,9 @@ const styles = StyleSheet.create({
         color: '#3C3C3C',
     },
     subButtonView: {
-        flexDirection: 'row', 
-        flex: 5, 
-        width: dimensions.width-40,
+        flexDirection: 'row',
+        flex: 5,
+        width: dimensions.width - 40,
         alignItems: 'flex-start',
         justifyContent: 'center'
     },
