@@ -485,6 +485,27 @@ export const unvoteTime = (userId, eventId, start, end) => eventLock((resolve, r
                           User Functions
 ***************************************************************/
 
+export const assertValidUserId = userId => userLock((resolve, reject) => {
+  if (!(userId in users)) {
+    reject(new InputError('Invalid user ID'));
+    return;
+  }
+
+  resolve();
+});
+
+// Assumes userId is valid
+export const getUser = userId => userLock((resolve, reject) => {
+  const user = users[userId];
+  resolve({
+    email: user.email,
+    name: user.name,
+    invites: user.invites,
+    friends: user.friends,
+    sessionActive: user.sessionActive
+  });
+});
+
 // Assumes userId is valid
 export const getFriends = userId => userLock((resolve, reject) => {
   resolve(users[userId].friends);

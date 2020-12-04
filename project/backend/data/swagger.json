@@ -379,6 +379,19 @@
                     }
                 }
             },
+            "UserIdPath": {
+                "in": "path",
+                "name": "userId",
+                "required": true,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "eventId": {
+                            "$ref": "#/components/fields/UserId"
+                        }
+                    }
+                }
+            },
             "UserFriendsBody": {
                 "in": "body",
                 "schema": {
@@ -577,20 +590,20 @@
             }
         },
         "/event/{eventId}": {
-          "get": {
-              "summary": "Get an event",
-              "security": [{ "bearerAuth": [] }],
-              "tags": [ "Event" ],
-              "parameters": [
-                  { "$ref": "#/components/parameters/Authorization" },
-                  { "$ref": "#/components/parameters/EventIdPath" }
-              ],
-              "responses": {
-                  "200": { "$ref": "#/components/responses/200/Event" },
-                  "400": { "$ref": "#/components/responses/400" },
-                  "403": { "$ref": "#/components/responses/403" }
-              }
-          }
+            "get": {
+                "summary": "Get an event",
+                "security": [{ "bearerAuth": [] }],
+                "tags": [ "Event" ],
+                "parameters": [
+                    { "$ref": "#/components/parameters/Authorization" },
+                    { "$ref": "#/components/parameters/EventIdPath" }
+                ],
+                "responses": {
+                    "200": { "$ref": "#/components/responses/200/Event" },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "403": { "$ref": "#/components/responses/403" }
+                }
+            }
         },
         "/event/joined": {
             "get": {
@@ -793,6 +806,22 @@
                 ],
                 "responses": {
                     "200": { "$ref": "#/components/responses/200/Empty" },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "403": { "$ref": "#/components/responses/403" }
+                }
+            }
+        },
+        "/user/{userId}": {
+            "get": {
+                "summary": "Get a user",
+                "security": [{ "bearerAuth": [] }],
+                "tags": [ "User" ],
+                "parameters": [
+                    { "$ref": "#/components/parameters/Authorization" },
+                    { "$ref": "#/components/parameters/UserIdPath" }
+                ],
+                "responses": {
+                    "200": { "$ref": "#/components/responses/200/User" },
                     "400": { "$ref": "#/components/responses/400" },
                     "403": { "$ref": "#/components/responses/403" }
                 }
