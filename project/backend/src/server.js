@@ -185,6 +185,7 @@ app.post('/event/time', catchErrors(authed(async (req, res, userId) => {
 })));
 
 app.put('/event/vote/location', catchErrors(authed(async (req, res, userId) => {
+  console.log("Voting for location")
   const { eventId, location, } = req.body;
   await assertValidEventId(eventId);
   await assertEventGuest(userId, eventId);
@@ -193,6 +194,7 @@ app.put('/event/vote/location', catchErrors(authed(async (req, res, userId) => {
 })));
 
 app.put('/event/vote/time', catchErrors(authed(async (req, res, userId) => {
+  console.log("Voting for time")
   const { eventId, start, end, } = req.body;
   await assertValidEventId(eventId);
   await assertEventGuest(userId, eventId);

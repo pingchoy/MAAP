@@ -74,6 +74,19 @@ export default function NewEventScreen({ route, navigation }) {
         tempList.map(l => {
             if (l.name === location.name) {
                 l.votes++
+                fetch(`${API_BASE_URL}/event/vote/location`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': token
+                    },
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        "eventId": eventId,
+                        "location": l.name,
+                    })
+                })
+
             }
         })
 
@@ -88,6 +101,20 @@ export default function NewEventScreen({ route, navigation }) {
         tempList.map(t => {
             if (t.startDate === time.startDate) {
                 t.votes++
+
+                fetch(`${API_BASE_URL}/event/vote/time`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': token
+                    },
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        "eventId": eventId,
+                        "start": t.startDate,
+                        "end": t.endDate
+                    })
+                })
             }
         })
 
