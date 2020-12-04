@@ -201,6 +201,32 @@
                 "description": "A timestamp. The backend doesn't tamper with the times so choose whatever format you like, but be consistent",
                 "example": null
             },
+            "User": {
+                "type": "object",
+                "description": "Full user data structure",
+                "properties": {
+                    "email": {
+                        "$ref": "#/components/fields/Email"
+                    },
+                    "name": {
+                        "$ref": "#/components/fields/Name"
+                    },
+                    "invites": {
+                        "$ref": "#/components/fields/Invites"
+                    },
+                    "friends": {
+                        "$ref": "#/components/fields/Friends"
+                    },
+                    "sessionActive": {
+                        "$ref": "#/components/fields/SessionActive"
+                    }
+                }
+            },
+            "SessionActive": {
+                "type": "boolean",
+                "description": "Whether or not the user is logged in",
+                "example": true
+            },
             "Friends": {
                 "type": "array",
                 "description": "An array of user IDs",
@@ -469,6 +495,17 @@
                                 "items": {
                                     "$ref": "#/components/fields/EventId"
                                 }
+                            }
+                        }
+                    }
+                },
+                "User": {
+                    "description": "A full user",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "user": {
+                                "$ref": "#/components/fields/User"
                             }
                         }
                     }
