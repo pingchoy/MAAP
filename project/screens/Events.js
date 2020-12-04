@@ -166,7 +166,7 @@ export default function Events({ navigation }) {
                 if (d.owner) {
                   return (
                     <List.Item
-                      onPress={() => {  }}
+                      onPress={() => { }}
                       title={d.title}
                       description={d.description}
                       style={styles.accordionItem}
@@ -177,7 +177,7 @@ export default function Events({ navigation }) {
                 else {
                   return (
                     <TouchableOpacity
-                      onPress={() => { navigation.navigate("GuestEvent") }}>
+                      onPress={() => { navigation.navigate("GuestEvent", { eventId: "116467958" }) }}>
                       <List.Item
                         title={d.title}
                         description={d.description}
@@ -235,7 +235,9 @@ export default function Events({ navigation }) {
                 else {
                   return (
                     <TouchableOpacity
-                      onPress={() => { navigation.navigate("GuestEvent") }}>
+                      // Using a sample eventID 
+
+                      onPress={() => { navigation.navigate("GuestEvent", { eventId: "116467958" }) }}>
                       <List.Item
                         title={d.title}
                         description={d.description}

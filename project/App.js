@@ -14,10 +14,9 @@ import EventSettingsScreen from './screens/EventSettings'
 import GuestEventScreen from './screens/GuestEvent'
 import Home from './routes/Home';
 import { createStackNavigator } from "@react-navigation/stack";
-import { NavigationContainer, StackActions } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 
-
-const API_BASE_URL = 'http://192.168.0.18:5000';
+const API_BASE_URL = 'http://192.168.1.52:5000';
 const Stack = createStackNavigator();
 export const AuthContext = React.createContext();
 
@@ -60,6 +59,7 @@ export default function App({ navigation }) {
 
       try {
         userToken = await AsyncStorage.getItem('userToken');
+
       } catch (e) {
         // Restoring token failed
       }
@@ -77,6 +77,7 @@ export default function App({ navigation }) {
   const setToken = async (token) => {
     try {
       await AsyncStorage.setItem('userToken', token)
+      await AsyncStorage.setItem('api', API_BASE_URL)
     } catch (e) {
       // saving error
       console.log(e)
@@ -86,19 +87,19 @@ export default function App({ navigation }) {
   const removeToken = async () => {
     try {
       await AsyncStorage.removeItem('userToken')
-    } catch(e) {
+    } catch (e) {
       // remove error
     }
   }
 
   const authContext = React.useMemo(
     () => ({
-      login: async ({username, password}) => {
+      login: async ({ username, password }) => {
         // In a production app, we need to send some data (usually username, password) to server and get a token
         // We will also need to handle errors if sign in failed
         // After getting token, we need to persist the token using `AsyncStorage`
         // In the example, we'll use a dummy token
-        fetch(`${API_BASE_URL}/auth/login` , {
+        fetch(`${API_BASE_URL}/auth/login`, {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -108,26 +109,26 @@ export default function App({ navigation }) {
             "email": username,
             "password": password,
           })
-        }).then(res=>res.json())
-        .then(body=>{
-          if (body.error !== undefined){
-            //error stuff
-          } else{
-            setToken(body.token)
-            dispatch({ type: 'LOGIN', token: body.token })
+        }).then(res => res.json())
+          .then(body => {
+            if (body.error !== undefined) {
+              //error stuff
+            } else {
+              setToken(body.token)
+              dispatch({ type: 'LOGIN', token: body.token })
 
-          }
-        })
-        .catch(err=>alert(err))
+            }
+          })
+          .catch(err => alert(err))
 
       },
       signOut: () => {
         removeToken()
         dispatch({ type: 'SIGN_OUT' })
       },
-      signUp: async ({email, name, password}) => {
+      signUp: async ({ email, name, password }) => {
 
-        fetch(`${API_BASE_URL}/auth/register` , {
+        fetch(`${API_BASE_URL}/auth/register`, {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -138,17 +139,17 @@ export default function App({ navigation }) {
             "name": name,
             "password": password,
           })
-        }).then(res=>res.json())
-        .then(body=>{
-          if (body.error !== undefined){
-            //error stuff
-          } else{
-            setToken(body.token)
-            dispatch({ type: 'LOGIN', token: body.token })
+        }).then(res => res.json())
+          .then(body => {
+            if (body.error !== undefined) {
+              //error stuff
+            } else {
+              setToken(body.token)
+              dispatch({ type: 'LOGIN', token: body.token })
 
-          }
-        })
-        .catch(err=>alert(err))
+            }
+          })
+          .catch(err => alert(err))
 
       },
     }),

@@ -76,7 +76,9 @@ const authed = fn => async (req, res) => {
 ***************************************************************/
 
 app.post('/auth/login', catchErrors(async (req, res) => {
+
   const { email, password, } = req.body;
+  console.log()
   const token = await login(email, password);
   return res.json({ token, });
 }));
@@ -97,17 +99,18 @@ app.post('/auth/register', catchErrors(async (req, res) => {
 ***************************************************************/
 
 app.post('/event', catchErrors(authed(async (req, res, userId) => {
-  return res.json({eventId: await createEvent(userId)});
+  console.log("Creating new event")
+  return res.json({ eventId: await createEvent(userId) });
 })));
 
 app.get('/event/joined', catchErrors(authed(async (req, res, userId) => {
-  return res.json({eventIds: await getJoinedEvents(userId)});
+  return res.json({ eventIds: await getJoinedEvents(userId) });
 })));
 
 app.get('/event/:eventId', catchErrors(authed(async (req, res, userId) => {
   const { eventId, } = req.params;
   await assertValidEventId(eventId);
-  return res.json({event: await getEvent(eventId)});
+  return res.json({ event: await getEvent(eventId) });
 })));
 
 app.delete('/event', catchErrors(authed(async (req, res, userId) => {
@@ -156,7 +159,9 @@ app.put('/event/status', catchErrors(authed(async (req, res, userId) => {
 })));
 
 app.put('/event/invite', catchErrors(authed(async (req, res, thisUserId) => {
+
   const { eventId, userId, } = req.body;
+  console.log("Inviting new user: " + userId)
   await assertValidEventId(eventId);
   await assertEventGuest(thisUserId, eventId);
   await sendInvite(thisUserId, eventId, userId);
@@ -180,6 +185,7 @@ app.post('/event/time', catchErrors(authed(async (req, res, userId) => {
 })));
 
 app.put('/event/vote/location', catchErrors(authed(async (req, res, userId) => {
+  console.log("Voting for location")
   const { eventId, location, } = req.body;
   await assertValidEventId(eventId);
   await assertEventGuest(userId, eventId);
@@ -188,6 +194,7 @@ app.put('/event/vote/location', catchErrors(authed(async (req, res, userId) => {
 })));
 
 app.put('/event/vote/time', catchErrors(authed(async (req, res, userId) => {
+  console.log("Voting for time")
   const { eventId, start, end, } = req.body;
   await assertValidEventId(eventId);
   await assertEventGuest(userId, eventId);
@@ -216,11 +223,12 @@ app.put('/event/unvote/time', catchErrors(authed(async (req, res, userId) => {
 ***************************************************************/
 
 app.get('/user/friends', catchErrors(authed(async (req, res, userId) => {
-  return res.status(200).send({userIds: await getFriends(userId)});
+  console.log("Getting Friends")
+  return res.status(200).send({ userIds: await getFriends(userId) });
 })));
 
 app.get('/user/invites', catchErrors(authed(async (req, res, userId) => {
-  return res.status(200).send({eventIds: await getInvites(userId)});
+  return res.status(200).send({ eventIds: await getInvites(userId) });
 })));
 
 app.put('/user/friends', catchErrors(authed(async (req, res, userId) => {

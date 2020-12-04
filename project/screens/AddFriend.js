@@ -4,9 +4,10 @@ import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpaci
 const dimensions = Dimensions.get('window');
 
 //TODO - notification/red border for invalid username
-const AddFriendScreen = ({navigation}) => {
+const AddFriendScreen = ({ navigation }) => {
     const [username, setUsername] = React.useState('Username#0000')
-    const processRequest = () =>{
+
+    const processRequest = () => {
         // This should probably not go back, but rather it should clear the username text and give a notification.
         navigation.goBack()
     }
@@ -35,8 +36,8 @@ const AddFriendScreen = ({navigation}) => {
                     onChangeUsername={text => setUserName(text)}
                     username={username}
                 />
-                <View style={{alignSelf:'flex-start', marginLeft: 20, flex: 1, flexDirection: "row"}}>
-                    <Text style={styles.yourUsernameText}>Your username and tag is </Text> 
+                <View style={{ alignSelf: 'flex-start', marginLeft: 20, flex: 1, flexDirection: "row" }}>
+                    <Text style={styles.yourUsernameText}>Your username and tag is </Text>
                     <Text style={styles.myUsernameText}>Anton#7029</Text>
                 </View>
                 <View style={styles.buttonView}>
@@ -48,7 +49,7 @@ const AddFriendScreen = ({navigation}) => {
 
         </SafeAreaView>
     )
-} 
+}
 
 
 export default AddFriendScreen;
@@ -68,7 +69,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#165f22',
         shadowColor: '#000',
         shadowOffset: { width: 1, height: 1 },
-        shadowOpacity:  0.75,
+        shadowOpacity: 0.75,
         shadowRadius: 3,
         elevation: 5,
         flexDirection: "column",
@@ -78,8 +79,8 @@ const styles = StyleSheet.create({
     },
     backButton: {
         alignSelf: 'flex-start',
-    },    
-    heading:{
+    },
+    heading: {
         position: 'absolute',
         //fontFamily: 'Roboto',
         fontStyle: 'normal',
@@ -87,20 +88,20 @@ const styles = StyleSheet.create({
         fontSize: 24,
         color: '#FFFFFF',
     },
-    detailsView:{
+    detailsView: {
         width: dimensions.width,
         flex: 1,
         justifyContent: 'flex-end',
         alignItems: "center",
         margin: 30
     },
-    buttonInputView:{
+    buttonInputView: {
         width: dimensions.width,
-        flex:2,
+        flex: 2,
         justifyContent: 'flex-start',
         alignItems: "center",
     },
-    subHeadingText:{
+    subHeadingText: {
         //fontFamily: 'Roboto',
         fontStyle: 'normal',
         fontWeight: 'bold',
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
         textAlign: 'center'
     },
     usernameText: {
-        alignSelf:'flex-start',
+        alignSelf: 'flex-start',
         //fontFamily: 'Roboto',
         fontStyle: 'normal',
         fontWeight: 'bold',
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
     },
     inputBody: {
         paddingLeft: 20,
-        width: dimensions.width- 40,
+        width: dimensions.width - 40,
         height: 55,
         fontStyle: 'normal',
         fontWeight: 'bold',
@@ -137,9 +138,9 @@ const styles = StyleSheet.create({
         borderColor: "black",
         borderWidth: 1,
         borderRadius: 10,
-        marginVertical:10,
+        marginVertical: 10,
     },
-    yourUsernameText:{
+    yourUsernameText: {
         //fontFamily: 'Roboto',
         fontStyle: 'normal',
         fontWeight: 'bold',
