@@ -15,7 +15,9 @@ import GuestEventScreen from './screens/GuestEvent'
 import Home from './routes/Home';
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer, StackActions } from '@react-navigation/native';
+import { json } from 'body-parser';
 
+const API_BASE_URL = 'http://192.168.0.18:5000';
 const Stack = createStackNavigator();
 export const AuthContext = React.createContext();
 
@@ -74,26 +76,91 @@ export default function App({ navigation }) {
 
   const authContext = React.useMemo(
     () => ({
-      login: async data => {
+      login: async ({username, password}) => {
         // In a production app, we need to send some data (usually username, password) to server and get a token
         // We will also need to handle errors if sign in failed
         // After getting token, we need to persist the token using `AsyncStorage`
         // In the example, we'll use a dummy token
+        fetch(`${API_BASE_URL}/auth/login` , {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          method: 'POST',
+          body: JSON.stringify({
+            "email": username,
+            "password": password,
+          })
+        }).then(res=>res.json())
+        .then(body=>{
+          if (console.error !== null){
+            console.log(body.token)
+            dispatch({ type: 'LOGIN', token: body.token })
+          } else{
+            // Do error stuff
+          }
+        })
+        .catch(err=>alert(err))
 
-        dispatch({ type: 'LOGIN', token: 'dummy-auth-token' });
       },
       signOut: () => dispatch({ type: 'SIGN_OUT' }),
-      signUp: async data => {
-        // In a production app, we need to send user data to server and get a token
-        // We will also need to handle errors if sign up failed
-        // After getting token, we need to persist the token using `AsyncStorage`
-        // In the example, we'll use a dummy token
+      signUp: async ({email, name, password}) => {
 
-        dispatch({ type: 'LOGIN', token: 'dummy-auth-token' });
+        fetch(`${API_BASE_URL}/auth/register` , {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          method: 'POST',
+          body: JSON.stringify({
+            "email": email,
+            "name": name,
+            "password": password,
+          })
+        }).then(res=>res.json())
+        .then(body=>{
+          if (console.error !== null){
+            console.log(body.token)
+            dispatch({ type: 'LOGIN', token: body.token })
+          } else{
+            // Do error stuff
+          }
+        })
+        .catch(err=>alert(err))
+
       },
     }),
     []
   );
+
+  async function makeAPIRequest(endpoint, givenMethod, givenBody) {
+    try {
+      userToken = await AsyncStorage.getItem('userToken');
+    } catch (e) {
+      // Restoring token failed
+    }
+    const reqOptions = {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      method: 'POST',
+    };
+  
+    if (givenMethod !== 'GET' && givenBody !== {}) {
+      reqOptions.body = JSON.stringify(givenBody);
+    }
+    console.log(reqOptions)
+    const res = await fetch(`${API_BASE_URL}/${endpoint}`, reqOptions);
+    const body = await res.json();
+    console.log('end?')
+    if (res.status >= 200 && res.status < 400) {
+      return body;
+    }
+  
+    throw new Error(body.error);
+  }
+
 
   return (
     <AuthContext.Provider value={authContext}>
