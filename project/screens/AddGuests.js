@@ -42,6 +42,7 @@ export default function AddGuestScreen({ route, navigation }) {
             method: 'GET',
         }).then(res => res.json())
             .then(body => {
+                console.log(body)
                 let temp = []
                 body.userIds.map((user) => {
                     temp.push({ username: user, disabled: false })
