@@ -46,7 +46,7 @@ export default function NewEventScreen({ route, navigation }) {
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const [token, setToken] = React.useState('')
     const [API_BASE_URL, setAPIURL] = React.useState('')
-
+    const [user, setUser] = React.useState({})
     const { eventId } = route.params
 
     React.useEffect(() => {
@@ -55,9 +55,23 @@ export default function NewEventScreen({ route, navigation }) {
             let token2 = await AsyncStorage.getItem('userToken')
             setToken(token2)
             setAPIURL(api)
+            getCurrentUser(api, token2)
         })()
     }, [])
 
+    const getCurrentUser = (api, token) => {
+        fetch(`${api}/user`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'GET',
+        }).then(res => res.json())
+            .then(body => {
+                setUser(body.user)
+            })
+    }
     const nth = (d) => {
         if (d > 3 && d < 21) return 'th';
         switch (d % 10) {
@@ -392,7 +406,7 @@ export default function NewEventScreen({ route, navigation }) {
             </View>
             <View style={styles.eventDetailsView}>
                 <Text>
-                    <Text style={styles.eventDetailsBoldText}>Host:</Text><Text style={styles.eventDetailsNormalText}> Anton</Text>
+                    <Text style={styles.eventDetailsBoldText}>Host:</Text><Text style={styles.eventDetailsNormalText}> {user.name}</Text>
                 </Text>
                 <Text>
                     <Text style={styles.eventDetailsBoldText}>Location:</Text><Text style={styles.eventDetailsNormalText}> {locationList.length > 0 ? locationList[0].name : "TBD"}</Text>

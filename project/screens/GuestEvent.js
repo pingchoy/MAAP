@@ -32,7 +32,7 @@ export default function GuestEventScreen({ route, navigation }) {
     const [token, setToken] = React.useState('')
     const [API_BASE_URL, setAPIURL] = React.useState('')
     const { eventId } = route.params
-
+    const { user, setUser } = React.useState({})
     React.useEffect(() => {
         (async () => {
             let api = await AsyncStorage.getItem('api')
@@ -40,8 +40,23 @@ export default function GuestEventScreen({ route, navigation }) {
             setToken(token2)
             setAPIURL(api)
             getEventDetails(api, token2)
+            getCurrentUser(api, token2)
         })()
     }, [])
+
+    const getCurrentUser = (api, token) => {
+        fetch(`${api}/user`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'GET',
+        }).then(res => res.json())
+            .then(body => {
+                setUser(body.user)
+            })
+    }
 
     const getEventDetails = (api, token) => {
         fetch(`${api}/event/${eventId}`, {
@@ -54,13 +69,13 @@ export default function GuestEventScreen({ route, navigation }) {
         }).then(res => res.json())
             .then(body => {
                 console.log(body)
-                // setEventName(body.event.name)
-                // setLocationList(body.event.locations)
-                // setTimesList(body.event.times)
-                // setGuestList(body.event.guests)
-                // setGuestsCanAddTimes(body.event.permissions.guestsCanAddTimes)
-                // setGuestsCanAddLocations(body.event.permissions.guestsCanAddLocations)
-                // setGuestsCanInvitePeople(body.event.permissions.guestsCanInvitePeople)
+                setEventName(body.event.name)
+                convertLocationList(body.event.locations)
+                convertTimeList(body.event.times)
+                convertGuestList(body.event.guests)
+                setGuestsCanAddTimes(body.event.permissions.guestsCanAddTimes)
+                setGuestsCanAddLocations(body.event.permissions.guestsCanAddLocations)
+                setGuestsCanInvitePeople(body.event.permissions.guestsCanInvitePeople)
                 forceUpdate()
             })
 
@@ -73,6 +88,53 @@ export default function GuestEventScreen({ route, navigation }) {
             case 3: return "rd";
             default: return "th";
         }
+    }
+    const convertLocationList = (locations) => {
+        let temp = []
+        Object.keys(locations).map(location => {
+            let hasVoted = false
+            if (locations[location].includes(user.userId)) {
+                hasVoted = true
+            }
+            temp.push({ name: location, votes: locations[location].length, hasVoted: hasVoted })
+        })
+
+        setLocationList(temp)
+        forceUpdate()
+    }
+
+    const convertTimeList = (times) => {
+        let temp = []
+        times.map(time => {
+            let hasVoted = false
+            if (time.voters.includes(user.userId)) {
+                hasVoted = true
+            }
+
+            temp.push({ startDate: time.start, endDate: time.end, votes: time.voters.length, hasVoted: hasVoted })
+        })
+        setTimesList(temp)
+        forceUpdate()
+    }
+
+    const convertGuestList = (guests) => {
+        let temp = []
+        Object.keys(guests).map(guest => {
+            fetch(`${api}/user/${guest}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': token
+                },
+                method: 'GET',
+            }).then(res => res.json())
+                .then(body => {
+                    temp.push({ username: body.user.name, status: guests[guest] })
+                })
+        })
+
+        setGuestList(temp)
+        forceUpdate()
     }
 
     const handleAddLocationVote = (location) => {
