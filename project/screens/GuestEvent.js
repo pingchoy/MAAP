@@ -23,6 +23,10 @@ export default function GuestEventScreen({ route, navigation }) {
     const forceUpdate = React.useCallback(() => updateState({}), []);
     const [modalVisible, setModalVisible] = React.useState(false);
     const [newEventName, setNewEventName] = React.useState("")
+    const [guestsCanInvitePeople, setGuestsCanInvitePeople] = React.useState(false);
+    const [guestsCanAddLocations, setGuestsCanAddLocations] = React.useState(false);
+    const [guestsCanAddTimes, setGuestsCanAddTimes] = React.useState(false);
+
     const windowHeight = useWindowDimensions().height;
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -51,10 +55,13 @@ export default function GuestEventScreen({ route, navigation }) {
         }).then(res => res.json())
             .then(body => {
                 console.log(body)
-                setEventName(body.event.name)
-                setLocationList(body.event.locations)
-                setTimesList(body.event.times)
-                setGuestList(body.event.guests)
+                // setEventName(body.event.name)
+                // setLocationList(body.event.locations)
+                // setTimesList(body.event.times)
+                // setGuestList(body.event.guests)
+                // setGuestsCanAddTimes(body.event.permissions.guestsCanAddTimes)
+                // setGuestsCanAddLocations(body.event.permissions.guestsCanAddLocations)
+                // setGuestsCanInvitePeople(body.event.permissions.guestsCanInvitePeople)
                 forceUpdate()
             })
 

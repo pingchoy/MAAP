@@ -111,6 +111,7 @@ app.get('/event/joined', catchErrors(authed(async (req, res, userId) => {
 
 app.get('/event/:eventId', catchErrors(authed(async (req, res, userId) => {
   const { eventId, } = req.params;
+  console.log("Getting event: " + eventId)
   await assertValidEventId(eventId);
   return res.json({ event: await getEvent(eventId) });
 })));
