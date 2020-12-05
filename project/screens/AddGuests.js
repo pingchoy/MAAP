@@ -10,7 +10,7 @@ const { height } = Dimensions.get('window');
 
 export default function AddGuestScreen({ route, navigation }) {
 
-    const [friends, setFriends] = React.useState([{ username: "Brad#1314", disabled: false }, { username: "Andrew#439", disabled: false }])
+    const [friends, setFriends] = React.useState([])
     const [invitedFriends, setInvitedFriends] = React.useState([])
     const [search, setSearch] = React.useState('')
     const windowHeight = useWindowDimensions().height;
@@ -28,7 +28,6 @@ export default function AddGuestScreen({ route, navigation }) {
             let token2 = await AsyncStorage.getItem('userToken')
             setToken(token2)
             setAPIURL(api)
-
             getFriends(token2, api)
             getInviteCode(token2, api)
         })()
@@ -57,8 +56,7 @@ export default function AddGuestScreen({ route, navigation }) {
                         method: 'GET',
                     }).then(res => res.json())
                         .then(body => {
-                            console.log(body.user.name)
-                            temp.push({ username: body.user.name, disabled: false })
+                            temp.push({ username: body.user.name, id: body.user.userId, disabled: false })
                             setFriends(temp)
                             forceUpdate()
                         })
@@ -90,20 +88,22 @@ export default function AddGuestScreen({ route, navigation }) {
         let prevFriends = friends
         prevFriends[prevFriends.findIndex(obj => obj.username === friend.username)].disabled = true
         setFriends(prevFriends)
-
-        // Add new location to list
+        // Add new friend to list
         // Filter list
         let temp = invitedFriends
-        temp.push(friend.username)
+        temp.push(friend)
         let filteredTemp = []
+        let retList = []
         temp.map(friend => {
             if (friend) {
-                if (filteredTemp.indexOf(friend) === -1) {
-                    filteredTemp.push(friend)
+                if (filteredTemp.indexOf(friend.username) === -1) {
+                    filteredTemp.push(friend.username)
+                    retList.push({ username: friend.username, id: friend.id, disabled: friend.disabled })
                 }
             }
         })
-        setInvitedFriends(filteredTemp)
+
+        setInvitedFriends(retList)
     }
 
     return (
