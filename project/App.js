@@ -91,6 +91,42 @@ export default function App({ navigation }) {
     }
   }
 
+  const setUserId = async (token) => {
+    fetch(`${API_BASE_URL}/user`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      method: 'GET',
+    }).then(res => res.json())
+      .then(body => {
+        if (body.error !== undefined) {
+          //error stuff
+        } else {
+          setUserIdHelper(body.user.userId) // Need an async function to store the userId
+        }
+      })
+      .catch(err => alert(err))
+
+    try {
+      await AsyncStorage.setItem('userId', userId)
+
+    } catch (e) {
+      // saving error
+    }
+  }
+
+  const setUserIdHelper = async (userId) =>{
+
+    try {
+      await AsyncStorage.setItem('userId', userId)
+    } catch (e) {
+      // remove error
+    }
+
+  }
+
   const authContext = React.useMemo(
     () => ({
       login: async ({ username, password }) => {
@@ -114,6 +150,7 @@ export default function App({ navigation }) {
               //error stuff
             } else {
               setToken(body.token)
+              setUserId(body.token)
               dispatch({ type: 'LOGIN', token: body.token })
 
             }
@@ -144,6 +181,7 @@ export default function App({ navigation }) {
               //error stuff
             } else {
               setToken(body.token)
+              setUserId(body.token)
               dispatch({ type: 'LOGIN', token: body.token })
 
             }

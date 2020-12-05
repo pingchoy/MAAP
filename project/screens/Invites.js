@@ -21,7 +21,69 @@ const data =
 
 export default function Events({ navigation }) {
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [filteredData, setFilteredData] = React.useState(data);
+  const [filteredData, setFilteredData] = React.useState([]);
+  const [fetchedData, setFetchedData] = React.useState([])
+
+  React.useEffect(() => {
+    // Fetch the token from storage then navigate to our appropriate place
+    const bootstrapAsync = async () => {
+        let userToken = await AsyncStorage.getItem('userToken');
+        let api = await AsyncStorage.getItem('api');
+        //let userId = await AsyncStorage.getItem('userId');
+        //setCurrentUserId(userId)
+        getInvites(userToken, api)
+
+    };
+    
+    const getInvites = (userToken, api) => {
+      fetch(`${api}/user/invites` , {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        method: 'GET',
+      }).then(res=>res.json())
+      .then(body=>{
+        if (body.error !== undefined){
+          //error stuff
+        } else{
+          parseEvents(body.eventIds, userToken, api)
+        }
+      })
+      .catch(err=>alert(err))
+    }
+    const parseEvents = (eventIds, userToken, api) => {
+      let allEvents = []
+      eventIds.forEach((id) => {
+        fetch(`${api}/event/${id}` , {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          path: {
+            eventId:`${id}`
+          },
+          method: 'GET',
+        }).then(res=>res.json())
+        .then(body=>{
+          
+          if (body.error !== undefined){
+            //error stuff
+          } else{
+            //addToEventsJSON(body.event)
+            allEvents.push(body.event)
+          }
+        })
+        .catch(err=>alert(err))
+      })
+      setFetchedData(allEvents)
+      setFilteredData(allEvents)
+    }
+
+    bootstrapAsync();
+  }, []);
 
   const searchFilterFunction = (text) => {
     if (text){

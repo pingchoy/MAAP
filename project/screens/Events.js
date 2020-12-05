@@ -1,4 +1,4 @@
-import { StatusBar } from 'expo-status-bar';
+import { setStatusBarNetworkActivityIndicatorVisible, StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { TouchableOpacity, View, StyleSheet, Dimensions, Text, SafeAreaView, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -34,22 +34,21 @@ const dimensions = Dimensions.get('window');
 
 
 export default function Events({ navigation }) {
-  const [expandedUpcoming, setExpandedUpcoming] = React.useState(true);
-  const [expandedPast, setExpandedPast] = React.useState(true);
+  const [expandedUpcoming, setExpandedUpcoming] = React.useState(false);
+  const [expandedPast, setExpandedPast] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [filteredData, setFilteredData] = React.useState([]);
   const [fetchedData, setFetchedData] = React.useState([]);
-  const [API_BASE_URL, setAPIURL] = React.useState('')
-  const [token, setToken] = React.useState('')
+  const [currentUserId, setCurrentUserId] = React.useState('');
 
   const searchFilterFunction = (text) => {
     if (text) {
       // Inserted text is not blank
       // Filter the initial data
       // Update filteredDate
-      const newData = data.filter(function (item) {
-        const itemData = item.title
-          ? item.title.toUpperCase()
+      const newData = fetchedData.filter(function (item) {
+        const itemData = item.name
+          ? item.name.toUpperCase()
           : ''.toUpperCase();
         const textData = text.toUpperCase();
         return itemData.indexOf(textData) > -1;
@@ -59,7 +58,7 @@ export default function Events({ navigation }) {
     } else {
       // Inserted text is blank
       // Update filteredData with the original
-      setFilteredData(data);
+      setFilteredData(fetchedData);
       setSearchQuery(text);
     }
   }
@@ -68,11 +67,11 @@ export default function Events({ navigation }) {
     // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
         let userToken = await AsyncStorage.getItem('userToken');
-        let api = await AsyncStorage.getItem('api')
-
-        setToken(userToken)
-        setAPIURL(api)
+        let api = await AsyncStorage.getItem('api');
+        let userId = await AsyncStorage.getItem('userId');
+        setCurrentUserId(userId)
         getEvents(userToken, api)
+
     };
     
     const getEvents = (userToken, api) => {
@@ -120,13 +119,37 @@ export default function Events({ navigation }) {
         })
         .catch(err=>alert(err))
       })
-      console.log(allEvents)
       setFetchedData(allEvents)
+      setFilteredData(allEvents)
     }
 
     bootstrapAsync();
   }, []);
 
+  const getMostUpvotedTime = (times) =>{
+    if (times.length <= 0) {
+      return 'TBD'
+    }
+    let sortedTimes = times.sort(function(a, b) {
+      return a.voters.length - b.voters.length
+
+    });
+    return new Date(sortedTimes[0].end)
+  }
+
+  // Turns Date into readable format
+  const getTime = (times) => {
+ 
+    let sortedTimes = times.sort(function(a, b) {
+      return a.voters.length - b.voters.length
+    });
+    if (sortedTimes.length <= 0 || sortedTimes[0].start === null) {
+      return 'TBD'
+    }
+
+    return (new Date(sortedTimes[0].start)).toString()
+
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -157,14 +180,16 @@ export default function Events({ navigation }) {
             theme={{ colors: { primary: '#000' } }}
             expanded={expandedUpcoming}
             onPress={() => setExpandedUpcoming(!expandedUpcoming)}>
-            {filteredData.map(d => {
-              if (!d.past) {
-                if (d.owner) {
+            {filteredData && filteredData.map(d => {
+              let time = getMostUpvotedTime(d.times)
+              if (time >= new Date() || time ==='TBD') {
+                if (d.host ===currentUserId) {
                   return (
                     <List.Item
+                      key={d.code}
                       onPress={() => { }}
-                      title={d.title}
-                      description={d.description}
+                      title={d.name}
+                      description={getTime(d.times)}
                       style={styles.accordionItem}
                       right={props => <Image {...props} style={{ height: 50, width: 50 }} source={require('../assets/AdminImage.png')}></Image>}
                     />
@@ -175,8 +200,9 @@ export default function Events({ navigation }) {
                     <TouchableOpacity
                       onPress={() => { navigation.navigate("GuestEvent", { eventId: "116467958" }) }}>
                       <List.Item
-                        title={d.title}
-                        description={d.description}
+                        key={d.code}
+                        title={d.name}
+                        description={getTime(d.times)}
                         style={styles.accordionItem}
                       />
                     </TouchableOpacity>
@@ -193,15 +219,17 @@ export default function Events({ navigation }) {
             theme={{ colors: { primary: '#000' } }}
             expanded={expandedPast}
             onPress={() => setExpandedPast(!expandedPast)}>
-            {filteredData.map(d => {
-              if (d.past) {
-                if (d.owner) {
+            {filteredData && filteredData.map(d => {
+              let time = getMostUpvotedTime(d.times)
+              if (time !== 'TBD' && time < new Date()) {
+                if (d.host ===currentUserId) {
                   return (
                     <List.Item
-                      title={d.title}
-                      description={d.description}
+                      key={d.code}
+                      title={d.name}
+                      description={getTime(d.times)}
                       style={styles.accordionItem}
-                      right={props => <List.Icon {...props} icon="crown" color="#165f22" />}
+                      right={props => <Image {...props} style={{ height: 50, width: 50 }} source={require('../assets/AdminImage.png')}></Image>}
                     />
                   )
                 }
@@ -212,8 +240,9 @@ export default function Events({ navigation }) {
 
                       onPress={() => { navigation.navigate("GuestEvent", { eventId: "116467958" }) }}>
                       <List.Item
-                        title={d.title}
-                        description={d.description}
+                        key={d.code}
+                        title={d.name}
+                        description={getTime(d.times)}
                         style={styles.accordionItem}
                       />
                     </TouchableOpacity>
