@@ -115,7 +115,6 @@ export default function Events({ navigation }) {
               //addToEventsJSON(body.event)
 
               body.event['eventId'] = id
-              console.log(body.event)
               allEvents.push(body.event)
             }
           })

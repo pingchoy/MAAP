@@ -72,7 +72,7 @@ export default function GuestEventScreen({ route, navigation }) {
                 setEventName(body.event.name)
                 convertLocationList(body.event.locations)
                 convertTimeList(body.event.times)
-                convertGuestList(body.event.guests)
+                convertGuestList(api, token, body.event.guests)
                 setGuestsCanAddTimes(body.event.permissions.guestsCanAddTimes)
                 setGuestsCanAddLocations(body.event.permissions.guestsCanAddLocations)
                 setGuestsCanInvitePeople(body.event.permissions.guestsCanInvitePeople)
@@ -111,13 +111,13 @@ export default function GuestEventScreen({ route, navigation }) {
                 hasVoted = true
             }
 
-            temp.push({ startDate: time.start, endDate: time.end, votes: time.voters.length, hasVoted: hasVoted })
+            temp.push({ startDate: new Date(time.start), endDate: new Date(time.end), votes: time.voters.length, hasVoted: hasVoted })
         })
         setTimesList(temp)
         forceUpdate()
     }
 
-    const convertGuestList = (guests) => {
+    const convertGuestList = (api, token, guests) => {
         let temp = []
         Object.keys(guests).map(guest => {
             fetch(`${api}/user/${guest}`, {
@@ -207,15 +207,24 @@ export default function GuestEventScreen({ route, navigation }) {
                 return (
                     <ScrollView style={[styles.scene, { backgroundColor: 'white' }]} >
                         {guestList.map((guest) => {
+
                             return (
                                 <Text style={styles.guestInformationText}>
-                                    <Icon
+                                    {guest.status === "MAYBE" ? <Icon
                                         name="question"
                                         size={30}
                                         backgroundColor="white"
                                         color="orange"
                                     >
-                                    </Icon>
+                                    </Icon> :
+                                        <Icon
+                                            name="check"
+                                            size={30}
+                                            backgroundColor="white"
+                                            color="green"
+                                        >
+                                        </Icon>
+                                    }
                                     <Text style={styles.guestUsernameText}>   {guest.username}</Text>
                                 </Text>
 

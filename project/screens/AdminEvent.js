@@ -61,7 +61,6 @@ export default function AdminEventScreen({ route, navigation }) {
     }, [])
 
     const getEventDetails = (api, token) => {
-        console.log(api, token, eventId)
         fetch(`${api}/event/${eventId}`, {
             headers: {
                 'Content-Type': 'application/json',
@@ -71,11 +70,10 @@ export default function AdminEventScreen({ route, navigation }) {
             method: 'GET',
         }).then(res => res.json())
             .then(body => {
-                console.log(body)
                 setEventName(body.event.name)
                 convertLocationList(body.event.locations)
                 convertTimeList(body.event.times)
-                convertGuestList(body.event.guests)
+                convertGuestList(api, token, body.event.guests)
                 setGuestsCanAddTimes(body.event.permissions.guestsCanAddTimes)
                 setGuestsCanAddLocations(body.event.permissions.guestsCanAddLocations)
                 setGuestsCanInvitePeople(body.event.permissions.guestsCanInvitePeople)
@@ -92,10 +90,12 @@ export default function AdminEventScreen({ route, navigation }) {
                 hasVoted = true
             }
             temp.push({ name: location, votes: locations[location].length, hasVoted: hasVoted })
+
+            setLocationList(temp)
+            forceUpdate()
         })
 
-        setLocationList(temp)
-        forceUpdate()
+
     }
 
     const convertTimeList = (times) => {
@@ -105,15 +105,17 @@ export default function AdminEventScreen({ route, navigation }) {
             if (time.voters.includes(user.userId)) {
                 hasVoted = true
             }
-
-            temp.push({ startDate: time.start, endDate: time.end, votes: time.voters.length, hasVoted: hasVoted })
+            temp.push({ startDate: new Date(time.start), endDate: new Date(time.end), votes: time.voters.length, hasVoted: hasVoted })
+            console.log(temp)
+            setTimesList(temp)
+            forceUpdate()
         })
-        setTimesList(temp)
-        forceUpdate()
+
     }
 
-    const convertGuestList = (guests) => {
+    const convertGuestList = (api, token, guests) => {
         let temp = []
+        // console.log("Test" + api)
         Object.keys(guests).map(guest => {
             fetch(`${api}/user/${guest}`, {
                 headers: {
@@ -125,11 +127,12 @@ export default function AdminEventScreen({ route, navigation }) {
             }).then(res => res.json())
                 .then(body => {
                     temp.push({ username: body.user.name, status: guests[guest] })
+                    setGuestList(temp)
+                    forceUpdate()
                 })
         })
 
-        setGuestList(temp)
-        forceUpdate()
+
     }
 
     const getCurrentUser = (api, token) => {
@@ -225,13 +228,21 @@ export default function AdminEventScreen({ route, navigation }) {
                         {guestList.map((guest) => {
                             return (
                                 <Text style={styles.guestInformationText}>
-                                    <Icon
+                                    {guest.status === "MAYBE" ? <Icon
                                         name="question"
                                         size={30}
                                         backgroundColor="white"
                                         color="orange"
                                     >
-                                    </Icon>
+                                    </Icon> :
+                                        <Icon
+                                            name="check"
+                                            size={30}
+                                            backgroundColor="white"
+                                            color="green"
+                                        >
+                                        </Icon>
+                                    }
                                     <Text style={styles.guestUsernameText}>   {guest.username}</Text>
                                 </Text>
 
@@ -386,6 +397,7 @@ export default function AdminEventScreen({ route, navigation }) {
     const handleGuestChange = (guests) => {
         let temp = guestList
         let filteredList = []
+        console.log(guests)
         // Get unique guests from guestList
         guestList.map(guest => {
             if (filteredList.indexOf(guest.username) === -1) {
@@ -395,10 +407,10 @@ export default function AdminEventScreen({ route, navigation }) {
         // get unique guests from guests
         guests.map(guest => {
             if (guest) {
-                if (filteredList.indexOf(guest) === -1) {
-                    filteredList.push(guest)
-                    temp.push({ username: guest, status: "maybe" })
-
+                if (filteredList.indexOf(guest.username) === -1) {
+                    filteredList.push(guest.username)
+                    temp.push({ username: guest.username, id: guest.id, status: "maybe" })
+                    console.log("Sending Invites")
                     // send post request api
                     fetch(`${API_BASE_URL}/event/invite`, {
                         headers: {
@@ -409,9 +421,10 @@ export default function AdminEventScreen({ route, navigation }) {
                         method: 'PUT',
                         body: JSON.stringify({
                             "eventId": eventId,
-                            "userId": guest
+                            "userId": guest.id
                         })
-                    })
+                    }).then(res => res.json())
+                        .then(body => console.log(body))
                 }
             }
         })
