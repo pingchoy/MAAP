@@ -31,6 +31,8 @@ import {
   unvoteLocation,
   unvoteTime,
   deleteEvent,
+  assertValidUserId,
+  getUser,
   getFriends,
   getInvites,
   setFriends,
@@ -221,6 +223,12 @@ app.put('/event/unvote/time', catchErrors(authed(async (req, res, userId) => {
 /***************************************************************
                           User Functions
 ***************************************************************/
+
+app.get('/user/:userId', catchErrors(authed(async (req, res, thisUserId) => {
+  const { userId, } = req.params;
+  await assertValidUserId(userId);
+  return res.json({user: await getUser(userId)});
+})));
 
 app.get('/user/friends', catchErrors(authed(async (req, res, userId) => {
   console.log("Getting Friends")
