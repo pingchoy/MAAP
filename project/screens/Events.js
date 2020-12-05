@@ -2,6 +2,7 @@ import { setStatusBarNetworkActivityIndicatorVisible, StatusBar } from 'expo-sta
 import React from 'react';
 import { TouchableOpacity, View, StyleSheet, Dimensions, Text, SafeAreaView, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useIsFocused } from "@react-navigation/native";
 import { List, Searchbar } from 'react-native-paper';
 import { } from 'react-native-gesture-handler'
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -40,7 +41,7 @@ export default function Events({ navigation }) {
   const [filteredData, setFilteredData] = React.useState([]);
   const [fetchedData, setFetchedData] = React.useState([]);
   const [currentUserId, setCurrentUserId] = React.useState('');
-
+  const isVisible = useIsFocused()
   const searchFilterFunction = (text) => {
     if (text) {
       // Inserted text is not blank
@@ -125,7 +126,7 @@ export default function Events({ navigation }) {
     }
 
     bootstrapAsync();
-  }, []);
+  }, [isVisible]);
 
   const getMostUpvotedTime = (times) => {
     if (times.length <= 0) {
@@ -184,6 +185,8 @@ export default function Events({ navigation }) {
             {filteredData && filteredData.map(d => {
               let time = getMostUpvotedTime(d.times)
               if (time >= new Date() || time === 'TBD') {
+                console.log(d.host)
+                console.log("currentUserId = " + currentUserId)
                 if (d.host === currentUserId) {
                   return (
                     <List.Item

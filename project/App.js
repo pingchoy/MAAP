@@ -91,8 +91,15 @@ export default function App({ navigation }) {
     } catch (e) {
       // remove error
     }
-  }
 
+  }
+  const removeUserId = async () => {
+    try {
+      await AsyncStorage.removeItem('userId')
+    } catch (e) {
+      // remove error
+    }
+  }
   const authContext = React.useMemo(
     () => ({
       login: async ({ username, password }) => {
@@ -125,6 +132,7 @@ export default function App({ navigation }) {
       },
       signOut: () => {
         removeToken()
+        removeUserId()
         dispatch({ type: 'SIGN_OUT' })
       },
       signUp: async ({ email, name, password }) => {

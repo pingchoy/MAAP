@@ -33,6 +33,8 @@ export default function GuestEventScreen({ route, navigation }) {
     const [API_BASE_URL, setAPIURL] = React.useState('')
     const { eventId } = route.params
     const { user, setUser } = React.useState({})
+    const { eventHost, setEventHost } = React.useState('')
+
     React.useEffect(() => {
         (async () => {
             let api = await AsyncStorage.getItem('api')
@@ -70,6 +72,7 @@ export default function GuestEventScreen({ route, navigation }) {
         }).then(res => res.json())
             .then(body => {
                 console.log(body)
+                getEventHost(api, token, body.event.host)
                 setEventName(body.event.name)
                 convertLocationList(userid, body.event.locations)
                 convertTimeList(userid, body.event.times)
@@ -90,6 +93,19 @@ export default function GuestEventScreen({ route, navigation }) {
             default: return "th";
         }
     }
+
+    const getEventHost = (api, token, hostid) => {
+        console.log("Test" + hostid)
+        fetch(`${api}/user/${hostid}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'GET',
+        }).then(res => res.json())
+            .then(body => { setEventHost(body.user.name) })
+    }
     const convertLocationList = (userid, locations) => {
         let temp = []
         Object.keys(locations).map(location => {
@@ -98,10 +114,11 @@ export default function GuestEventScreen({ route, navigation }) {
                 hasVoted = true
             }
             temp.push({ name: location, votes: locations[location].length, hasVoted: hasVoted })
+            setLocationList(temp)
+            forceUpdate()
         })
 
-        setLocationList(temp)
-        forceUpdate()
+
     }
 
     const convertTimeList = (userid, times) => {
@@ -113,9 +130,10 @@ export default function GuestEventScreen({ route, navigation }) {
             }
 
             temp.push({ startDate: new Date(time.start), endDate: new Date(time.end), votes: time.voters.length, hasVoted: hasVoted })
+            setTimesList(temp)
+            forceUpdate()
         })
-        setTimesList(temp)
-        forceUpdate()
+
     }
 
     const convertGuestList = (api, token, guests) => {
@@ -131,11 +149,12 @@ export default function GuestEventScreen({ route, navigation }) {
             }).then(res => res.json())
                 .then(body => {
                     temp.push({ username: body.user.name, status: guests[guest] })
+                    setGuestList(temp)
+                    forceUpdate()
                 })
         })
 
-        setGuestList(temp)
-        forceUpdate()
+
     }
 
     const handleAddLocationVote = (location) => {
@@ -275,10 +294,10 @@ export default function GuestEventScreen({ route, navigation }) {
                                         }}
                                     ><Text> {time.votes}</Text></Icon.Button>
                                     <Text style={styles.timeInformationText} numberOfLines={2}>
-                                        <Text>{time.date.getHours()}:{time.date.getUTCMinutes() < 10 ? '0' + time.date.getMinutes() : time.date.getMinutes()}{time.date.getHours() > 12 ? "pm" : "am"}</Text>
-                                        <Text> {days[time.date.getDay()]}</Text>
-                                        <Text> {time.date.getDate()}{nth(time.date.getDate())}</Text>
-                                        <Text> {months[time.date.getMonth()]}</Text>
+                                        <Text>{time.startDate.getHours()}:{time.startDate.getUTCMinutes() < 10 ? '0' + time.startDate.getMinutes() : time.startDate.getMinutes()}{time.startDate.getHours() > 12 ? "pm" : "am"}</Text>
+                                        <Text> {days[time.startDate.getDay()]}</Text>
+                                        <Text> {time.startDate.getDate()}{nth(time.startDate.getDate())}</Text>
+                                        <Text> {months[time.startDate.getMonth()]}</Text>
 
                                     </Text>
                                 </View>
@@ -355,7 +374,9 @@ export default function GuestEventScreen({ route, navigation }) {
                 if (filteredList.indexOf(location) === -1) {
                     filteredList.push(location)
                     temp.push({ name: location, votes: 0, hasVoted: false })
+                    setLocationList(temp)
 
+                    forceUpdate()
                     // send post request api
                     fetch(`${API_BASE_URL}/event/location`, {
                         headers: {
@@ -372,13 +393,12 @@ export default function GuestEventScreen({ route, navigation }) {
                 }
             }
         })
-        setLocationList(temp)
 
-        forceUpdate()
     }
     const handleGuestChange = (guests) => {
         let temp = guestList
         let filteredList = []
+        console.log(guests)
         // Get unique guests from guestList
         guestList.map(guest => {
             if (filteredList.indexOf(guest.username) === -1) {
@@ -388,9 +408,24 @@ export default function GuestEventScreen({ route, navigation }) {
         // get unique guests from guests
         guests.map(guest => {
             if (guest) {
-                if (filteredList.indexOf(guest) === -1) {
-                    filteredList.push(guest)
-                    temp.push({ username: guest, status: "maybe" })
+                if (filteredList.indexOf(guest.username) === -1) {
+                    filteredList.push(guest.username)
+                    temp.push({ username: guest.username, id: guest.id, status: "maybe" })
+                    console.log("Sending Invites")
+                    // send post request api
+                    fetch(`${API_BASE_URL}/event/invite`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': token
+                        },
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            "eventId": eventId,
+                            "userId": guest.id
+                        })
+                    }).then(res => res.json())
+                        .then(body => console.log(body))
                 }
             }
         })
@@ -404,6 +439,9 @@ export default function GuestEventScreen({ route, navigation }) {
     }
 
     const handleGoing = () => {
+        let currentGuests = guestList
+        guestList
+
         fetch(`${API_BASE_URL}/event/status`, {
             headers: {
                 'Content-Type': 'application/json',
@@ -489,7 +527,7 @@ export default function GuestEventScreen({ route, navigation }) {
             </View>
             <View style={styles.eventDetailsView}>
                 <Text>
-                    <Text style={styles.eventDetailsBoldText}>Host:</Text><Text style={styles.eventDetailsNormalText}> Anton</Text>
+                    <Text style={styles.eventDetailsBoldText}>Host:</Text><Text style={styles.eventDetailsNormalText}> {eventHost}</Text>
                 </Text>
                 <Text>
                     <Text style={styles.eventDetailsBoldText}>Location:</Text><Text style={styles.eventDetailsNormalText}> {locationList.length > 0 ? locationList[0].name : "TBD"}</Text>
