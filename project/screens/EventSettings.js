@@ -22,7 +22,7 @@ export default function EventSettings({ route, navigation }) {
         })()
     }, [])
 
-    handleEventSettingsChange = () => {
+    const handleEventSettingsChange = () => {
 
         fetch(`${API_BASE_URL}/event/settings`, {
             headers: {
