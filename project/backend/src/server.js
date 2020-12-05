@@ -78,7 +78,6 @@ const authed = fn => async (req, res) => {
 ***************************************************************/
 
 app.post('/auth/login', catchErrors(async (req, res) => {
-
   const { email, password, } = req.body;
   console.log()
   const token = await login(email, password);
@@ -161,7 +160,6 @@ app.put('/event/status', catchErrors(authed(async (req, res, userId) => {
 })));
 
 app.put('/event/invite', catchErrors(authed(async (req, res, thisUserId) => {
-
   const { eventId, userId, } = req.body;
   console.log("Inviting new user: " + userId)
   await assertValidEventId(eventId);
