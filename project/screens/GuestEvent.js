@@ -15,7 +15,7 @@ export default function GuestEventScreen({ route, navigation }) {
         { key: 'third', title: 'Times' }
     ]);
     const [eventHost, setEventHost] = React.useState('');
-    const [eventName, setEventName] = React.useState("New Event")
+    const [eventName, setEventName] = React.useState("")
     const [currentTab, setCurrentTab] = React.useState("Guests")
     const [timeList, setTimesList] = React.useState([])
     const [locationList, setLocationList] = React.useState([])

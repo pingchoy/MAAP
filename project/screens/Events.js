@@ -228,6 +228,7 @@ export default function Events({ navigation }) {
                 if (d.host === currentUserId) {
                   return (
                     <List.Item
+                      onPress={() => { navigation.navigate("AdminEvent", { eventId: d.eventId }) }}
                       key={d.code}
                       title={d.name}
                       description={getTime(d.times)}
@@ -239,9 +240,7 @@ export default function Events({ navigation }) {
                 else {
                   return (
                     <TouchableOpacity
-                      // Using a sample eventID 
-
-                      onPress={() => { navigation.navigate("GuestEvent", { eventId: "116467958" }) }}>
+                      onPress={() => { navigation.navigate("GuestEvent", { eventId: d.eventId }) }}>
                       <List.Item
                         key={d.code}
                         title={d.name}
