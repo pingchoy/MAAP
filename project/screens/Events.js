@@ -41,28 +41,6 @@ export default function Events({ navigation }) {
   const [fetchedData, setFetchedData] = React.useState([]);
   const [currentUserId, setCurrentUserId] = React.useState('');
 
-  const searchFilterFunction = (text) => {
-    if (text) {
-      // Inserted text is not blank
-      // Filter the initial data
-      // Update filteredDate
-      const newData = fetchedData.filter(function (item) {
-        const itemData = item.name
-          ? item.name.toUpperCase()
-          : ''.toUpperCase();
-        const textData = text.toUpperCase();
-        return itemData.indexOf(textData) > -1;
-      });
-      setFilteredData(newData);
-      setSearchQuery(text);
-    } else {
-      // Inserted text is blank
-      // Update filteredData with the original
-      setFilteredData(fetchedData);
-      setSearchQuery(text);
-    }
-  }
-
   React.useEffect(() => {
     // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
@@ -125,6 +103,28 @@ export default function Events({ navigation }) {
 
     bootstrapAsync();
   }, []);
+  
+  const searchFilterFunction = (text) => {
+    if (text) {
+      // Inserted text is not blank
+      // Filter the initial data
+      // Update filteredDate
+      const newData = fetchedData.filter(function (item) {
+        const itemData = item.name
+          ? item.name.toUpperCase()
+          : ''.toUpperCase();
+        const textData = text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+      });
+      setFilteredData(newData);
+      setSearchQuery(text);
+    } else {
+      // Inserted text is blank
+      // Update filteredData with the original
+      setFilteredData(fetchedData);
+      setSearchQuery(text);
+    }
+  }
 
   const getMostUpvotedTime = (times) =>{
     if (times.length <= 0) {

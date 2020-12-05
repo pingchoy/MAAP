@@ -4,20 +4,105 @@ import { AuthContext } from '../App';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Avatar } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const dimensions = Dimensions.get('window');
 
 export default function Profile({ navigation }) {
+  const [friends, setFriends] = React.useState([])
+  const [token, setToken] = React.useState('')
+  const [API_BASE_URL, setAPIURL] = React.useState('')
+  const [myEventIds, setMyEventIds] = React.useState('')
+  const [myName, setMyName] = React.useState('')
+  const [myId, setMyId] = React.useState('')
 
-  const [friends, setFriends] = React.useState([{ username: "Brad#1314" }, { username: "Andrew#439" }])
   const { signOut } = React.useContext(AuthContext);
 
-  return (
+  React.useEffect(() => {
+    // Fetch the token from storage then navigate to our appropriate place
+    const bootstrapAsync = async () => {
+        let userToken = await AsyncStorage.getItem('userToken');
+        let api = await AsyncStorage.getItem('api');
+        let id = await AsyncStorage.getItem('userId')
+        setToken(userToken)
+        setAPIURL(api)
+        setMyId(id)
+        getFriends(userToken, api)
+        getMyName(userToken, api)
+    };
+    
+    const getFriends = (userToken, api) => {
+      fetch(`${api}/user/friends` , {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        method: 'GET',
+      }).then(res=>res.json())
+      .then(body=>{
+        if (body.error !== undefined){
+          //error stuff
+        } else{
+          setMyEventIds(body.userIds)
+          parseFriends(body.userIds, userToken, api)
+        }
+      })
+      .catch(err=>alert(err))
+    }
+    const parseFriends = (friendIds, userToken, api) => {
+      let allFriends = []
+      friendIds.forEach((id) => {
+        fetch(`${api}/user/${id}` , {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          path: {
+            userId:`${id}`
+          },
+          method: 'GET',
+        }).then(res=>res.json())
+        .then(body=>{
+          
+          if (body.error !== undefined){
+            //error stuff
+          } else{
+            //addToEventsJSON(body.event)
+            allFriends.push(body.user)
+          }
+        })
+        .catch(err=>alert(err))
+      })
+      setFriends(allFriends)
+    }
+    const getMyName = (userToken, api) => {
+      fetch(`${api}/user` , {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        method: 'GET',
+      }).then(res=>res.json())
+      .then(body=>{
+        if (body.error !== undefined){
+          //error stuff
+        } else{
+          setMyName(body.user.name)
+        }
+      })
+      .catch(err=>alert(err))
+    }
+    bootstrapAsync();
+  }, []);
 
+  return (
     <SafeAreaView style={styles.container}>
       <View style={styles.bannerView}>
         <View style={styles.headingView}>
-          <Text style={styles.heading}>Anton#7029</Text>
+          <Text style={styles.heading}>{myName}</Text>
           <TouchableOpacity style={styles.settings} onPress={() => navigation.navigate('ProfileSettings')} >
             <MaterialCommunityIcons  name="settings" color={"#165F22"} size={50} />
           </TouchableOpacity>
@@ -25,12 +110,16 @@ export default function Profile({ navigation }) {
         <View style={{flex: 2, alignItems: 'center', justifyContent: 'center'}}>
           <Avatar.Image style={styles.profilePicture} size={110} source={require('../assets/profilePicture.png')} />
         </View>
+        <View style={styles.idView}>
+          <Text style={styles.yourIDText} >Your ID: </Text>
+          <Text style={styles.yourID} >{123135413}</Text>
+        </View>
       </View>
 
       <View style={styles.contentView}>
         <View style={styles.subheadingView}>
           <Text style={styles.subHeading}>Friends</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('AddFriend')} style={{justifyContent: "center", alignItems: "center", paddingRight: 20}}>
+          <TouchableOpacity onPress={() => {console.log('success');navigation.navigate('AddFriend')}} style={{justifyContent: "center", alignItems: "center", paddingRight: 20}}>
             <MaterialCommunityIcons name="plus" color={"#165F22"} size={50}/>
           </TouchableOpacity>
         </View>
@@ -43,7 +132,7 @@ export default function Profile({ navigation }) {
                                 name="user-circle-o"
                                 size={60}
                               />
-                              <Text style={styles.friendName}>{friend.username}</Text>
+                              <Text style={styles.friendName}>{friend.name}</Text>
                         </View>
                     )
                 })}
@@ -64,7 +153,7 @@ const styles = StyleSheet.create({
   },
   bannerView: {
     position: 'absolute',
-    height: 200,
+    height: 266,
     width: dimensions.width,
     top: 0,
     shadowColor: '#000',
@@ -99,11 +188,18 @@ const styles = StyleSheet.create({
   profilePicture: {
     borderStyle: 'dotted' // Not sure how to get rid of the purple border otherwise...
   },    
+  idView: {
+    flex: 1, 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'flex-start', 
+    paddingLeft: 40
+  },
   contentView: {
     position: 'absolute',
-    top:200,
+    top:266,
     width: dimensions.width,
-    height: dimensions.height - 290,
+    height: dimensions.height - 356,
     flex: 1,
 
   },
@@ -145,5 +241,16 @@ const styles = StyleSheet.create({
       fontWeight: 'normal',
       fontSize: 20,
       lineHeight: 23,
+    },
+    yourIDText: {
+      fontStyle: 'normal',
+      fontWeight: 'bold',
+      fontSize: 16,
+      
+    },
+    yourID:{
+      fontStyle: 'normal',
+      fontWeight: 'normal',
+      fontSize: 16,
     }
 });

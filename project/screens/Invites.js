@@ -2,35 +2,25 @@ import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { View, StyleSheet, Dimensions, Text, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Searchbar  } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const dimensions = Dimensions.get('window');
-const data = 
-[
-  {
-    title: 'Tim\'s b-day party',
-    host: 'VerylongnamethatisprobablyTim#1234',
-    location: 'Long text breaks everything?asdfasdfasdfasdf',
-    time: 'TBD'
-  },
-  {
-    title: 'Partyyyyyy',
-    host: "Chad#1",
-    location: 'Parramatta',
-    time: '4pm, 25th Nov. 2020'
-  }]
 
 export default function Events({ navigation }) {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [filteredData, setFilteredData] = React.useState([]);
   const [fetchedData, setFetchedData] = React.useState([])
+  const [token, setToken] = React.useState('')
+  const [API_BASE_URL, setAPIURL] = React.useState('')
+  const [myEventIds, setMyEventIds] = React.useState('')
 
   React.useEffect(() => {
     // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
         let userToken = await AsyncStorage.getItem('userToken');
         let api = await AsyncStorage.getItem('api');
-        //let userId = await AsyncStorage.getItem('userId');
-        //setCurrentUserId(userId)
+        setToken(userToken)
+        setAPIURL(api)
         getInvites(userToken, api)
 
     };
@@ -48,6 +38,7 @@ export default function Events({ navigation }) {
         if (body.error !== undefined){
           //error stuff
         } else{
+          setMyEventIds(body.eventIds)
           parseEvents(body.eventIds, userToken, api)
         }
       })
@@ -90,7 +81,7 @@ export default function Events({ navigation }) {
       // Inserted text is not blank
       // Filter the initial data
       // Update filteredDate
-      const newData = data.filter(function (item) {
+      const newData = fetchedData.filter(function (item) {
         const itemData = item.title
           ? item.title.toUpperCase()
           : ''.toUpperCase();
@@ -102,9 +93,46 @@ export default function Events({ navigation }) {
     } else {
       // Inserted text is blank
       // Update filteredData with the original
-      setFilteredData(data);
+      setFilteredData(fetchedData);
       setSearchQuery(text);
     }
+  }
+
+  const getHostName = (hostId) => {
+    fetch(`${API_BASE_URL}/user/${hostId}`, {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+      },
+      method: 'GET',
+    }).then(res => res.json())
+      .then(body => {
+          return body.user.name
+    })
+  }
+
+  const getLocation = (locations) => {
+    let sortedLocations = locations.sort(function(a, b) {
+      return a.voters.length - b.voters.length
+    });
+    if (sortedLocations.length <= 0) {
+      return 'TBD'
+    }
+    return Object.keys(sortedLocations)[0]
+  }
+  // Turns Date into readable format
+  const getTime = (times) => {
+ 
+    let sortedTimes = times.sort(function(a, b) {
+      return a.voters.length - b.voters.length
+    });
+    if (sortedTimes.length <= 0 || sortedTimes[0].start === null) {
+      return 'TBD'
+    }
+
+    return (new Date(sortedTimes[0].start)).toString()
+
   }
 
   return (
@@ -128,31 +156,31 @@ export default function Events({ navigation }) {
             <View style={styles.inviteView}>
               <View style={styles.inviteDetails}> 
 
-                <Text style={styles.inviteTitle}> {d.title} </Text>
+                <Text style={styles.inviteTitle}> {d.name} </Text>
 
                 <View style={styles.textView}>
                   <Text style={styles.boldText}>Host: </Text>
                   <View style={{flex: 1}}>
-                    <Text ellipsizeMode='tail'  numberOfLines={1} style={styles.dataText}>{d.host}</Text>
+                    <Text ellipsizeMode='tail'  numberOfLines={1} style={styles.dataText}>{getHostName(d.host)}</Text>
                   </View>
                 </View>
                 <View style={styles.textView}>
                   <Text style={styles.boldText}>Location: </Text>
                   <View style={{flex: 1}}>
-                    <Text ellipsizeMode='tail'  numberOfLines={1} style={styles.dataText}>{d.location}</Text>
+                    <Text ellipsizeMode='tail'  numberOfLines={1} style={styles.dataText}>{getLocation(d.locations)}</Text>
                   </View>
                 </View>
                 <View style={styles.textView}>
                   <Text style={styles.boldText}>Time: </Text>
-                  <Text ellipsizeMode='tail' numberOfLines={1} style={styles.dataText}>{d.time}</Text>
+                  <Text ellipsizeMode='tail' numberOfLines={1} style={styles.dataText}>{getTime(d.times)}</Text>
 
                 </View>
               </View>
               <View style={styles.inviteButtons}>
-                <TouchableOpacity style={styles.acceptButton}>
+                <TouchableOpacity style={styles.acceptButton} onPress={()=>console.log("Accept" +d.code)}>
                   <Text style={styles.inviteButtonText}>Accept</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.declineButton}>
+                <TouchableOpacity style={styles.declineButton} onPress={()=>console.log("Decline" +d.code)}>
                   <Text style={styles.inviteButtonText}>Decline</Text>
                 </TouchableOpacity>
               </View>

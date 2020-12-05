@@ -20,7 +20,7 @@ export default function Login({ navigation }) {
         <TextInput
           style={styles.inputBody}
           placeholder={username}
-          onChangeUsername={text => onChangeUsername(text)}
+          onChangeText={text => onChangeUsername(text)}
           username={username}
         />
       </View>
@@ -28,7 +28,7 @@ export default function Login({ navigation }) {
         <TextInput
           style={styles.inputBody}
           placeholder={code}
-          onChangePassword={text => onChangeCode(text)}
+          onChangeText={text => onChangeCode(text)}
           code={code}
         />
       </View>
