@@ -1,924 +1,942 @@
 {
-    "swagger": "2.0",
-    "info": {
-        "version": "1.0.0",
-        "title": "MAAP Backend",
-        "license": {
-            "name": "MIT",
-            "url": "https://opensource.org/licenses/MIT"
-        }
-    },
-    "tags": [
-        {
-            "name": "Auth"
-        },
-        {
-            "name": "Event"
-        },
-        {
-            "name": "User"
-        }
-    ],
-    "schemes": [
-        "http"
-    ],
-    "consumes": [
-        "application/json"
-    ],
-    "produces": [
-        "application/json"
-    ],
-    "components": {
-        "securitySchemes": {
-            "bearerAuth": {
-              "type": "http",
-              "scheme": "bearer",
-              "bearerFormat": "JWT"
-            }
-        },
-        "schemas": {
-            "AuthToken": {
-                "type": "object",
-                "properties": {
-                    "token": {
-                        "type": "string",
-                        "description": "Authorization Bearer Token"
-                    }
-                }
-            }
-        },
-        "fields": {
-            "Email": {
-                "type": "string",
-                "description": "Email address",
-                "example": "anton1393@hotmail.com"
-            },
-            "Name": {
-                "type": "string",
-                "description": "First name",
-                "example": "Anton"
-            },
-            "Password": {
-                "type": "string",
-                "description": "Raw password",
-                "example": "adummypassword"
-            },
-            "EventId": {
-                "type": "string",
-                "description": "Event ID provided by the backend",
-                "example": "785204001"
-            },
-            "EventCode": {
-                "type": "string",
-                "description": "Event code provided by the backend",
-                "example": "fa2g7"
-            },
-            "EventName": {
-                "type": "string",
-                "description": "Name of an event",
-                "example": "Bowling at Anton's"
-            },
-            "EventPermissions": {
-                "type": "object",
-                "description": "Event permissions in this specific format",
-                "properties": {
-                    "guestsCanInvite": "boolean",
-                    "guestsCanAddLocations": "boolean",
-                    "guestsCanAddTimes": "boolean"
-                },
-                "example": {
-                    "guestsCanInvite": true,
-                    "guestsCanAddLocations": false,
-                    "guestsCanAddTimes": true
-                }
-            },
-            "EventGuests": {
-                "type": "object",
-                "description": "Event guests",
-                "properties": {
-                    "[userId]": {
-                        "$ref": "#/components/fields/EventStatus"
-                    }
-                },
-                "example": {
-                    "916046007": "GOING",
-                    "145765407": "MAYBE"
-                }
-            },
-            "EventLocations": {
-                "type": "object",
-                "description": "Event locations",
-                "properties": {
-                    "[location]": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/fields/UserId"
-                        }
-                    }
-                },
-                "example": {
-                    "Anton's House": ["383472", "112004"],
-                    "Strike Bowling": []
-                }
-            },
-            "EventTimes": {
-                "type": "array",
-                "description": "Event times",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "start": {
-                            "$ref": "#/components/fields/Timestamp"
-                        },
-                        "end": {
-                            "$ref": "#/components/fields/Timestamp"
-                        },
-                        "voters": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/components/fields/UserId"
-                            }
-                        }
-                    }
-                },
-                "example": [
-                    {
-                        "start": null,
-                        "end": null,
-                        "voters": ["183345", "825323", "921654"]
-                    },
-                    {
-                        "start": null,
-                        "end": null,
-                        "voters": ["478355"]
-                    }
-                ]
-            },
-            "EventStatus": {
-                "type": "string",
-                "description": "One of GOING, MAYBE or NOTGOING",
-                "example": "GOING"
-            },
-            "Event": {
-                "type": "object",
-                "description": "Full event data structure",
-                "properties": {
-                    "name": {
-                        "$ref": "#/components/fields/EventName"
-                    },
-                    "host": {
-                        "$ref": "#/components/fields/UserId"
-                    },
-                    "code": {
-                        "$ref": "#/components/fields/EventCode"
-                    },
-                    "permissions": {
-                        "$ref": "#/components/fields/EventPermissions"
-                    },
-                    "guests": {
-                        "$ref": "#/components/fields/EventGuests"
-                    },
-                    "locations": {
-                        "$ref": "#/components/fields/EventLocations"
-                    },
-                    "times": {
-                        "$ref": "#/components/fields/EventTimes"
-                    }
-                }
-            },
-            "UserId": {
-                "type": "string",
-                "description": "User ID provided by the backend",
-                "example": "916046007"
-            },
-            "Location": {
-                "type": "string",
-                "description": "Location name",
-                "example": "Anton's house"
-            },
-            "Timestamp": {
-                "type": "string",
-                "description": "A timestamp. The backend doesn't tamper with the times so choose whatever format you like, but be consistent",
-                "example": null
-            },
-            "User": {
-                "type": "object",
-                "description": "Full user data structure",
-                "properties": {
-                    "email": {
-                        "$ref": "#/components/fields/Email"
-                    },
-                    "name": {
-                        "$ref": "#/components/fields/Name"
-                    },
-                    "invites": {
-                        "$ref": "#/components/fields/Invites"
-                    },
-                    "friends": {
-                        "$ref": "#/components/fields/Friends"
-                    },
-                    "sessionActive": {
-                        "$ref": "#/components/fields/SessionActive"
-                    }
-                }
-            },
-            "SessionActive": {
-                "type": "boolean",
-                "description": "Whether or not the user is logged in",
-                "example": true
-            },
-            "Friends": {
-                "type": "array",
-                "description": "An array of user IDs",
-                "items": {
-                    "$ref": "#/components/fields/UserId"
-                }
-            },
-            "Invites": {
-                "type": "array",
-                "description": "An array of event IDs",
-                "items": {
-                    "$ref": "#/components/fields/EventId"
-                }
-            },
-            "Error": {
-                "type": "object",
-                "description": "Error",
-                "properties": {
-                    "message": {
-                        "type": "string",
-                        "example": "Already voted for this time"
-                    }
-                }
-            }
-        },
-        "parameters": {
-            "Authorization": {
-                "name": "Authorization",
-                "in": "header",
-                "schema": {
-                    "type": "string",
-                    "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxNDU3NjU0MDciLCJpYXQiOjE2MDY4OTM1MTN9.37xoSLKeCX9cYygOyxQhMo9t-u9-6PityfJB6XQi1zI"
-                },
-                "required": true,
-                "description": "Bearer [token]"
-            },
-            "LoginBody": {
-                "in": "body",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "email": {
-                            "$ref": "#/components/fields/Email"
-                        },
-                        "password": {
-                            "$ref": "#/components/fields/Password"
-                        }
-                    }
-                }
-            },
-            "RegisterBody": {
-                "in": "body",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "email": {
-                            "$ref": "#/components/fields/Email"
-                        },
-                        "name": {
-                            "$ref": "#/components/fields/Name"
-                        },
-                        "password": {
-                            "$ref": "#/components/fields/Password"
-                        }
-                    }
-                }
-            },
-            "EventId": {
-                "in": "body",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "eventId": {
-                            "$ref": "#/components/fields/EventId"
-                        }
-                    }
-                }
-            },
-            "EventIdPath": {
-                "in": "path",
-                "name": "eventId",
-                "required": true,
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "eventId": {
-                            "$ref": "#/components/fields/EventId"
-                        }
-                    }
-                }
-            },
-            "EventCode": {
-                "in": "body",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "eventCode": {
-                            "$ref": "#/components/fields/EventCode"
-                        }
-                    }
-                }
-            },
-            "EventSettingsBody": {
-                "in": "body",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "eventId": {
-                            "$ref": "#/components/fields/EventId"
-                        },
-                        "newName": {
-                            "$ref": "#/components/fields/EventName"
-                        },
-                        "newPermissions": {
-                            "$ref": "#/components/fields/EventPermissions"
-                        }
-                    }
-                }
-            },
-            "EventStatusBody": {
-                "in": "body",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "eventId": {
-                            "$ref": "#/components/fields/EventId"
-                        },
-                        "status": {
-                            "$ref": "#/components/fields/EventStatus"
-                        }
-                    }
-                }
-            },
-            "EventInviteBody": {
-                "in": "body",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "eventId": {
-                            "$ref": "#/components/fields/EventId"
-                        },
-                        "userId": {
-                            "$ref": "#/components/fields/UserId"
-                        }
-                    }
-                }
-            },
-            "EventLocationBody": {
-                "in": "body",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "eventId": {
-                            "$ref": "#/components/fields/EventId"
-                        },
-                        "location": {
-                            "$ref": "#/components/fields/Location"
-                        }
-                    }
-                }
-            },
-            "EventTimeBody": {
-                "in": "body",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "eventId": {
-                            "$ref": "#/components/fields/EventId"
-                        },
-                        "start": {
-                            "$ref": "#/components/fields/Timestamp"
-                        },
-                        "end": {
-                            "$ref": "#/components/fields/Timestamp"
-                        }
-                    }
-                }
-            },
-            "UserIdPath": {
-                "in": "path",
-                "name": "userId",
-                "required": true,
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "eventId": {
-                            "$ref": "#/components/fields/UserId"
-                        }
-                    }
-                }
-            },
-            "UserFriendsBody": {
-                "in": "body",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "userIds": {
-                            "$ref": "#/components/fields/Friends"
-                        }
-                    }
-                }
-            },
-            "UserInvitesBody": {
-                "in": "body",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "eventIds": {
-                            "$ref": "#/components/fields/Invites"
-                        }
-                    }
-                }
-            }
-        },
-        "responses": {
-            "200": {
-                "Token": {
-                    "description": "OK",
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "token": {
-                                "type": "string",
-                                "description": "JWT Token to provide authorisation",
-                                "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhheWRlbkB1bnN3LmVkdS5hdSIsImlhdCI6MTYwMzk0MzIzMH0.b37PfwlcH_cue6yhgvDt2IiNvhRACf79hTNtacYB94Q"
-                            }
-                        }
-                    }
-                },
-                "Empty": {
-                    "description": "OK",
-                    "schema": {
-                        "type": "object",
-                        "properties": {}
-                    }
-                },
-                "EventId": {
-                    "description": "An event ID",
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "eventId": {
-                                "$ref": "#/components/fields/EventId"
-                            }
-                        }
-                    }
-                },
-                "Event": {
-                    "description": "A full event",
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "event": {
-                                "$ref": "#/components/fields/Event"
-                            }
-                        }
-                    }
-                },
-                "EventIds": {
-                    "description": "A list of event IDs",
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "eventIds": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/components/fields/EventId"
-                                }
-                            }
-                        }
-                    }
-                },
-                "User": {
-                    "description": "A full user",
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "user": {
-                                "$ref": "#/components/fields/User"
-                            }
-                        }
-                    }
-                },
-                "Friends": {
-                    "description": "A list of user IDs",
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "userIds": {
-                                "$ref": "#/components/fields/Friends"
-                            }
-                        }
-                    }
-                },
-                "Invites": {
-                    "description": "A list of event IDs",
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "eventIds": {
-                                "$ref": "#/components/fields/Invites"
-                            }
-                        }
-                    }
-                }
-            },
-            "400": {
-                "description": "Bad input",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "error": {
-                            "$ref": "#/components/fields/Error"
-                        }
-                    }
-                }
-            },
-            "403": {
-                "description": "Forbidden",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "error": {
-                            "$ref": "#/components/fields/Error"
-                        }
-                    }
-                }
-            }
-        }
-    },
-    "paths": {
-        "/auth/login": {
-            "post": {
-                "summary": "Login",
-                "tags": [ "Auth" ],
-                "parameters": [ { "$ref": "#/components/parameters/LoginBody" } ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Token" },
-                    "400": { "$ref": "#/components/responses/400" }
-                }
-            }
-        },
-        "/auth/logout": {
-            "post": {
-                "summary": "Logout",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Auth" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/auth/register": {
-            "post": {
-                "summary": "Register",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Auth" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/RegisterBody" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Token" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/event": {
-            "post": {
-                "summary": "Create an event",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/EventId" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            },
-            "delete": {
-                "summary": "Delete an event",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/EventId" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/event/{eventId}": {
-            "get": {
-                "summary": "Get an event",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/EventIdPath" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Event" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/event/joined": {
-            "get": {
-                "summary": "Get all events that the user has joined",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/EventIds" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/event/join/id": {
-            "put": {
-                "summary": "Join an event with its ID",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/EventId" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/event/join/code": {
-            "put": {
-                "summary": "Join an event with its code",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/EventCode" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/EventId" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/event/settings": {
-            "put": {
-                "summary": "Modify an event's settings as the host",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/EventSettingsBody" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/event/leave": {
-            "put": {
-                "summary": "Leave an event",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/EventId" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/event/status": {
-            "put": {
-                "summary": "Set the user's status for an event",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/EventStatusBody" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/event/invite": {
-            "put": {
-                "summary": "Invite a user to an event",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/EventInviteBody" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/event/location": {
-            "post": {
-                "summary": "Add a location to an event",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/EventLocationBody" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/event/time": {
-            "post": {
-                "summary": "Add a time to an event",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/EventTimeBody" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/event/vote/location": {
-            "put": {
-                "summary": "Vote for a location",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/EventLocationBody" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/event/vote/time": {
-            "put": {
-                "summary": "Vote for a time",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/EventTimeBody" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/event/unvote/location": {
-            "put": {
-                "summary": "Unvote for a location",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/EventLocationBody" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/event/unvote/time": {
-            "put": {
-                "summary": "Unvote for a time",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "Event" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/EventTimeBody" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/user/{userId}": {
-            "get": {
-                "summary": "Get a user",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "User" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/UserIdPath" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/User" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/user/friends": {
-            "get": {
-                "summary": "Get the user's friends",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "User" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Friends" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            },
-            "put": {
-                "summary": "Set the user's friends",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "User" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/UserFriendsBody" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        },
-        "/user/invites": {
-            "get": {
-                "summary": "Get the user's invites",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "User" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Invites" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            },
-            "put": {
-                "summary": "Set the user's invites",
-                "security": [{ "bearerAuth": [] }],
-                "tags": [ "User" ],
-                "parameters": [
-                    { "$ref": "#/components/parameters/Authorization" },
-                    { "$ref": "#/components/parameters/UserInvitesBody" }
-                ],
-                "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
-                    "400": { "$ref": "#/components/responses/400" },
-                    "403": { "$ref": "#/components/responses/403" }
-                }
-            }
-        }
-    }
+  "swagger": "2.0",
+  "info": {
+      "version": "1.0.0",
+      "title": "MAAP Backend",
+      "license": {
+          "name": "MIT",
+          "url": "https://opensource.org/licenses/MIT"
+      }
+  },
+  "tags": [
+      {
+          "name": "Auth"
+      },
+      {
+          "name": "Event"
+      },
+      {
+          "name": "User"
+      }
+  ],
+  "schemes": [
+      "http"
+  ],
+  "consumes": [
+      "application/json"
+  ],
+  "produces": [
+      "application/json"
+  ],
+  "components": {
+      "securitySchemes": {
+          "bearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT"
+          }
+      },
+      "schemas": {
+          "AuthToken": {
+              "type": "object",
+              "properties": {
+                  "token": {
+                      "type": "string",
+                      "description": "Authorization Bearer Token"
+                  }
+              }
+          }
+      },
+      "fields": {
+          "Email": {
+              "type": "string",
+              "description": "Email address",
+              "example": "anton1393@hotmail.com"
+          },
+          "Name": {
+              "type": "string",
+              "description": "First name",
+              "example": "Anton"
+          },
+          "Password": {
+              "type": "string",
+              "description": "Raw password",
+              "example": "adummypassword"
+          },
+          "EventId": {
+              "type": "string",
+              "description": "Event ID provided by the backend",
+              "example": "785204001"
+          },
+          "EventCode": {
+              "type": "string",
+              "description": "Event code provided by the backend",
+              "example": "fa2g7"
+          },
+          "EventName": {
+              "type": "string",
+              "description": "Name of an event",
+              "example": "Bowling at Anton's"
+          },
+          "EventPermissions": {
+              "type": "object",
+              "description": "Event permissions in this specific format",
+              "properties": {
+                  "guestsCanInvite": "boolean",
+                  "guestsCanAddLocations": "boolean",
+                  "guestsCanAddTimes": "boolean"
+              },
+              "example": {
+                  "guestsCanInvite": true,
+                  "guestsCanAddLocations": false,
+                  "guestsCanAddTimes": true
+              }
+          },
+          "EventGuests": {
+              "type": "object",
+              "description": "Event guests",
+              "properties": {
+                  "[userId]": {
+                      "$ref": "#/components/fields/EventStatus"
+                  }
+              },
+              "example": {
+                  "916046007": "GOING",
+                  "145765407": "MAYBE"
+              }
+          },
+          "EventLocations": {
+              "type": "object",
+              "description": "Event locations",
+              "properties": {
+                  "[location]": {
+                      "type": "array",
+                      "items": {
+                          "$ref": "#/components/fields/UserId"
+                      }
+                  }
+              },
+              "example": {
+                  "Anton's House": ["383472", "112004"],
+                  "Strike Bowling": []
+              }
+          },
+          "EventTimes": {
+              "type": "array",
+              "description": "Event times",
+              "items": {
+                  "type": "object",
+                  "properties": {
+                      "start": {
+                          "$ref": "#/components/fields/Timestamp"
+                      },
+                      "end": {
+                          "$ref": "#/components/fields/Timestamp"
+                      },
+                      "voters": {
+                          "type": "array",
+                          "items": {
+                              "$ref": "#/components/fields/UserId"
+                          }
+                      }
+                  }
+              },
+              "example": [
+                  {
+                      "start": null,
+                      "end": null,
+                      "voters": ["183345", "825323", "921654"]
+                  },
+                  {
+                      "start": null,
+                      "end": null,
+                      "voters": ["478355"]
+                  }
+              ]
+          },
+          "EventStatus": {
+              "type": "string",
+              "description": "One of GOING, MAYBE or NOTGOING",
+              "example": "GOING"
+          },
+          "Event": {
+              "type": "object",
+              "description": "Full event data structure",
+              "properties": {
+                  "name": {
+                      "$ref": "#/components/fields/EventName"
+                  },
+                  "host": {
+                      "$ref": "#/components/fields/UserId"
+                  },
+                  "code": {
+                      "$ref": "#/components/fields/EventCode"
+                  },
+                  "permissions": {
+                      "$ref": "#/components/fields/EventPermissions"
+                  },
+                  "guests": {
+                      "$ref": "#/components/fields/EventGuests"
+                  },
+                  "locations": {
+                      "$ref": "#/components/fields/EventLocations"
+                  },
+                  "times": {
+                      "$ref": "#/components/fields/EventTimes"
+                  }
+              }
+          },
+          "UserId": {
+              "type": "string",
+              "description": "User ID provided by the backend",
+              "example": "916046007"
+          },
+          "Location": {
+              "type": "string",
+              "description": "Location name",
+              "example": "Anton's house"
+          },
+          "Timestamp": {
+              "type": "string",
+              "description": "A timestamp. The backend doesn't tamper with the times so choose whatever format you like, but be consistent",
+              "example": null
+          },
+          "User": {
+              "type": "object",
+              "description": "Full user data structure",
+              "properties": {
+                  "userId": {
+                      "$ref": "#/components/fields/UserId"
+                  },
+                  "email": {
+                      "$ref": "#/components/fields/Email"
+                  },
+                  "name": {
+                      "$ref": "#/components/fields/Name"
+                  },
+                  "invites": {
+                      "$ref": "#/components/fields/Invites"
+                  },
+                  "friends": {
+                      "$ref": "#/components/fields/Friends"
+                  },
+                  "sessionActive": {
+                      "$ref": "#/components/fields/SessionActive"
+                  }
+              }
+          },
+          "SessionActive": {
+              "type": "boolean",
+              "description": "Whether or not the user is logged in",
+              "example": true
+          },
+          "Friends": {
+              "type": "array",
+              "description": "An array of user IDs",
+              "items": {
+                  "$ref": "#/components/fields/UserId"
+              }
+          },
+          "Invites": {
+              "type": "array",
+              "description": "An array of event IDs",
+              "items": {
+                  "$ref": "#/components/fields/EventId"
+              }
+          },
+          "Error": {
+              "type": "object",
+              "description": "Error",
+              "properties": {
+                  "message": {
+                      "type": "string",
+                      "example": "Already voted for this time"
+                  }
+              }
+          }
+      },
+      "parameters": {
+          "Authorization": {
+              "name": "Authorization",
+              "in": "header",
+              "schema": {
+                  "type": "string",
+                  "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxNDU3NjU0MDciLCJpYXQiOjE2MDY4OTM1MTN9.37xoSLKeCX9cYygOyxQhMo9t-u9-6PityfJB6XQi1zI"
+              },
+              "required": true,
+              "description": "Bearer [token]"
+          },
+          "LoginBody": {
+              "in": "body",
+              "schema": {
+                  "type": "object",
+                  "properties": {
+                      "email": {
+                          "$ref": "#/components/fields/Email"
+                      },
+                      "password": {
+                          "$ref": "#/components/fields/Password"
+                      }
+                  }
+              }
+          },
+          "RegisterBody": {
+              "in": "body",
+              "schema": {
+                  "type": "object",
+                  "properties": {
+                      "email": {
+                          "$ref": "#/components/fields/Email"
+                      },
+                      "name": {
+                          "$ref": "#/components/fields/Name"
+                      },
+                      "password": {
+                          "$ref": "#/components/fields/Password"
+                      }
+                  }
+              }
+          },
+          "EventId": {
+              "in": "body",
+              "schema": {
+                  "type": "object",
+                  "properties": {
+                      "eventId": {
+                          "$ref": "#/components/fields/EventId"
+                      }
+                  }
+              }
+          },
+          "EventIdPath": {
+              "in": "path",
+              "name": "eventId",
+              "required": true,
+              "schema": {
+                  "type": "object",
+                  "properties": {
+                      "eventId": {
+                          "$ref": "#/components/fields/EventId"
+                      }
+                  }
+              }
+          },
+          "EventCode": {
+              "in": "body",
+              "schema": {
+                  "type": "object",
+                  "properties": {
+                      "eventCode": {
+                          "$ref": "#/components/fields/EventCode"
+                      }
+                  }
+              }
+          },
+          "EventSettingsBody": {
+              "in": "body",
+              "schema": {
+                  "type": "object",
+                  "properties": {
+                      "eventId": {
+                          "$ref": "#/components/fields/EventId"
+                      },
+                      "newName": {
+                          "$ref": "#/components/fields/EventName"
+                      },
+                      "newPermissions": {
+                          "$ref": "#/components/fields/EventPermissions"
+                      }
+                  }
+              }
+          },
+          "EventStatusBody": {
+              "in": "body",
+              "schema": {
+                  "type": "object",
+                  "properties": {
+                      "eventId": {
+                          "$ref": "#/components/fields/EventId"
+                      },
+                      "status": {
+                          "$ref": "#/components/fields/EventStatus"
+                      }
+                  }
+              }
+          },
+          "EventInviteBody": {
+              "in": "body",
+              "schema": {
+                  "type": "object",
+                  "properties": {
+                      "eventId": {
+                          "$ref": "#/components/fields/EventId"
+                      },
+                      "userId": {
+                          "$ref": "#/components/fields/UserId"
+                      }
+                  }
+              }
+          },
+          "EventLocationBody": {
+              "in": "body",
+              "schema": {
+                  "type": "object",
+                  "properties": {
+                      "eventId": {
+                          "$ref": "#/components/fields/EventId"
+                      },
+                      "location": {
+                          "$ref": "#/components/fields/Location"
+                      }
+                  }
+              }
+          },
+          "EventTimeBody": {
+              "in": "body",
+              "schema": {
+                  "type": "object",
+                  "properties": {
+                      "eventId": {
+                          "$ref": "#/components/fields/EventId"
+                      },
+                      "start": {
+                          "$ref": "#/components/fields/Timestamp"
+                      },
+                      "end": {
+                          "$ref": "#/components/fields/Timestamp"
+                      }
+                  }
+              }
+          },
+          "UserIdPath": {
+              "in": "path",
+              "name": "userId",
+              "required": true,
+              "schema": {
+                  "type": "object",
+                  "properties": {
+                      "eventId": {
+                          "$ref": "#/components/fields/UserId"
+                      }
+                  }
+              }
+          },
+          "UserFriendsBody": {
+              "in": "body",
+              "schema": {
+                  "type": "object",
+                  "properties": {
+                      "userIds": {
+                          "$ref": "#/components/fields/Friends"
+                      }
+                  }
+              }
+          },
+          "UserInvitesBody": {
+              "in": "body",
+              "schema": {
+                  "type": "object",
+                  "properties": {
+                      "eventIds": {
+                          "$ref": "#/components/fields/Invites"
+                      }
+                  }
+              }
+          }
+      },
+      "responses": {
+          "200": {
+              "Token": {
+                  "description": "OK",
+                  "schema": {
+                      "type": "object",
+                      "properties": {
+                          "token": {
+                              "type": "string",
+                              "description": "JWT Token to provide authorisation",
+                              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhheWRlbkB1bnN3LmVkdS5hdSIsImlhdCI6MTYwMzk0MzIzMH0.b37PfwlcH_cue6yhgvDt2IiNvhRACf79hTNtacYB94Q"
+                          }
+                      }
+                  }
+              },
+              "Empty": {
+                  "description": "OK",
+                  "schema": {
+                      "type": "object",
+                      "properties": {}
+                  }
+              },
+              "EventId": {
+                  "description": "An event ID",
+                  "schema": {
+                      "type": "object",
+                      "properties": {
+                          "eventId": {
+                              "$ref": "#/components/fields/EventId"
+                          }
+                      }
+                  }
+              },
+              "Event": {
+                  "description": "A full event",
+                  "schema": {
+                      "type": "object",
+                      "properties": {
+                          "event": {
+                              "$ref": "#/components/fields/Event"
+                          }
+                      }
+                  }
+              },
+              "EventIds": {
+                  "description": "A list of event IDs",
+                  "schema": {
+                      "type": "object",
+                      "properties": {
+                          "eventIds": {
+                              "type": "array",
+                              "items": {
+                                  "$ref": "#/components/fields/EventId"
+                              }
+                          }
+                      }
+                  }
+              },
+              "User": {
+                  "description": "A full user",
+                  "schema": {
+                      "type": "object",
+                      "properties": {
+                          "user": {
+                              "$ref": "#/components/fields/User"
+                          }
+                      }
+                  }
+              },
+              "Friends": {
+                  "description": "A list of user IDs",
+                  "schema": {
+                      "type": "object",
+                      "properties": {
+                          "userIds": {
+                              "$ref": "#/components/fields/Friends"
+                          }
+                      }
+                  }
+              },
+              "Invites": {
+                  "description": "A list of event IDs",
+                  "schema": {
+                      "type": "object",
+                      "properties": {
+                          "eventIds": {
+                              "$ref": "#/components/fields/Invites"
+                          }
+                      }
+                  }
+              }
+          },
+          "400": {
+              "description": "Bad input",
+              "schema": {
+                  "type": "object",
+                  "properties": {
+                      "error": {
+                          "$ref": "#/components/fields/Error"
+                      }
+                  }
+              }
+          },
+          "403": {
+              "description": "Forbidden",
+              "schema": {
+                  "type": "object",
+                  "properties": {
+                      "error": {
+                          "$ref": "#/components/fields/Error"
+                      }
+                  }
+              }
+          }
+      }
+  },
+  "paths": {
+      "/auth/login": {
+          "post": {
+              "summary": "Login",
+              "tags": [ "Auth" ],
+              "parameters": [ { "$ref": "#/components/parameters/LoginBody" } ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Token" },
+                  "400": { "$ref": "#/components/responses/400" }
+              }
+          }
+      },
+      "/auth/logout": {
+          "post": {
+              "summary": "Logout",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Auth" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Empty" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/auth/register": {
+          "post": {
+              "summary": "Register",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Auth" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/RegisterBody" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Token" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/event": {
+          "post": {
+              "summary": "Create an event",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/EventId" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          },
+          "delete": {
+              "summary": "Delete an event",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/EventId" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Empty" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/event/{eventId}": {
+          "get": {
+              "summary": "Get an event",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/EventIdPath" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Event" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/event/joined": {
+          "get": {
+              "summary": "Get all events that the user has joined",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/EventIds" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/event/join/id": {
+          "put": {
+              "summary": "Join an event with its ID",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/EventId" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Empty" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/event/join/code": {
+          "put": {
+              "summary": "Join an event with its code",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/EventCode" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/EventId" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/event/settings": {
+          "put": {
+              "summary": "Modify an event's settings as the host",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/EventSettingsBody" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Empty" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/event/leave": {
+          "put": {
+              "summary": "Leave an event",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/EventId" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Empty" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/event/status": {
+          "put": {
+              "summary": "Set the user's status for an event",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/EventStatusBody" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Empty" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/event/invite": {
+          "put": {
+              "summary": "Invite a user to an event",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/EventInviteBody" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Empty" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/event/location": {
+          "post": {
+              "summary": "Add a location to an event",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/EventLocationBody" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Empty" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/event/time": {
+          "post": {
+              "summary": "Add a time to an event",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/EventTimeBody" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Empty" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/event/vote/location": {
+          "put": {
+              "summary": "Vote for a location",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/EventLocationBody" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Empty" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/event/vote/time": {
+          "put": {
+              "summary": "Vote for a time",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/EventTimeBody" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Empty" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/event/unvote/location": {
+          "put": {
+              "summary": "Unvote for a location",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/EventLocationBody" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Empty" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/event/unvote/time": {
+          "put": {
+              "summary": "Unvote for a time",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "Event" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/EventTimeBody" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Empty" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/user": {
+          "get": {
+              "summary": "Get the logged in user",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "User" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/User" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/user/{userId}": {
+          "get": {
+              "summary": "Get a user",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "User" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/UserIdPath" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/User" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/user/friends": {
+          "get": {
+              "summary": "Get the user's friends",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "User" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Friends" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          },
+          "put": {
+              "summary": "Set the user's friends",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "User" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/UserFriendsBody" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Empty" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      },
+      "/user/invites": {
+          "get": {
+              "summary": "Get the user's invites",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "User" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Invites" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          },
+          "put": {
+              "summary": "Set the user's invites",
+              "security": [{ "bearerAuth": [] }],
+              "tags": [ "User" ],
+              "parameters": [
+                  { "$ref": "#/components/parameters/Authorization" },
+                  { "$ref": "#/components/parameters/UserInvitesBody" }
+              ],
+              "responses": {
+                  "200": { "$ref": "#/components/responses/200/Empty" },
+                  "400": { "$ref": "#/components/responses/400" },
+                  "403": { "$ref": "#/components/responses/403" }
+              }
+          }
+      }
+  }
 }

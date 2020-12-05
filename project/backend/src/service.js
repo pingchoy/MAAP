@@ -498,6 +498,7 @@ export const assertValidUserId = userId => userLock((resolve, reject) => {
 export const getUser = userId => userLock((resolve, reject) => {
   const user = users[userId];
   resolve({
+    userId: userId,
     email: user.email,
     name: user.name,
     invites: user.invites,
