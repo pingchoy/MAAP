@@ -1,6 +1,7 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, Dimensions, Text, SafeAreaView, View, Image, CheckBox, Icon } from 'react-native';
+import { TouchableOpacity, StyleSheet, Dimensions, Text, SafeAreaView, View, Image, CheckBox, } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const dimensions = Dimensions.get('window');
 
 export default function EventSettings({ route, navigation }) {
@@ -19,9 +20,27 @@ export default function EventSettings({ route, navigation }) {
             let token2 = await AsyncStorage.getItem('userToken')
             setToken(token2)
             setAPIURL(api)
+            getEventSettings(api, token2)
         })()
     }, [])
 
+    const getEventSettings = (api, token) => {
+        fetch(`${api}/event/${eventId}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'GET',
+        }).then(res => res.json())
+            .then(body => {
+                setGuestsCanInvitePeople(body.event.permissions.guestsCanInvite)
+                setGuestsCanAddLocations(body.event.permissions.guestsCanAddLocations)
+                setGuestsCanAddTimes(body.event.permissions.guestsCanAddTimes)
+                forceUpdate()
+            })
+
+    }
     const handleEventSettingsChange = () => {
 
         fetch(`${API_BASE_URL}/event/settings`, {
@@ -45,16 +64,19 @@ export default function EventSettings({ route, navigation }) {
     return (
 
         <SafeAreaView style={styles.container}>
-            <View style={styles.bannerView}>
-                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                    <Image source={require('../assets/whiteBackButton.png')} />
+            <View style={styles.backButtonView}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Image style={styles.backButton} source={require('../assets/backButton.png')} />
                 </TouchableOpacity>
-                <Text style={styles.heading}>Settings</Text>
+            </View>
+            <View style={styles.headerView} >
+
+                <Text style={styles.headerText}>Setttings</Text>
                 <View style={styles.checkButton} >
                     <Icon.Button
                         // Change this onPress to affect state of guests later on
                         onPress={() => {
-                            handleGuestChange(invitedFriends)
+                            handleEventSettingsChange()
                             navigation.goBack()
                         }}
                         name="check"
@@ -120,6 +142,52 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: 'center',
         paddingLeft: 20,
+    },
+    checkButton: {
+        position: 'absolute',
+        width: 70,
+        left: "60%",
+        top: -5,
+        // backgroundColor: "black",
+    },
+    backButtonView: {
+        position: 'absolute',
+        left: 23,
+        top: 58,
+    },
+    buttonView: {
+        position: 'absolute',
+        width: 350,
+        height: 53,
+        left: 24,
+        top: 298,
+        justifyContent: 'center',
+        alignItems: "center",
+        marginBottom: 30,
+        height: 55,
+        padding: 20,
+    },
+    headerView: {
+        position: 'absolute',
+        width: "100%",
+        top: "7%",
+        left: "20%",
+    },
+    headerText: {
+        position: 'absolute',
+        fontStyle: "normal",
+        fontWeight: "bold",
+        fontSize: 32,
+        lineHeight: 37,
+        display: 'flex',
+        alignItems: 'center'
+    },
+    checkButton: {
+        position: 'absolute',
+        width: 70,
+        left: "60%",
+        top: -5,
+        // backgroundColor: "black",
     },
     settingsView: {
         height: dimensions.height - 400,

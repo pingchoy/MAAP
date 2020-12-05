@@ -181,7 +181,7 @@ export default function AddGuestScreen({ route, navigation }) {
                     }}>{inviteCode}</Text>
                 </Text>
             </View>
-            {/* <SnackBar visible={snackbarVisible} textMessage="Copied!" actionHandler={() => { setSnackbarVisible(false) }} actionText="Hide" /> */}
+            {/* < visible={snackbarVisible} textMessage="Copied!" actionHandler={() => { setSnackbarVisible(false) }} actionText="Hide" /> */}
         </SafeAreaView >
 
     )
