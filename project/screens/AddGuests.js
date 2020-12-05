@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, useWindowDimensions } from 'react-native';
+import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, useWindowDimensions, Clipboard } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { SearchBar, withTheme } from 'react-native-elements'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const dimensions = Dimensions.get('window');
 const { height } = Dimensions.get('window');
-
+import SnackBar from 'react-native-snackbar-component'
 
 
 export default function AddGuestScreen({ route, navigation }) {
@@ -16,10 +16,12 @@ export default function AddGuestScreen({ route, navigation }) {
     const windowHeight = useWindowDimensions().height;
     const { guestList, handleGuestChange } = route.params
     const [token, setToken] = React.useState('')
+    const [inviteCode, setInviteCode] = React.useState('')
     const [API_BASE_URL, setAPIURL] = React.useState('')
+    const [snackbarVisible, setSnackbarVisible] = React.useState(false)
     const [, updateState] = React.useState();
     const forceUpdate = React.useCallback(() => updateState({}), []);
-
+    const { eventId } = route.params
     React.useEffect(() => {
         (async () => {
             let api = await AsyncStorage.getItem('api')
@@ -28,6 +30,7 @@ export default function AddGuestScreen({ route, navigation }) {
             setAPIURL(api)
 
             getFriends(token2, api)
+            getInviteCode(token2, api)
         })()
 
     }, [])
@@ -44,9 +47,38 @@ export default function AddGuestScreen({ route, navigation }) {
             .then(body => {
                 let temp = []
                 body.userIds.map((user) => {
-                    temp.push({ username: user, disabled: false })
+
+                    fetch(`${api}/user/${user}`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': token
+                        },
+                        method: 'GET',
+                    }).then(res => res.json())
+                        .then(body => {
+                            console.log(body.user.name)
+                            temp.push({ username: body.user.name, disabled: false })
+                            setFriends(temp)
+                            forceUpdate()
+                        })
+
                 })
-                setFriends(temp)
+
+            })
+    }
+
+    const getInviteCode = (token, api) => {
+        fetch(`${api}/event/${eventId}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'GET',
+        }).then(res => res.json())
+            .then(body => {
+                setInviteCode(body.event.code.toUpperCase())
             })
     }
     const updateSearch = (search) => {
@@ -141,12 +173,15 @@ export default function AddGuestScreen({ route, navigation }) {
 
             <View style={styles.inviteCodeView}
             >
-                <Text style={styles.subtitle}>Or, send an invite link to a friend</Text>
+                <Text style={styles.subtitle}>Or, send an invite code to a friend</Text>
                 <Text>
-                    <Text style={styles.codeText}>k7MA3 </Text><Icon.Button name="copy" iconStyle={{ top: 5, }} color='black' backgroundColor='transparent' size={50}></Icon.Button>
+                    <Text style={styles.codeText} onPress={() => {
+                        Clipboard.setString(inviteCode)
+                        setSnackbarVisible(true)
+                    }}>{inviteCode}</Text>
                 </Text>
             </View>
-
+            <SnackBar visible={snackbarVisible} textMessage="Copied!" actionHandler={() => { setSnackbarVisible(false) }} actionText="Hide" />
         </SafeAreaView >
 
     )
@@ -309,8 +344,11 @@ const styles = StyleSheet.create({
 
     },
     inviteCodeView: {
+        position: 'absolute',
         flex: 1,
-        bottom: "-70%"
+        bottom: "20%",
+        alignItems: 'center',
+
     },
     subtitle: {
         lineHeight: 21,
@@ -320,9 +358,13 @@ const styles = StyleSheet.create({
         color: '#3C3C3C'
     },
     codeText: {
+        position: 'absolute',
+        width: "100%",
+        // left: "50%",
         // marginTop: 10,
         fontWeight: "bold",
         fontSize: 48,
+        // left: 50,1
         color: '#165F22',
     }
 

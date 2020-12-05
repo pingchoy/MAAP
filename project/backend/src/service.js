@@ -240,7 +240,7 @@ export const deleteEvent = eventId => eventLock((resolve, reject) => {
   save();
   resolve();
 });
-  
+
 // Assumes userId is valid
 export const getJoinedEvents = userId => eventLock((resolve, reject) => {
   resolve(Object.keys(events).filter(eventId => userId in events[eventId].guests));
@@ -261,7 +261,7 @@ export const joinEventWithId = (userId, eventId) => eventLock((resolve, reject) 
 
 // Assumes userId is valid
 export const joinEventWithCode = (userId, eventCode) => eventLock((resolve, reject) => {
-  let eventId = Object.keys(events).find(eventId => events[eventId].code === eventCode);
+  let eventId = Object.keys(events).find(eventId => events[eventId].code.toUpperCase() === eventCode.toUpperCase());
 
   if (eventId === undefined) {
     reject(new InputError('Invalid event code'));
@@ -276,7 +276,7 @@ export const joinEventWithCode = (userId, eventCode) => eventLock((resolve, reje
   events[eventId].guests[userId] = STATUS.MAYBE;
 
   save();
-  resolve();
+  resolve(eventId);
 });
 
 // Assumes eventId is valid and the user performing this action is a host
@@ -289,8 +289,8 @@ export const editEventSettings = (eventId, newName, newPermissions) => eventLock
   if (
     newPermissions && (
       typeof newPermissions !== 'object' ||
-      typeof newPermissions.guestsCanInvite !== 'boolean' || 
-      typeof newPermissions.guestsCanAddLocations !== 'boolean' || 
+      typeof newPermissions.guestsCanInvite !== 'boolean' ||
+      typeof newPermissions.guestsCanAddLocations !== 'boolean' ||
       typeof newPermissions.guestsCanAddTimes !== 'boolean'
     )
   ) {
@@ -498,6 +498,7 @@ export const assertValidUserId = userId => userLock((resolve, reject) => {
 export const getUser = userId => userLock((resolve, reject) => {
   const user = users[userId];
   resolve({
+    userId: userId,
     email: user.email,
     name: user.name,
     invites: user.invites,

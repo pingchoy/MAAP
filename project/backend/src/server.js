@@ -132,8 +132,8 @@ app.put('/event/join/id', catchErrors(authed(async (req, res, userId) => {
 
 app.put('/event/join/code', catchErrors(authed(async (req, res, userId) => {
   const { eventCode, } = req.body;
-  await joinEventWithCode(userId, eventCode);
-  return res.status(200).send({});
+  console.log("Joining Event with code: " + eventCode)
+  return res.json({ eventId: await joinEventWithCode(userId, eventCode) });
 })));
 
 app.put('/event/settings', catchErrors(authed(async (req, res, userId) => {
@@ -227,7 +227,11 @@ app.put('/event/unvote/time', catchErrors(authed(async (req, res, userId) => {
 app.get('/user/:userId', catchErrors(authed(async (req, res, thisUserId) => {
   const { userId, } = req.params;
   await assertValidUserId(userId);
-  return res.json({user: await getUser(userId)});
+  return res.json({ user: await getUser(userId) });
+})));
+
+app.get('/user', catchErrors(authed(async (req, res, userId) => {
+  return res.json({ user: await getUser(userId) });
 })));
 
 app.get('/user/friends', catchErrors(authed(async (req, res, userId) => {
@@ -240,6 +244,7 @@ app.get('/user/invites', catchErrors(authed(async (req, res, userId) => {
 })));
 
 app.put('/user/friends', catchErrors(authed(async (req, res, userId) => {
+  console.log("Getting Friends")
   const { userIds, } = req.body;
   await setFriends(userId, userIds);
   return res.status(200).send({});

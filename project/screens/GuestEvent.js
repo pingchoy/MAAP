@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, useWindowDimensions, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const initialLayout = { width: Dimensions.get('window').width };
 
 
@@ -36,9 +36,24 @@ export default function GuestEventScreen({ route, navigation }) {
             let token2 = await AsyncStorage.getItem('userToken')
             setToken(token2)
             setAPIURL(api)
+            getEventDetails(api, token2)
         })()
     }, [])
 
+    const getEventDetails = (api, token) => {
+        fetch(`${api}/event/${eventId}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'GET',
+        }).then(res => res.json())
+            .then(body => {
+                console.log(body)
+            })
+
+    }
     const nth = (d) => {
         if (d > 3 && d < 21) return 'th';
         switch (d % 10) {
@@ -70,7 +85,9 @@ export default function GuestEventScreen({ route, navigation }) {
 
             }
         })
-
+        tempList.sort((a, b) => {
+            return b.votes - a.votes
+        })
         setLocationList(tempList)
         forceUpdate()
     }
@@ -98,7 +115,9 @@ export default function GuestEventScreen({ route, navigation }) {
                 })
             }
         })
-
+        tempList.sort((a, b) => {
+            return b.votes - a.votes
+        })
         setTimesList(tempList)
         forceUpdate()
     }
@@ -352,10 +371,16 @@ export default function GuestEventScreen({ route, navigation }) {
                     <Text style={styles.eventDetailsBoldText}>Host:</Text><Text style={styles.eventDetailsNormalText}> Anton</Text>
                 </Text>
                 <Text>
-                    <Text style={styles.eventDetailsBoldText}>Location:</Text><Text style={styles.eventDetailsNormalText}> Anton's House</Text>
+                    <Text style={styles.eventDetailsBoldText}>Location:</Text><Text style={styles.eventDetailsNormalText}> {locationList.length > 0 ? locationList[0].name : "TBD"}</Text>
                 </Text>
                 <Text>
-                    <Text style={styles.eventDetailsBoldText}>Time:</Text><Text style={styles.eventDetailsNormalText}> 6:30pm Sat. 14 Nov.</Text>
+                    <Text style={styles.eventDetailsBoldText}>Time:</Text><Text style={styles.eventDetailsNormalText}> {timeList.length > 0 ? <Text style={styles.timeInformationText} numberOfLines={2}>
+                        <Text>{timeList[0].startDate.getHours()}:{timeList[0].startDate.getUTCMinutes() < 10 ? '0' + timeList[0].startDate.getMinutes() : timeList[0].startDate.getMinutes()}{timeList[0].startDate.getHours() > 12 ? "pm" : "am"}</Text>
+                        <Text> {days[timeList[0].startDate.getDay()]}</Text>
+                        <Text> {timeList[0].startDate.getDate()}{nth(timeList[0].startDate.getDate())}</Text>
+                        <Text> {months[timeList[0].startDate.getMonth()]}</Text>
+
+                    </Text> : "TBD"}</Text>
                 </Text>
             </View>
             <View style={styles.choiceView}>

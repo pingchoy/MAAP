@@ -7,7 +7,7 @@ const dimensions = Dimensions.get('window');
 const { height } = Dimensions.get('window');
 
 export default function CreateEventScreen({ navigation }) {
-    const [code, onChangeCode] = React.useState('Enter an event code');
+    const [code, onChangeCode] = React.useState('');
     const [token, setToken] = React.useState('')
     const [API_BASE_URL, setAPIURL] = React.useState('')
     const windowHeight = useWindowDimensions().height;
@@ -23,10 +23,12 @@ export default function CreateEventScreen({ navigation }) {
         })
             .then((res) => res.json())
             .then(body => {
+
                 navigation.navigate('NewEvent', { eventId: body.eventId })
             })
 
     }
+
 
     React.useEffect(() => {
         (async () => {
@@ -37,6 +39,30 @@ export default function CreateEventScreen({ navigation }) {
         })()
 
     }, [])
+
+    const handleJoinEvent = () => {
+        fetch(`${API_BASE_URL}/event/join/code`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'PUT',
+            body: JSON.stringify({
+                "eventCode": code
+            })
+        }).then((res) => res.json())
+            .then(body => {
+                console.log(body)
+                if (!body.error) {
+
+                    navigation.navigate('GuestEvent', { eventId: body.eventId })
+                } else {
+                    alert(body.error)
+                }
+            })
+
+    }
     return (
         <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
             <View style={styles.backButtonView}>
@@ -59,13 +85,15 @@ export default function CreateEventScreen({ navigation }) {
                 <View style={styles.inputView}>
                     <TextInput
                         placeholder={code}
-                        onChangePassword={text => onChangeCode(text)}
-                        code={code}
+                        onChangeText={text => onChangeCode(text)}
+                        value={code}
+                        placeholder={"Enter an Event Code"}
                         style={styles.inputBody}
                     />
                 </View>
                 <View style={styles.goButtonView}>
-                    <TouchableOpacity style={styles.goButtonBody} >
+                    <TouchableOpacity style={styles.goButtonBody}
+                        onPress={() => handleJoinEvent()}>
                         <Text style={styles.buttonText}>Go!</Text>
                     </TouchableOpacity>
                 </View>

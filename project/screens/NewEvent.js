@@ -89,7 +89,9 @@ export default function NewEventScreen({ route, navigation }) {
 
             }
         })
-
+        tempList.sort((a, b) => {
+            return b.votes - a.votes
+        })
         setLocationList(tempList)
         forceUpdate()
     }
@@ -117,7 +119,9 @@ export default function NewEventScreen({ route, navigation }) {
                 })
             }
         })
-
+        tempList.sort((a, b) => {
+            return b.votes - a.votes
+        })
         setTimesList(tempList)
         forceUpdate()
     }
@@ -328,6 +332,22 @@ export default function NewEventScreen({ route, navigation }) {
     const onChangeText = (text) => {
         setNewEventName(text)
     }
+
+    const handleEventNameChange = (newEventName) => {
+        fetch(`${API_BASE_URL}/event/settings`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'PUT',
+            body: JSON.stringify({
+                "eventId": eventId,
+                "newName": newEventName
+            })
+        })
+        setEventName(newEventName)
+    }
     return (
 
         <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
@@ -371,10 +391,16 @@ export default function NewEventScreen({ route, navigation }) {
                     <Text style={styles.eventDetailsBoldText}>Host:</Text><Text style={styles.eventDetailsNormalText}> Anton</Text>
                 </Text>
                 <Text>
-                    <Text style={styles.eventDetailsBoldText}>Location:</Text><Text style={styles.eventDetailsNormalText}> Anton's House</Text>
+                    <Text style={styles.eventDetailsBoldText}>Location:</Text><Text style={styles.eventDetailsNormalText}> {locationList.length > 0 ? locationList[0].name : "TBD"}</Text>
                 </Text>
                 <Text>
-                    <Text style={styles.eventDetailsBoldText}>Time:</Text><Text style={styles.eventDetailsNormalText}> 6:30pm Sat. 14 Nov.</Text>
+                    <Text style={styles.eventDetailsBoldText}>Time:</Text><Text style={styles.eventDetailsNormalText}> {timeList.length > 0 ? <Text style={styles.timeInformationText} numberOfLines={2}>
+                        <Text>{timeList[0].startDate.getHours()}:{timeList[0].startDate.getUTCMinutes() < 10 ? '0' + timeList[0].startDate.getMinutes() : timeList[0].startDate.getMinutes()}{timeList[0].startDate.getHours() > 12 ? "pm" : "am"}</Text>
+                        <Text> {days[timeList[0].startDate.getDay()]}</Text>
+                        <Text> {timeList[0].startDate.getDate()}{nth(timeList[0].startDate.getDate())}</Text>
+                        <Text> {months[timeList[0].startDate.getMonth()]}</Text>
+
+                    </Text> : "TBD"}</Text>
                 </Text>
             </View>
             <View style={styles.tabBar}>
@@ -391,7 +417,7 @@ export default function NewEventScreen({ route, navigation }) {
                 <TouchableOpacity style={styles.buttonBody} onPress={() => navigation.navigate('Add'.concat(currentTab),
                     {
                         handleLocationChange: handleLocationChange, handleDateTimeChange: handleDateTimeChange, handleGuestChange: handleGuestChange,
-                        guestList: guestList, locationList: locationList
+                        guestList: guestList, locationList: locationList, eventId: eventId
                     })}>
                     <Text style={styles.buttonText}>Add {currentTab}</Text>
                 </TouchableOpacity>
@@ -415,7 +441,7 @@ export default function NewEventScreen({ route, navigation }) {
                         <TouchableOpacity
                             style={{ ...styles.openButton, backgroundColor: "#2196F3", width: 150, }}
                             onPress={() => {
-                                setEventName(newEventName)
+                                handleEventNameChange(newEventName)
                                 setModalVisible(!modalVisible);
                             }}
                         >

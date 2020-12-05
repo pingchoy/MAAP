@@ -205,6 +205,9 @@
                 "type": "object",
                 "description": "Full user data structure",
                 "properties": {
+                    "userId": {
+                        "$ref": "#/components/fields/UserId"
+                    },
                     "email": {
                         "$ref": "#/components/fields/Email"
                     },
@@ -682,7 +685,7 @@
                     { "$ref": "#/components/parameters/EventCode" }
                 ],
                 "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
+                    "200": { "$ref": "#/components/responses/200/EventId" },
                     "400": { "$ref": "#/components/responses/400" },
                     "403": { "$ref": "#/components/responses/403" }
                 }
@@ -843,6 +846,21 @@
                 ],
                 "responses": {
                     "200": { "$ref": "#/components/responses/200/Empty" },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "403": { "$ref": "#/components/responses/403" }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "summary": "Get the logged in user",
+                "security": [{ "bearerAuth": [] }],
+                "tags": [ "User" ],
+                "parameters": [
+                    { "$ref": "#/components/parameters/Authorization" }
+                ],
+                "responses": {
+                    "200": { "$ref": "#/components/responses/200/User" },
                     "400": { "$ref": "#/components/responses/400" },
                     "403": { "$ref": "#/components/responses/403" }
                 }
