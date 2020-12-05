@@ -177,7 +177,7 @@ export default function AddGuestScreen({ route, navigation }) {
                 <Text>
                     <Text style={styles.codeText} onPress={() => {
                         Clipboard.setString(inviteCode)
-                        setSnackbarVisible(true)
+                        alert("Copied!")
                     }}>{inviteCode}</Text>
                 </Text>
             </View>
