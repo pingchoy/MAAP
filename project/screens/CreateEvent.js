@@ -28,6 +28,7 @@ export default function CreateEventScreen({ navigation }) {
 
     }
 
+
     React.useEffect(() => {
         (async () => {
             let api = await AsyncStorage.getItem('api')
@@ -37,6 +38,21 @@ export default function CreateEventScreen({ navigation }) {
         })()
 
     }, [])
+
+    const handleJoinEvent = () => {
+        fetch(`${API_BASE_URL}/event/join/code`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'PUT',
+            body: JSON.stringify({
+                "eventCode": code
+            })
+        })
+
+    }
     return (
         <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
             <View style={styles.backButtonView}>
@@ -65,7 +81,8 @@ export default function CreateEventScreen({ navigation }) {
                     />
                 </View>
                 <View style={styles.goButtonView}>
-                    <TouchableOpacity style={styles.goButtonBody} >
+                    <TouchableOpacity style={styles.goButtonBody}
+                        onPress={() => handleJoinEvent()}>
                         <Text style={styles.buttonText}>Go!</Text>
                     </TouchableOpacity>
                 </View>
