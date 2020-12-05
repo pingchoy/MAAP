@@ -72,8 +72,12 @@ export const eventLock = callback => new Promise((resolve, reject) => {
 });
 
 const getUserWithEmail = email => {
+  // remove whitespaces from string
+  email.replace(/\s/g, "")
+
+  console.log("Logging on with email: " + email)
   for (const [userId, user] of Object.entries(users)) {
-    if (user.email === email) {
+    if (user.email.toUpperCase() === email.toUpperCase()) {
       return [userId, user];
     }
   }
