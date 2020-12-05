@@ -510,7 +510,6 @@ export default function GuestEventScreen({ route, navigation }) {
                     iconStyle={styles.upvoteButton}
                     backgroundColor="white"
                     color="orange"
-
                     onPress={() => handleMaybe()}
                 ></Icon.Button>
                 <Text style={styles.choiceText}>Maybe</Text>

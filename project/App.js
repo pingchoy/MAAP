@@ -16,7 +16,7 @@ import Home from './routes/Home';
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from '@react-navigation/native';
 
-const API_BASE_URL = 'http://192.168.0.18:5000';
+const API_BASE_URL = 'http://192.168.1.52:5000';
 
 const Stack = createStackNavigator();
 export const AuthContext = React.createContext();
@@ -117,7 +117,7 @@ export default function App({ navigation }) {
     }
   }
 
-  const setUserIdHelper = async (userId) =>{
+  const setUserIdHelper = async (userId) => {
 
     try {
       await AsyncStorage.setItem('userId', userId)

@@ -10,7 +10,7 @@ const { height } = Dimensions.get('window');
 
 export default function AddGuestScreen({ route, navigation }) {
 
-    const [friends, setFriends] = React.useState([{ username: "Brad#1314", disabled: false }, { username: "Andrew#439", disabled: false }])
+    const [friends, setFriends] = React.useState([])
     const [invitedFriends, setInvitedFriends] = React.useState([])
     const [search, setSearch] = React.useState('')
     const windowHeight = useWindowDimensions().height;
@@ -28,7 +28,7 @@ export default function AddGuestScreen({ route, navigation }) {
             let token2 = await AsyncStorage.getItem('userToken')
             setToken(token2)
             setAPIURL(api)
-
+            console.log(api)
             getFriends(token2, api)
             getInviteCode(token2, api)
         })()
