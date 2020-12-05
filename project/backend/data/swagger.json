@@ -682,7 +682,7 @@
                     { "$ref": "#/components/parameters/EventCode" }
                 ],
                 "responses": {
-                    "200": { "$ref": "#/components/responses/200/Empty" },
+                    "200": { "$ref": "#/components/responses/200/EventId" },
                     "400": { "$ref": "#/components/responses/400" },
                     "403": { "$ref": "#/components/responses/403" }
                 }
