@@ -66,58 +66,60 @@ export default function Events({ navigation }) {
   React.useEffect(() => {
     // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
-        let userToken = await AsyncStorage.getItem('userToken');
-        let api = await AsyncStorage.getItem('api');
-        let userId = await AsyncStorage.getItem('userId');
-        setCurrentUserId(userId)
-        getEvents(userToken, api)
-
+      let userToken = await AsyncStorage.getItem('userToken');
+      let api = await AsyncStorage.getItem('api');
+      let userId = await AsyncStorage.getItem('userId');
+      setCurrentUserId(userId)
+      getEvents(userToken, api)
     };
-    
+
     const getEvents = (userToken, api) => {
 
-      fetch(`${api}/event/joined` , {
+      fetch(`${api}/event/joined`, {
         headers: {
           Authorization: `Bearer ${userToken}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
         method: 'GET',
-      }).then(res=>res.json())
-      .then(body=>{
-        if (body.error !== undefined){
-          //error stuff
-        } else{
-          parseEvents(body.eventIds, userToken, api)
+      }).then(res => res.json())
+        .then(body => {
+          if (body.error !== undefined) {
+            //error stuff
+          } else {
+            parseEvents(body.eventIds, userToken, api)
 
-        }
-      })
-      .catch(err=>alert(err))
+          }
+        })
+
     }
     const parseEvents = (eventIds, userToken, api) => {
       let allEvents = []
       eventIds.forEach((id) => {
-        fetch(`${api}/event/${id}` , {
+        fetch(`${api}/event/${id}`, {
           headers: {
-            Authorization: `Bearer ${userToken}`,
+            Authorization: userToken,
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
           path: {
-            eventId:`${id}`
+            eventId: `${id}`
           },
           method: 'GET',
-        }).then(res=>res.json())
-        .then(body=>{
-          
-          if (body.error !== undefined){
-            //error stuff
-          } else{
-            //addToEventsJSON(body.event)
-            allEvents.push(body.event)
-          }
-        })
-        .catch(err=>alert(err))
+        }).then(res => res.json())
+          .then(body => {
+
+            if (body.error !== undefined) {
+              //error stuff
+            } else {
+              //addToEventsJSON(body.event)
+
+              body.event['eventId'] = id
+              console.log(body.event)
+              allEvents.push(body.event)
+            }
+          })
+          .catch(err => alert(err))
       })
       setFetchedData(allEvents)
       setFilteredData(allEvents)
@@ -126,11 +128,11 @@ export default function Events({ navigation }) {
     bootstrapAsync();
   }, []);
 
-  const getMostUpvotedTime = (times) =>{
+  const getMostUpvotedTime = (times) => {
     if (times.length <= 0) {
       return 'TBD'
     }
-    let sortedTimes = times.sort(function(a, b) {
+    let sortedTimes = times.sort(function (a, b) {
       return a.voters.length - b.voters.length
 
     });
@@ -139,8 +141,8 @@ export default function Events({ navigation }) {
 
   // Turns Date into readable format
   const getTime = (times) => {
- 
-    let sortedTimes = times.sort(function(a, b) {
+
+    let sortedTimes = times.sort(function (a, b) {
       return a.voters.length - b.voters.length
     });
     if (sortedTimes.length <= 0 || sortedTimes[0].start === null) {
@@ -182,12 +184,12 @@ export default function Events({ navigation }) {
             onPress={() => setExpandedUpcoming(!expandedUpcoming)}>
             {filteredData && filteredData.map(d => {
               let time = getMostUpvotedTime(d.times)
-              if (time >= new Date() || time ==='TBD') {
-                if (d.host ===currentUserId) {
+              if (time >= new Date() || time === 'TBD') {
+                if (d.host === currentUserId) {
                   return (
                     <List.Item
                       key={d.code}
-                      onPress={() => { }}
+                      onPress={() => navigation.navigate("AdminEvent", { eventId: d.eventId })}
                       title={d.name}
                       description={getTime(d.times)}
                       style={styles.accordionItem}
@@ -197,15 +199,13 @@ export default function Events({ navigation }) {
                 }
                 else {
                   return (
-                    <TouchableOpacity
-                      onPress={() => { navigation.navigate("GuestEvent", { eventId: "116467958" }) }}>
-                      <List.Item
-                        key={d.code}
-                        title={d.name}
-                        description={getTime(d.times)}
-                        style={styles.accordionItem}
-                      />
-                    </TouchableOpacity>
+                    <List.Item
+                      onPress={() => { navigation.navigate("GuestEvent", { eventId: d.eventId }) }}
+                      key={d.code}
+                      title={d.name}
+                      description={getTime(d.times)}
+                      style={styles.accordionItem}
+                    />
                   )
                 }
               }
@@ -222,7 +222,7 @@ export default function Events({ navigation }) {
             {filteredData && filteredData.map(d => {
               let time = getMostUpvotedTime(d.times)
               if (time !== 'TBD' && time < new Date()) {
-                if (d.host ===currentUserId) {
+                if (d.host === currentUserId) {
                   return (
                     <List.Item
                       key={d.code}

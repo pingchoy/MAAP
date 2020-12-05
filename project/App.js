@@ -12,12 +12,12 @@ import AddFriendScreen from './screens/AddFriend'
 import ProfileSettings from './screens/ProfileSettings'
 import EventSettingsScreen from './screens/EventSettings'
 import GuestEventScreen from './screens/GuestEvent'
+import AdminEventScreen from './screens/AdminEvent'
 import Home from './routes/Home';
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from '@react-navigation/native';
-
+console.disableYellowBox = true;
 const API_BASE_URL = 'http://192.168.1.52:5000';
-
 const Stack = createStackNavigator();
 export const AuthContext = React.createContext();
 
@@ -60,6 +60,7 @@ export default function App({ navigation }) {
 
       try {
         userToken = await AsyncStorage.getItem('userToken');
+
       } catch (e) {
         // Restoring token failed
       }
@@ -80,6 +81,7 @@ export default function App({ navigation }) {
       await AsyncStorage.setItem('api', API_BASE_URL)
     } catch (e) {
       // saving error
+      console.log(e)
     }
   }
 
@@ -89,42 +91,6 @@ export default function App({ navigation }) {
     } catch (e) {
       // remove error
     }
-  }
-
-  const setUserId = async (token) => {
-    fetch(`${API_BASE_URL}/user`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      method: 'GET',
-    }).then(res => res.json())
-      .then(body => {
-        if (body.error !== undefined) {
-          //error stuff
-        } else {
-          setUserIdHelper(body.user.userId) // Need an async function to store the userId
-        }
-      })
-      .catch(err => alert(err))
-
-    try {
-      await AsyncStorage.setItem('userId', userId)
-
-    } catch (e) {
-      // saving error
-    }
-  }
-
-  const setUserIdHelper = async (userId) => {
-
-    try {
-      await AsyncStorage.setItem('userId', userId)
-    } catch (e) {
-      // remove error
-    }
-
   }
 
   const authContext = React.useMemo(
@@ -150,7 +116,6 @@ export default function App({ navigation }) {
               //error stuff
             } else {
               setToken(body.token)
-              setUserId(body.token)
               dispatch({ type: 'LOGIN', token: body.token })
 
             }
@@ -181,7 +146,6 @@ export default function App({ navigation }) {
               //error stuff
             } else {
               setToken(body.token)
-              setUserId(body.token)
               dispatch({ type: 'LOGIN', token: body.token })
 
             }
@@ -216,6 +180,7 @@ export default function App({ navigation }) {
                 <Stack.Screen name="AddFriend" component={AddFriendScreen} />
                 <Stack.Screen name="EventSettings" component={EventSettingsScreen} />
                 <Stack.Screen name="GuestEvent" component={GuestEventScreen} />
+                <Stack.Screen name="AdminEvent" component={AdminEventScreen} />
               </>
             )}
         </Stack.Navigator>

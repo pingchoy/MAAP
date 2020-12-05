@@ -252,7 +252,6 @@ app.put('/user/invites', catchErrors(authed(async (req, res, userId) => {
   return res.status(200).send({});
 })));
 
-
 app.get('/user/:userId', catchErrors(authed(async (req, res, thisUserId) => {
   const { userId, } = req.params;
   await assertValidUserId(userId);
