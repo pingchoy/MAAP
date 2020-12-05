@@ -21,15 +21,18 @@ export default function GuestEventScreen({ route, navigation }) {
     const [guestList, setGuestList] = React.useState([])
     const [, updateState] = React.useState();
     const forceUpdate = React.useCallback(() => updateState({}), []);
-    const [modalVisible, setModalVisible] = React.useState(false);
     const [newEventName, setNewEventName] = React.useState("")
+    const [guestsCanInvitePeople, setGuestsCanInvitePeople] = React.useState(false);
+    const [guestsCanAddLocations, setGuestsCanAddLocations] = React.useState(false);
+    const [guestsCanAddTimes, setGuestsCanAddTimes] = React.useState(false);
+
     const windowHeight = useWindowDimensions().height;
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const [token, setToken] = React.useState('')
     const [API_BASE_URL, setAPIURL] = React.useState('')
     const { eventId } = route.params
-
+    const { user, setUser } = React.useState({})
     React.useEffect(() => {
         (async () => {
             let api = await AsyncStorage.getItem('api')
@@ -37,8 +40,23 @@ export default function GuestEventScreen({ route, navigation }) {
             setToken(token2)
             setAPIURL(api)
             getEventDetails(api, token2)
+            getCurrentUser(api, token2)
         })()
     }, [])
+
+    const getCurrentUser = (api, token) => {
+        fetch(`${api}/user`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'GET',
+        }).then(res => res.json())
+            .then(body => {
+                setUser(body.user)
+            })
+    }
 
     const getEventDetails = (api, token) => {
         fetch(`${api}/event/${eventId}`, {
@@ -51,6 +69,14 @@ export default function GuestEventScreen({ route, navigation }) {
         }).then(res => res.json())
             .then(body => {
                 console.log(body)
+                setEventName(body.event.name)
+                convertLocationList(body.event.locations)
+                convertTimeList(body.event.times)
+                convertGuestList(body.event.guests)
+                setGuestsCanAddTimes(body.event.permissions.guestsCanAddTimes)
+                setGuestsCanAddLocations(body.event.permissions.guestsCanAddLocations)
+                setGuestsCanInvitePeople(body.event.permissions.guestsCanInvitePeople)
+                forceUpdate()
             })
 
     }
@@ -63,26 +89,75 @@ export default function GuestEventScreen({ route, navigation }) {
             default: return "th";
         }
     }
+    const convertLocationList = (locations) => {
+        let temp = []
+        Object.keys(locations).map(location => {
+            let hasVoted = false
+            if (locations[location].includes(user.userId)) {
+                hasVoted = true
+            }
+            temp.push({ name: location, votes: locations[location].length, hasVoted: hasVoted })
+        })
+
+        setLocationList(temp)
+        forceUpdate()
+    }
+
+    const convertTimeList = (times) => {
+        let temp = []
+        times.map(time => {
+            let hasVoted = false
+            if (time.voters.includes(user.userId)) {
+                hasVoted = true
+            }
+
+            temp.push({ startDate: time.start, endDate: time.end, votes: time.voters.length, hasVoted: hasVoted })
+        })
+        setTimesList(temp)
+        forceUpdate()
+    }
+
+    const convertGuestList = (guests) => {
+        let temp = []
+        Object.keys(guests).map(guest => {
+            fetch(`${api}/user/${guest}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': token
+                },
+                method: 'GET',
+            }).then(res => res.json())
+                .then(body => {
+                    temp.push({ username: body.user.name, status: guests[guest] })
+                })
+        })
+
+        setGuestList(temp)
+        forceUpdate()
+    }
 
     const handleAddLocationVote = (location) => {
         let tempList = locationList
 
         tempList.map(l => {
             if (l.name === location.name) {
-                l.votes++
-                fetch(`${API_BASE_URL}/event/vote/location`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': token
-                    },
-                    method: 'PUT',
-                    body: JSON.stringify({
-                        "eventId": eventId,
-                        "location": l.name,
+                if (l.hasVoted === false) {
+                    l.votes++
+                    l.hasVoted = true
+                    fetch(`${API_BASE_URL}/event/vote/location`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': token
+                        },
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            "eventId": eventId,
+                            "location": l.name,
+                        })
                     })
-                })
-
+                }
             }
         })
         tempList.sort((a, b) => {
@@ -98,21 +173,23 @@ export default function GuestEventScreen({ route, navigation }) {
 
         tempList.map(t => {
             if (t.startDate === time.startDate) {
-                t.votes++
-
-                fetch(`${API_BASE_URL}/event/vote/time`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': token
-                    },
-                    method: 'PUT',
-                    body: JSON.stringify({
-                        "eventId": eventId,
-                        "start": t.startDate,
-                        "end": t.endDate
+                if (t.hasVoted === false) {
+                    t.votes++
+                    t.hasVoted = true
+                    fetch(`${API_BASE_URL}/event/vote/time`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': token
+                        },
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            "eventId": eventId,
+                            "start": t.startDate,
+                            "end": t.endDate
+                        })
                     })
-                })
+                }
             }
         })
         tempList.sort((a, b) => {
@@ -121,6 +198,8 @@ export default function GuestEventScreen({ route, navigation }) {
         setTimesList(tempList)
         forceUpdate()
     }
+
+
     const renderScene = ({ route }) => {
 
         switch (route.key) {
@@ -220,16 +299,34 @@ export default function GuestEventScreen({ route, navigation }) {
         />
     )
 
-    const handleDateTimeChange = (date) => {
+    const handleDateTimeChange = (startDate, endDate) => {
 
         // Add new time to time list
         let temp = timeList
         // Check for duplicate times
 
-        if (timeList.filter(t => t.date.getTime() === date.getTime()).length === 0) {
-            temp.push({ date: date, votes: 0 })
+        if (timeList.filter(t => t.startDate.getTime() === startDate.getTime()).length === 0) {
+            temp.push({ startDate: startDate, endDate: endDate, votes: 0, hasVoted: false })
         }
         setTimesList(temp)
+
+
+        // send post request api
+        fetch(`${API_BASE_URL}/event/time`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                "eventId": eventId,
+                "start": startDate,
+                "end": endDate
+            })
+        })
+
+
         forceUpdate()
     }
 
@@ -247,14 +344,28 @@ export default function GuestEventScreen({ route, navigation }) {
             if (location) {
                 if (filteredList.indexOf(location) === -1) {
                     filteredList.push(location)
-                    temp.push({ name: location, votes: 0 })
+                    temp.push({ name: location, votes: 0, hasVoted: false })
+
+                    // send post request api
+                    fetch(`${API_BASE_URL}/event/location`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': token
+                        },
+                        method: 'POST',
+                        body: JSON.stringify({
+                            "eventId": eventId,
+                            "location": location,
+                        })
+                    })
                 }
             }
         })
         setLocationList(temp)
+
         forceUpdate()
     }
-
     const handleGuestChange = (guests) => {
         let temp = guestList
         let filteredList = []
@@ -426,39 +537,6 @@ export default function GuestEventScreen({ route, navigation }) {
                 />
             </View>
 
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalText}>New Event Name:</Text>
-                        <TextInput
-                            style={styles.modalInput}
-                            onChangeText={text => onChangeText(text)}
-                            value={newEventName}
-                        />
-                        <TouchableOpacity
-                            style={{ ...styles.openButton, backgroundColor: "#2196F3", width: 150, }}
-                            onPress={() => {
-                                setEventName(newEventName)
-                                setModalVisible(!modalVisible);
-                            }}
-                        >
-                            <Text style={styles.textStyle}>Save & Close</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={{ ...styles.openButton, backgroundColor: "red" }}
-                            onPress={() => {
-                                setModalVisible(!modalVisible);
-                            }}
-                        >
-                            <Text style={styles.textStyle}>Close</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
         </SafeAreaView >
 
     )
