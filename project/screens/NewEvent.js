@@ -381,7 +381,7 @@ export default function NewEventScreen({ route, navigation }) {
                         size={30}
                         backgroundColor="white"
                         color="black"
-                        onPress={() => navigation.navigate('EventSettings')}
+                        onPress={() => navigation.navigate('EventSettings', { eventId: eventId })}
                     >
                     </Icon.Button>
                 </View>

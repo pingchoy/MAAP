@@ -51,6 +51,11 @@ export default function GuestEventScreen({ route, navigation }) {
         }).then(res => res.json())
             .then(body => {
                 console.log(body)
+                setEventName(body.event.name)
+                setLocationList(body.event.locations)
+                setTimesList(body.event.times)
+                setGuestList(body.event.guests)
+                forceUpdate()
             })
 
     }
@@ -426,39 +431,6 @@ export default function GuestEventScreen({ route, navigation }) {
                 />
             </View>
 
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalText}>New Event Name:</Text>
-                        <TextInput
-                            style={styles.modalInput}
-                            onChangeText={text => onChangeText(text)}
-                            value={newEventName}
-                        />
-                        <TouchableOpacity
-                            style={{ ...styles.openButton, backgroundColor: "#2196F3", width: 150, }}
-                            onPress={() => {
-                                setEventName(newEventName)
-                                setModalVisible(!modalVisible);
-                            }}
-                        >
-                            <Text style={styles.textStyle}>Save & Close</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={{ ...styles.openButton, backgroundColor: "red" }}
-                            onPress={() => {
-                                setModalVisible(!modalVisible);
-                            }}
-                        >
-                            <Text style={styles.textStyle}>Close</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
         </SafeAreaView >
 
     )

@@ -3,10 +3,45 @@ import { TouchableOpacity, StyleSheet, Dimensions, Text, SafeAreaView, View, Ima
 
 const dimensions = Dimensions.get('window');
 
-export default function EventSettings({ navigation }) {
+export default function EventSettings({ route, navigation }) {
     const [guestsCanInvitePeople, setGuestsCanInvitePeople] = React.useState(false);
     const [guestsCanAddLocations, setGuestsCanAddLocations] = React.useState(false);
     const [guestsCanAddTimes, setGuestsCanAddTimes] = React.useState(false);
+    const [, updateState] = React.useState();
+    const [token, setToken] = React.useState('')
+    const [API_BASE_URL, setAPIURL] = React.useState('')
+    const forceUpdate = React.useCallback(() => updateState({}), []);
+    const { eventId } = route.params
+
+    React.useEffect(() => {
+        (async () => {
+            let api = await AsyncStorage.getItem('api')
+            let token2 = await AsyncStorage.getItem('userToken')
+            setToken(token2)
+            setAPIURL(api)
+        })()
+    }, [])
+
+    handleEventSettingsChange = () => {
+
+        fetch(`${API_BASE_URL}/event/settings`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'PUT',
+            body: JSON.stringify({
+                "eventId": eventId,
+                "newPermissions": {
+                    "guestsCanInvite": guestsCanInvitePeople,
+                    "guestsCanAddLocations": guestsCanAddLocations,
+                    "guestsCanAddTimes": guestsCanAddTimes
+                }
+            })
+        })
+    }
+
     return (
 
         <SafeAreaView style={styles.container}>
