@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, useWindowDimensions, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 var Upvote = require('react-upvote');
 
 const dimensions = Dimensions.get('window');
@@ -23,7 +24,7 @@ const ThirdRoute = () => (
 const initialLayout = { width: Dimensions.get('window').width };
 
 
-export default function NewEventScreen({ navigation }) {
+export default function NewEventScreen({ route, navigation }) {
     const [code, onChangeCode] = React.useState('Enter an event code');
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
@@ -43,6 +44,19 @@ export default function NewEventScreen({ navigation }) {
     const windowHeight = useWindowDimensions().height;
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const [token, setToken] = React.useState('')
+    const [API_BASE_URL, setAPIURL] = React.useState('')
+
+    const { eventId } = route.params
+
+    React.useEffect(() => {
+        (async () => {
+            let api = await AsyncStorage.getItem('api')
+            let token2 = await AsyncStorage.getItem('userToken')
+            setToken(token2)
+            setAPIURL(api)
+        })()
+    }, [])
 
     const nth = (d) => {
         if (d > 3 && d < 21) return 'th';
@@ -60,9 +74,24 @@ export default function NewEventScreen({ navigation }) {
         tempList.map(l => {
             if (l.name === location.name) {
                 l.votes++
+                fetch(`${API_BASE_URL}/event/vote/location`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': token
+                    },
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        "eventId": eventId,
+                        "location": l.name,
+                    })
+                })
+
             }
         })
-
+        tempList.sort((a, b) => {
+            return b.votes - a.votes
+        })
         setLocationList(tempList)
         forceUpdate()
     }
@@ -74,9 +103,25 @@ export default function NewEventScreen({ navigation }) {
         tempList.map(t => {
             if (t.startDate === time.startDate) {
                 t.votes++
+
+                fetch(`${API_BASE_URL}/event/vote/time`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': token
+                    },
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        "eventId": eventId,
+                        "start": t.startDate,
+                        "end": t.endDate
+                    })
+                })
             }
         })
-
+        tempList.sort((a, b) => {
+            return b.votes - a.votes
+        })
         setTimesList(tempList)
         forceUpdate()
     }
@@ -189,6 +234,24 @@ export default function NewEventScreen({ navigation }) {
             temp.push({ startDate: startDate, endDate: endDate, votes: 0 })
         }
         setTimesList(temp)
+
+
+        // send post request api
+        fetch(`${API_BASE_URL}/event/time`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                "eventId": eventId,
+                "start": startDate,
+                "end": endDate
+            })
+        })
+
+
         forceUpdate()
     }
 
@@ -207,10 +270,25 @@ export default function NewEventScreen({ navigation }) {
                 if (filteredList.indexOf(location) === -1) {
                     filteredList.push(location)
                     temp.push({ name: location, votes: 0 })
+
+                    // send post request api
+                    fetch(`${API_BASE_URL}/event/location`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': token
+                        },
+                        method: 'POST',
+                        body: JSON.stringify({
+                            "eventId": eventId,
+                            "location": location,
+                        })
+                    })
                 }
             }
         })
         setLocationList(temp)
+
         forceUpdate()
     }
 
@@ -229,6 +307,20 @@ export default function NewEventScreen({ navigation }) {
                 if (filteredList.indexOf(guest) === -1) {
                     filteredList.push(guest)
                     temp.push({ username: guest, status: "maybe" })
+
+                    // send post request api
+                    fetch(`${API_BASE_URL}/event/invite`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': token
+                        },
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            "eventId": eventId,
+                            "userId": guest
+                        })
+                    })
                 }
             }
         })
@@ -283,10 +375,16 @@ export default function NewEventScreen({ navigation }) {
                     <Text style={styles.eventDetailsBoldText}>Host:</Text><Text style={styles.eventDetailsNormalText}> Anton</Text>
                 </Text>
                 <Text>
-                    <Text style={styles.eventDetailsBoldText}>Location:</Text><Text style={styles.eventDetailsNormalText}> Anton's House</Text>
+                    <Text style={styles.eventDetailsBoldText}>Location:</Text><Text style={styles.eventDetailsNormalText}> {locationList.length > 0 ? locationList[0].name : "TBD"}</Text>
                 </Text>
                 <Text>
-                    <Text style={styles.eventDetailsBoldText}>Time:</Text><Text style={styles.eventDetailsNormalText}> 6:30pm Sat. 14 Nov.</Text>
+                    <Text style={styles.eventDetailsBoldText}>Time:</Text><Text style={styles.eventDetailsNormalText}> {timeList.length > 0 ? <Text style={styles.timeInformationText} numberOfLines={2}>
+                        <Text>{timeList[0].startDate.getHours()}:{timeList[0].startDate.getUTCMinutes() < 10 ? '0' + timeList[0].startDate.getMinutes() : timeList[0].startDate.getMinutes()}{timeList[0].startDate.getHours() > 12 ? "pm" : "am"}</Text>
+                        <Text> {days[timeList[0].startDate.getDay()]}</Text>
+                        <Text> {timeList[0].startDate.getDate()}{nth(timeList[0].startDate.getDate())}</Text>
+                        <Text> {months[timeList[0].startDate.getMonth()]}</Text>
+
+                    </Text> : "TBD"}</Text>
                 </Text>
             </View>
             <View style={styles.tabBar}>
@@ -303,7 +401,7 @@ export default function NewEventScreen({ navigation }) {
                 <TouchableOpacity style={styles.buttonBody} onPress={() => navigation.navigate('Add'.concat(currentTab),
                     {
                         handleLocationChange: handleLocationChange, handleDateTimeChange: handleDateTimeChange, handleGuestChange: handleGuestChange,
-                        guestList: guestList, locationList: locationList
+                        guestList: guestList, locationList: locationList, eventId: eventId
                     })}>
                     <Text style={styles.buttonText}>Add {currentTab}</Text>
                 </TouchableOpacity>

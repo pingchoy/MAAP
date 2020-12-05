@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
 import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, useWindowDimensions } from 'react-native';
 
@@ -6,9 +7,62 @@ const dimensions = Dimensions.get('window');
 const { height } = Dimensions.get('window');
 
 export default function CreateEventScreen({ navigation }) {
-    const [code, onChangeCode] = React.useState('Enter an event code');
+    const [code, onChangeCode] = React.useState('');
+    const [token, setToken] = React.useState('')
+    const [API_BASE_URL, setAPIURL] = React.useState('')
     const windowHeight = useWindowDimensions().height;
 
+    const handleCreateEvent = () => {
+        fetch(`${API_BASE_URL}/event`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'POST',
+        })
+            .then((res) => res.json())
+            .then(body => {
+
+                navigation.navigate('NewEvent', { eventId: body.eventId })
+            })
+
+    }
+
+
+    React.useEffect(() => {
+        (async () => {
+            let api = await AsyncStorage.getItem('api')
+            let token2 = await AsyncStorage.getItem('userToken')
+            setToken(token2)
+            setAPIURL(api)
+        })()
+
+    }, [])
+
+    const handleJoinEvent = () => {
+        fetch(`${API_BASE_URL}/event/join/code`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'PUT',
+            body: JSON.stringify({
+                "eventCode": code
+            })
+        }).then((res) => res.json())
+            .then(body => {
+                console.log(body)
+                if (!body.error) {
+
+                    navigation.navigate('GuestEvent', { eventId: body.eventId })
+                } else {
+                    alert(body.error)
+                }
+            })
+
+    }
     return (
         <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
             <View style={styles.backButtonView}>
@@ -17,24 +71,29 @@ export default function CreateEventScreen({ navigation }) {
                 </TouchableOpacity>
             </View>
             <View style={styles.buttonView}>
-                <TouchableOpacity style={styles.buttonBody} onPress={() => navigation.navigate('NewEvent')}>
+                <TouchableOpacity style={styles.buttonBody} onPress={() => {
+                    handleCreateEvent()
+
+                }}>
                     <Text style={styles.buttonText}>Create an Event</Text>
                 </TouchableOpacity>
             </View>
             <View style={styles.subtextView}>
-                <Text  style={styles.subtext}>OR</Text>
+                <Text style={styles.subtext}>OR</Text>
             </View>
             <View style={styles.subButtonView}>
                 <View style={styles.inputView}>
                     <TextInput
                         placeholder={code}
-                        onChangePassword={text => onChangeCode(text)}
-                        code={code}
+                        onChangeText={text => onChangeCode(text)}
+                        value={code}
+                        placeholder={"Enter an Event Code"}
                         style={styles.inputBody}
                     />
                 </View>
                 <View style={styles.goButtonView}>
-                    <TouchableOpacity style={styles.goButtonBody} >
+                    <TouchableOpacity style={styles.goButtonBody}
+                        onPress={() => handleJoinEvent()}>
                         <Text style={styles.buttonText}>Go!</Text>
                     </TouchableOpacity>
                 </View>
@@ -108,9 +167,9 @@ const styles = StyleSheet.create({
         color: '#3C3C3C',
     },
     subButtonView: {
-        flexDirection: 'row', 
-        flex: 5, 
-        width: dimensions.width-40,
+        flexDirection: 'row',
+        flex: 5,
+        width: dimensions.width - 40,
         alignItems: 'flex-start',
         justifyContent: 'center'
     },

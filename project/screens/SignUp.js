@@ -2,17 +2,24 @@ import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { View, StyleSheet, Dimensions, Text, TouchableOpacity, Image, SafeAreaView, TextInput, } from 'react-native';
 import { SignUpButton } from '../components/SignUpButton';
+import { AuthContext } from '../App';
 
 const dimensions = Dimensions.get('window');
 
 export default function Login({ navigation }) {
-  const [username, onChangeUsername] = React.useState('Email or Username');
-  const [name, onChangeName] = React.useState('First Name');
-  const [password, onChangePassword] = React.useState('Password');
-  const [rePassword, onChangeRePassword] = React.useState('Re-enter password');
+  const [email, onChangeEmail] = React.useState('');
+  const [name, onChangeName] = React.useState('');
+  const [password, onChangePassword] = React.useState('');
+  const [rePassword, onChangeRePassword] = React.useState('');
+
+  const { signUp } = React.useContext(AuthContext);
 
   const goToLogin = () => {
     navigation.navigate('Login');
+  }
+
+  const trySignUp = () => {
+    signUp({ email, name, password })
   }
 
   const goToGuest = () => {
@@ -30,16 +37,16 @@ export default function Login({ navigation }) {
       <View style={styles.inputView}>
         <TextInput
           style={styles.inputBody}
-          placeholder={username}
-          onChangeUsername={text => onChangeUsername(text)}
-          username={username}
+          placeholder={'Email'}
+          onChangeText={text => onChangeEmail(text)}
+          email={email}
         />
       </View>
       <View style={styles.inputView}>
         <TextInput
           style={styles.inputBody}
-          placeholder={name}
-          onChangeName={text => onChangeName(text)}
+          placeholder={'First Name'}
+          onChangeText={text => onChangeName(text)}
           name={name}
         />
       </View>
@@ -48,8 +55,8 @@ export default function Login({ navigation }) {
           style={styles.inputBody}
           secureTextEntry={true}
           textContentType='password'
-          placeholder={password}
-          onChangePassword={text => onChangePassword(text)}
+          placeholder={'Password'}
+          onChangeText={text => onChangePassword(text)}
           password={password}
         />
       </View>
@@ -58,14 +65,16 @@ export default function Login({ navigation }) {
           style={styles.inputBody}
           secureTextEntry={true}
           textContentType='password'
-          placeholder={rePassword}
-          onChangeRePassword={text => onChangeRePassword(text)}
+          placeholder={'Re-enter Password'}
+          onChangeText={text => onChangeRePassword(text)}
           rePassword={rePassword}
         />
       </View>
 
       <View style={styles.inputView}>
-        <SignUpButton></SignUpButton>
+          <TouchableOpacity onPress={trySignUp} style={styles.buttonBody}>
+            <Text style={styles.buttonText}>Create Account</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.textView}>
@@ -157,8 +166,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#165F22',
-  }
-
+  },
+  buttonBody: {
+    position: 'absolute',
+    width: '100%',
+    backgroundColor: '#165F22',
+    borderRadius: 30,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+},
+buttonText: {
+    position: 'absolute',
+    //fontFamily: 'Roboto',
+    fontStyle: 'normal',
+    fontWeight: 'bold',
+    fontSize: 18,
+    lineHeight: 22,
+    display: 'flex',
+    color: '#FFFFFF',
+    alignSelf: "center",
+},
 
   // guestLinkBody: {
   //   position: 'absolute',

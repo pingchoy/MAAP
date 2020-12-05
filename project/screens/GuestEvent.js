@@ -2,11 +2,11 @@ import React, { useEffect } from 'react';
 import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, useWindowDimensions, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const initialLayout = { width: Dimensions.get('window').width };
 
 
-export default function GuestEventScreen({ navigation }) {
+export default function GuestEventScreen({ route, navigation }) {
     const [code, onChangeCode] = React.useState('Enter an event code');
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
@@ -26,7 +26,34 @@ export default function GuestEventScreen({ navigation }) {
     const windowHeight = useWindowDimensions().height;
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const [token, setToken] = React.useState('')
+    const [API_BASE_URL, setAPIURL] = React.useState('')
+    const { eventId } = route.params
 
+    React.useEffect(() => {
+        (async () => {
+            let api = await AsyncStorage.getItem('api')
+            let token2 = await AsyncStorage.getItem('userToken')
+            setToken(token2)
+            setAPIURL(api)
+            getEventDetails(api, token2)
+        })()
+    }, [])
+
+    const getEventDetails = (api, token) => {
+        fetch(`${api}/event/${eventId}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'GET',
+        }).then(res => res.json())
+            .then(body => {
+                console.log(body)
+            })
+
+    }
     const nth = (d) => {
         if (d > 3 && d < 21) return 'th';
         switch (d % 10) {
@@ -43,9 +70,24 @@ export default function GuestEventScreen({ navigation }) {
         tempList.map(l => {
             if (l.name === location.name) {
                 l.votes++
+                fetch(`${API_BASE_URL}/event/vote/location`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': token
+                    },
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        "eventId": eventId,
+                        "location": l.name,
+                    })
+                })
+
             }
         })
-
+        tempList.sort((a, b) => {
+            return b.votes - a.votes
+        })
         setLocationList(tempList)
         forceUpdate()
     }
@@ -55,11 +97,27 @@ export default function GuestEventScreen({ navigation }) {
         let tempList = timeList
 
         tempList.map(t => {
-            if (t.date === time.date) {
+            if (t.startDate === time.startDate) {
                 t.votes++
+
+                fetch(`${API_BASE_URL}/event/vote/time`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': token
+                    },
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        "eventId": eventId,
+                        "start": t.startDate,
+                        "end": t.endDate
+                    })
+                })
             }
         })
-
+        tempList.sort((a, b) => {
+            return b.votes - a.votes
+        })
         setTimesList(tempList)
         forceUpdate()
     }
@@ -224,6 +282,65 @@ export default function GuestEventScreen({ navigation }) {
         setNewEventName(text)
     }
 
+    const handleGoing = () => {
+        fetch(`${API_BASE_URL}/event/status`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'PUT',
+            body: JSON.stringify({
+                "eventId": eventId,
+                "status": "GOING"
+            })
+        })
+    }
+
+
+    const handleMaybe = () => {
+        fetch(`${API_BASE_URL}/event/status`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'PUT',
+            body: JSON.stringify({
+                "eventId": eventId,
+                "status": "MAYBE"
+            })
+        })
+    }
+
+    const handleNotGoing = () => {
+        fetch(`${API_BASE_URL}/event/status`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'PUT',
+            body: JSON.stringify({
+                "eventId": eventId,
+                "status": "NOT GOING"
+            })
+        })
+    }
+
+    const handleLeaveEvent = () => {
+        fetch(`${API_BASE_URL}/event/leave`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'PUT',
+            body: JSON.stringify({
+                "eventId": eventId,
+            })
+        })
+    }
     return (
 
         <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
@@ -242,7 +359,8 @@ export default function GuestEventScreen({ navigation }) {
                     {/* {eventName} */}
                 </Text>
                 <View style={styles.settingsButton} >
-                    <TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => handleLeaveEvent()}>
                         <Text style={{ color: 'red' }}>Leave Event</Text>
                     </TouchableOpacity>
                 </View>
@@ -253,10 +371,16 @@ export default function GuestEventScreen({ navigation }) {
                     <Text style={styles.eventDetailsBoldText}>Host:</Text><Text style={styles.eventDetailsNormalText}> Anton</Text>
                 </Text>
                 <Text>
-                    <Text style={styles.eventDetailsBoldText}>Location:</Text><Text style={styles.eventDetailsNormalText}> Anton's House</Text>
+                    <Text style={styles.eventDetailsBoldText}>Location:</Text><Text style={styles.eventDetailsNormalText}> {locationList.length > 0 ? locationList[0].name : "TBD"}</Text>
                 </Text>
                 <Text>
-                    <Text style={styles.eventDetailsBoldText}>Time:</Text><Text style={styles.eventDetailsNormalText}> 6:30pm Sat. 14 Nov.</Text>
+                    <Text style={styles.eventDetailsBoldText}>Time:</Text><Text style={styles.eventDetailsNormalText}> {timeList.length > 0 ? <Text style={styles.timeInformationText} numberOfLines={2}>
+                        <Text>{timeList[0].startDate.getHours()}:{timeList[0].startDate.getUTCMinutes() < 10 ? '0' + timeList[0].startDate.getMinutes() : timeList[0].startDate.getMinutes()}{timeList[0].startDate.getHours() > 12 ? "pm" : "am"}</Text>
+                        <Text> {days[timeList[0].startDate.getDay()]}</Text>
+                        <Text> {timeList[0].startDate.getDate()}{nth(timeList[0].startDate.getDate())}</Text>
+                        <Text> {months[timeList[0].startDate.getMonth()]}</Text>
+
+                    </Text> : "TBD"}</Text>
                 </Text>
             </View>
             <View style={styles.choiceView}>
@@ -266,7 +390,7 @@ export default function GuestEventScreen({ navigation }) {
                     iconStyle={styles.upvoteButton}
                     backgroundColor="white"
                     color="green"
-
+                    onPress={() => handleGoing()}
                 ></Icon.Button>
                 <Text style={styles.choiceText}> Going</Text>
                 <Icon.Button
@@ -276,6 +400,7 @@ export default function GuestEventScreen({ navigation }) {
                     backgroundColor="white"
                     color="orange"
 
+                    onPress={() => handleMaybe()}
                 ></Icon.Button>
                 <Text style={styles.choiceText}>Maybe</Text>
                 <Icon.Button
@@ -284,10 +409,11 @@ export default function GuestEventScreen({ navigation }) {
                     iconStyle={styles.upvoteButton}
                     backgroundColor="white"
                     color="red"
-
+                    onPress={() => handleNotGoing()}
                 ></Icon.Button>
                 <Text style={styles.choiceText}> Not Going</Text>
             </View>
+
             <View style={styles.tabBar}>
                 <TabView
                     navigationState={{ index, routes }}
@@ -296,6 +422,7 @@ export default function GuestEventScreen({ navigation }) {
                     initialLayout={initialLayout}
                     renderTabBar={renderTabBar}
                     swipeEnabled={false}
+
                 />
             </View>
 

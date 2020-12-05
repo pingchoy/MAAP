@@ -7,8 +7,8 @@ import { AuthContext } from '../App';
 const dimensions = Dimensions.get('window');
 
 export default function Login({ navigation }) {
-  const [username, onChangeUsername] = React.useState('Email or Username');
-  const [password, onChangePassword] = React.useState('Password');
+  const [username, onChangeUsername] = React.useState('');
+  const [password, onChangePassword] = React.useState('');
 
   const { login } = React.useContext(AuthContext);
 
@@ -24,8 +24,8 @@ export default function Login({ navigation }) {
       <View style={styles.inputView}>
         <TextInput
           style={styles.inputBody}
-          placeholder={username}
-          onChangeUsername={text => onChangeUsername(text)}
+          placeholder={'Email'}
+          onChangeText={text => onChangeUsername(text)}
           username={username}
         />
       </View>
@@ -34,8 +34,8 @@ export default function Login({ navigation }) {
           style={styles.inputBody}
           secureTextEntry={true}
           textContentType='password'
-          placeholder={password}
-          onChangePassword={text => onChangePassword(text)}
+          placeholder={'Password'}
+          onChangeText={text => onChangePassword(text)}
           password={password}
         />
       </View>

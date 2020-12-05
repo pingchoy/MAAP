@@ -4,6 +4,7 @@ import { TouchableOpacity, View, StyleSheet, Dimensions, Text, SafeAreaView, Scr
 import { Ionicons } from '@expo/vector-icons';
 import { List, Searchbar } from 'react-native-paper';
 import { } from 'react-native-gesture-handler'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const dimensions = Dimensions.get('window');
 
@@ -60,6 +61,23 @@ export default function Events({ navigation }) {
     }
   }
 
+  React.useEffect(() => {
+    // Fetch the token from storage then navigate to our appropriate place
+    const bootstrapAsync = async () => {
+      let userToken;
+
+      try {
+        userToken = await AsyncStorage.getItem('userToken');
+      } catch (e) {
+        // Restoring token failed
+        alert(e)
+      }
+    };
+
+    bootstrapAsync();
+  }, []);
+
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.bannerView}>
@@ -94,6 +112,7 @@ export default function Events({ navigation }) {
                 if (d.owner) {
                   return (
                     <List.Item
+                      onPress={() => { }}
                       title={d.title}
                       description={d.description}
                       style={styles.accordionItem}
@@ -104,7 +123,7 @@ export default function Events({ navigation }) {
                 else {
                   return (
                     <TouchableOpacity
-                      onPress={() => { navigation.navigate("GuestEvent") }}>
+                      onPress={() => { navigation.navigate("GuestEvent", { eventId: "116467958" }) }}>
                       <List.Item
                         title={d.title}
                         description={d.description}
@@ -162,7 +181,9 @@ export default function Events({ navigation }) {
                 else {
                   return (
                     <TouchableOpacity
-                      onPress={() => { navigation.navigate("GuestEvent") }}>
+                      // Using a sample eventID 
+
+                      onPress={() => { navigation.navigate("GuestEvent", { eventId: "116467958" }) }}>
                       <List.Item
                         title={d.title}
                         description={d.description}
