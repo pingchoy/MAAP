@@ -53,14 +53,16 @@ export default function AdminEventScreen({ route, navigation }) {
         (async () => {
             let api = await AsyncStorage.getItem('api')
             let token2 = await AsyncStorage.getItem('userToken')
+            let userid = await AsyncStorage.getItem('userId');
+
+            getCurrentUser(api, token2)
             setToken(token2)
             setAPIURL(api)
-            getCurrentUser(api, token2)
-            getEventDetails(api, token2)
+            getEventDetails(api, token2, userid)
         })()
     }, [])
 
-    const getEventDetails = (api, token) => {
+    const getEventDetails = (api, token, userid) => {
         fetch(`${api}/event/${eventId}`, {
             headers: {
                 'Content-Type': 'application/json',
@@ -71,8 +73,8 @@ export default function AdminEventScreen({ route, navigation }) {
         }).then(res => res.json())
             .then(body => {
                 setEventName(body.event.name)
-                convertLocationList(body.event.locations)
-                convertTimeList(body.event.times)
+                convertLocationList(userid, body.event.locations)
+                convertTimeList(userid, body.event.times)
                 convertGuestList(api, token, body.event.guests)
                 setGuestsCanAddTimes(body.event.permissions.guestsCanAddTimes)
                 setGuestsCanAddLocations(body.event.permissions.guestsCanAddLocations)
@@ -82,11 +84,12 @@ export default function AdminEventScreen({ route, navigation }) {
 
     }
 
-    const convertLocationList = (locations) => {
+    const convertLocationList = (userid, locations) => {
         let temp = []
         Object.keys(locations).map(location => {
+
             let hasVoted = false
-            if (locations[location].includes(user.userId)) {
+            if (locations[location].includes(userid)) {
                 hasVoted = true
             }
             temp.push({ name: location, votes: locations[location].length, hasVoted: hasVoted })
@@ -98,11 +101,11 @@ export default function AdminEventScreen({ route, navigation }) {
 
     }
 
-    const convertTimeList = (times) => {
+    const convertTimeList = (userid, times) => {
         let temp = []
         times.map(time => {
             let hasVoted = false
-            if (time.voters.includes(user.userId)) {
+            if (time.voters.includes(userid)) {
                 hasVoted = true
             }
             temp.push({ startDate: new Date(time.start), endDate: new Date(time.end), votes: time.voters.length, hasVoted: hasVoted })
