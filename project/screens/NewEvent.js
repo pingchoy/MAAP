@@ -73,19 +73,22 @@ export default function NewEventScreen({ route, navigation }) {
 
         tempList.map(l => {
             if (l.name === location.name) {
-                fetch(`${API_BASE_URL}/event/vote/location`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': token
-                    },
-                    method: 'PUT',
-                    body: JSON.stringify({
-                        "eventId": eventId,
-                        "location": l.name,
+                if (l.hasVoted === false) {
+                    l.votes++
+                    l.hasVoted = true
+                    fetch(`${API_BASE_URL}/event/vote/location`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': token
+                        },
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            "eventId": eventId,
+                            "location": l.name,
+                        })
                     })
-                })
-
+                }
             }
         })
         tempList.sort((a, b) => {
@@ -101,21 +104,23 @@ export default function NewEventScreen({ route, navigation }) {
 
         tempList.map(t => {
             if (t.startDate === time.startDate) {
-                t.votes++
-
-                fetch(`${API_BASE_URL}/event/vote/time`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': token
-                    },
-                    method: 'PUT',
-                    body: JSON.stringify({
-                        "eventId": eventId,
-                        "start": t.startDate,
-                        "end": t.endDate
+                if (t.hasVoted === false) {
+                    t.votes++
+                    t.hasVoted = true
+                    fetch(`${API_BASE_URL}/event/vote/time`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': token
+                        },
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            "eventId": eventId,
+                            "start": t.startDate,
+                            "end": t.endDate
+                        })
                     })
-                })
+                }
             }
         })
         tempList.sort((a, b) => {
@@ -149,9 +154,7 @@ export default function NewEventScreen({ route, navigation }) {
             case 'second':
                 return (
                     <ScrollView style={[styles.scene, { backgroundColor: 'white' }]} >
-
-                        {Object.keys(locationList).map((location) => {
-                            console.log(locationList)
+                        {locationList.map((location) => {
                             return (
                                 <View style={{ flexDirection: 'row' }}>
                                     <Icon.Button
@@ -163,8 +166,8 @@ export default function NewEventScreen({ route, navigation }) {
                                         onPress={() => {
                                             handleAddLocationVote(location)
                                         }}
-                                    ><Text> {locationList[location].length}</Text></Icon.Button>
-                                    <Text style={styles.locationInformationText}>{location}</Text>
+                                    ><Text> {location.votes}</Text></Icon.Button>
+                                    <Text style={styles.locationInformationText}>{location.name}</Text>
                                 </View>
 
 
@@ -232,7 +235,7 @@ export default function NewEventScreen({ route, navigation }) {
         // Check for duplicate times
 
         if (timeList.filter(t => t.startDate.getTime() === startDate.getTime()).length === 0) {
-            temp.push({ startDate: startDate, endDate: endDate, votes: 0 })
+            temp.push({ startDate: startDate, endDate: endDate, votes: 0, hasVoted: false })
         }
         setTimesList(temp)
 
@@ -270,8 +273,8 @@ export default function NewEventScreen({ route, navigation }) {
             if (location) {
                 if (filteredList.indexOf(location) === -1) {
                     filteredList.push(location)
-                    temp[location] = []
-                    // temp.push({ name: location, votes: 0 })
+                    temp.push({ name: location, votes: 0, hasVoted: false })
+
                     // send post request api
                     fetch(`${API_BASE_URL}/event/location`, {
                         headers: {

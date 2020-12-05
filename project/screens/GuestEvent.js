@@ -21,7 +21,6 @@ export default function GuestEventScreen({ route, navigation }) {
     const [guestList, setGuestList] = React.useState([])
     const [, updateState] = React.useState();
     const forceUpdate = React.useCallback(() => updateState({}), []);
-    const [modalVisible, setModalVisible] = React.useState(false);
     const [newEventName, setNewEventName] = React.useState("")
     const [guestsCanInvitePeople, setGuestsCanInvitePeople] = React.useState(false);
     const [guestsCanAddLocations, setGuestsCanAddLocations] = React.useState(false);
@@ -81,20 +80,22 @@ export default function GuestEventScreen({ route, navigation }) {
 
         tempList.map(l => {
             if (l.name === location.name) {
-                l.votes++
-                fetch(`${API_BASE_URL}/event/vote/location`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': token
-                    },
-                    method: 'PUT',
-                    body: JSON.stringify({
-                        "eventId": eventId,
-                        "location": l.name,
+                if (l.hasVoted === false) {
+                    l.votes++
+                    l.hasVoted = true
+                    fetch(`${API_BASE_URL}/event/vote/location`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': token
+                        },
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            "eventId": eventId,
+                            "location": l.name,
+                        })
                     })
-                })
-
+                }
             }
         })
         tempList.sort((a, b) => {
@@ -110,21 +111,23 @@ export default function GuestEventScreen({ route, navigation }) {
 
         tempList.map(t => {
             if (t.startDate === time.startDate) {
-                t.votes++
-
-                fetch(`${API_BASE_URL}/event/vote/time`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': token
-                    },
-                    method: 'PUT',
-                    body: JSON.stringify({
-                        "eventId": eventId,
-                        "start": t.startDate,
-                        "end": t.endDate
+                if (t.hasVoted === false) {
+                    t.votes++
+                    t.hasVoted = true
+                    fetch(`${API_BASE_URL}/event/vote/time`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': token
+                        },
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            "eventId": eventId,
+                            "start": t.startDate,
+                            "end": t.endDate
+                        })
                     })
-                })
+                }
             }
         })
         tempList.sort((a, b) => {
@@ -133,6 +136,8 @@ export default function GuestEventScreen({ route, navigation }) {
         setTimesList(tempList)
         forceUpdate()
     }
+
+
     const renderScene = ({ route }) => {
 
         switch (route.key) {
@@ -232,16 +237,34 @@ export default function GuestEventScreen({ route, navigation }) {
         />
     )
 
-    const handleDateTimeChange = (date) => {
+    const handleDateTimeChange = (startDate, endDate) => {
 
         // Add new time to time list
         let temp = timeList
         // Check for duplicate times
 
-        if (timeList.filter(t => t.date.getTime() === date.getTime()).length === 0) {
-            temp.push({ date: date, votes: 0 })
+        if (timeList.filter(t => t.startDate.getTime() === startDate.getTime()).length === 0) {
+            temp.push({ startDate: startDate, endDate: endDate, votes: 0, hasVoted: false })
         }
         setTimesList(temp)
+
+
+        // send post request api
+        fetch(`${API_BASE_URL}/event/time`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                "eventId": eventId,
+                "start": startDate,
+                "end": endDate
+            })
+        })
+
+
         forceUpdate()
     }
 
@@ -259,14 +282,28 @@ export default function GuestEventScreen({ route, navigation }) {
             if (location) {
                 if (filteredList.indexOf(location) === -1) {
                     filteredList.push(location)
-                    temp.push({ name: location, votes: 0 })
+                    temp.push({ name: location, votes: 0, hasVoted: false })
+
+                    // send post request api
+                    fetch(`${API_BASE_URL}/event/location`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': token
+                        },
+                        method: 'POST',
+                        body: JSON.stringify({
+                            "eventId": eventId,
+                            "location": location,
+                        })
+                    })
                 }
             }
         })
         setLocationList(temp)
+
         forceUpdate()
     }
-
     const handleGuestChange = (guests) => {
         let temp = guestList
         let filteredList = []
