@@ -73,7 +73,8 @@ export default function Events({ navigation }) {
       setCurrentUserId(userId)
       getEvents(userToken, api)
     };
-
+    setExpandedPast(false)
+    setExpandedUpcoming(false)
     const getEvents = (userToken, api) => {
 
       fetch(`${api}/event/joined`, {

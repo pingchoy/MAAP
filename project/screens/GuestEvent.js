@@ -14,6 +14,7 @@ export default function GuestEventScreen({ route, navigation }) {
         { key: 'second', title: 'Locations' },
         { key: 'third', title: 'Times' }
     ]);
+    const [eventHost, setEventHost] = React.useState('');
     const [eventName, setEventName] = React.useState("New Event")
     const [currentTab, setCurrentTab] = React.useState("Guests")
     const [timeList, setTimesList] = React.useState([])
@@ -26,14 +27,15 @@ export default function GuestEventScreen({ route, navigation }) {
     const [guestsCanAddLocations, setGuestsCanAddLocations] = React.useState(false);
     const [guestsCanAddTimes, setGuestsCanAddTimes] = React.useState(false);
 
+    const [user, setUser] = React.useState({});
     const windowHeight = useWindowDimensions().height;
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const [token, setToken] = React.useState('')
     const [API_BASE_URL, setAPIURL] = React.useState('')
     const { eventId } = route.params
-    const { user, setUser } = React.useState({})
-    const { eventHost, setEventHost } = React.useState('')
+
+
 
     React.useEffect(() => {
         (async () => {
@@ -46,6 +48,33 @@ export default function GuestEventScreen({ route, navigation }) {
             getCurrentUser(api, token2)
         })()
     }, [])
+
+
+
+    const getEventDetails = (api, token, userid) => {
+        fetch(`${api}/event/${eventId}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'GET',
+        }).then(res => res.json())
+            .then(body => {
+                console.log(body)
+                getHost(api, token, body.event.host)
+                setEventName(body.event.name)
+                convertLocationList(userid, body.event.locations)
+                convertTimeList(userid, body.event.times)
+                convertGuestList(api, token, body.event.guests)
+                setGuestsCanAddTimes(body.event.permissions.guestsCanAddTimes)
+                setGuestsCanAddLocations(body.event.permissions.guestsCanAddLocations)
+                setGuestsCanInvitePeople(body.event.permissions.guestsCanInvitePeople)
+                forceUpdate()
+            })
+
+    }
+
 
     const getCurrentUser = (api, token) => {
         fetch(`${api}/user`, {
@@ -61,29 +90,6 @@ export default function GuestEventScreen({ route, navigation }) {
             })
     }
 
-    const getEventDetails = (api, token, userid) => {
-        fetch(`${api}/event/${eventId}`, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': token
-            },
-            method: 'GET',
-        }).then(res => res.json())
-            .then(body => {
-                console.log(body)
-                getEventHost(api, token, body.event.host)
-                setEventName(body.event.name)
-                convertLocationList(userid, body.event.locations)
-                convertTimeList(userid, body.event.times)
-                convertGuestList(api, token, body.event.guests)
-                setGuestsCanAddTimes(body.event.permissions.guestsCanAddTimes)
-                setGuestsCanAddLocations(body.event.permissions.guestsCanAddLocations)
-                setGuestsCanInvitePeople(body.event.permissions.guestsCanInvitePeople)
-                forceUpdate()
-            })
-
-    }
     const nth = (d) => {
         if (d > 3 && d < 21) return 'th';
         switch (d % 10) {
@@ -94,18 +100,7 @@ export default function GuestEventScreen({ route, navigation }) {
         }
     }
 
-    const getEventHost = (api, token, hostid) => {
-        console.log("Test" + hostid)
-        fetch(`${api}/user/${hostid}`, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': token
-            },
-            method: 'GET',
-        }).then(res => res.json())
-            .then(body => { setEventHost(body.user.name) })
-    }
+
     const convertLocationList = (userid, locations) => {
         let temp = []
         Object.keys(locations).map(location => {
@@ -220,6 +215,22 @@ export default function GuestEventScreen({ route, navigation }) {
     }
 
 
+    const getHost = (api, token, hostid) => {
+
+        fetch(`${api}/user/${hostid}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'GET',
+        }).then(res => res.json())
+            .then(body => {
+                setEventHost(body.user.name)
+            })
+
+
+    }
     const renderScene = ({ route }) => {
 
         switch (route.key) {
