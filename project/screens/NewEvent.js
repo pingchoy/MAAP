@@ -73,7 +73,6 @@ export default function NewEventScreen({ route, navigation }) {
 
         tempList.map(l => {
             if (l.name === location.name) {
-                l.votes++
                 fetch(`${API_BASE_URL}/event/vote/location`, {
                     headers: {
                         'Content-Type': 'application/json',
@@ -150,7 +149,9 @@ export default function NewEventScreen({ route, navigation }) {
             case 'second':
                 return (
                     <ScrollView style={[styles.scene, { backgroundColor: 'white' }]} >
-                        {locationList.map((location) => {
+
+                        {Object.keys(locationList).map((location) => {
+                            console.log(locationList)
                             return (
                                 <View style={{ flexDirection: 'row' }}>
                                     <Icon.Button
@@ -162,8 +163,8 @@ export default function NewEventScreen({ route, navigation }) {
                                         onPress={() => {
                                             handleAddLocationVote(location)
                                         }}
-                                    ><Text> {location.votes}</Text></Icon.Button>
-                                    <Text style={styles.locationInformationText}>{location.name}</Text>
+                                    ><Text> {locationList[location].length}</Text></Icon.Button>
+                                    <Text style={styles.locationInformationText}>{location}</Text>
                                 </View>
 
 
@@ -269,8 +270,8 @@ export default function NewEventScreen({ route, navigation }) {
             if (location) {
                 if (filteredList.indexOf(location) === -1) {
                     filteredList.push(location)
-                    temp.push({ name: location, votes: 0 })
-
+                    temp[location] = []
+                    // temp.push({ name: location, votes: 0 })
                     // send post request api
                     fetch(`${API_BASE_URL}/event/location`, {
                         headers: {
