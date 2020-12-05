@@ -224,7 +224,15 @@ app.put('/event/unvote/time', catchErrors(authed(async (req, res, userId) => {
                           User Functions
 ***************************************************************/
 
+app.get('/user/:userId', catchErrors(authed(async (req, res, thisUserId) => {
+  const { userId, } = req.params;
+  await assertValidUserId(userId);
+  return res.json({ user: await getUser(userId) });
+})));
 
+app.get('/user', catchErrors(authed(async (req, res, userId) => {
+  return res.json({ user: await getUser(userId) });
+})));
 
 app.get('/user/friends', catchErrors(authed(async (req, res, userId) => {
   console.log("Getting Friends")
@@ -246,12 +254,6 @@ app.put('/user/invites', catchErrors(authed(async (req, res, userId) => {
   const { eventIds, } = req.body;
   await setInvites(userId, eventIds);
   return res.status(200).send({});
-})));
-
-app.get('/user/:userId', catchErrors(authed(async (req, res, thisUserId) => {
-  const { userId, } = req.params;
-  await assertValidUserId(userId);
-  return res.json({ user: await getUser(userId) });
 })));
 
 /***************************************************************
