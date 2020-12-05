@@ -391,7 +391,7 @@ export default function NewEventScreen({ route, navigation }) {
                 <TouchableOpacity style={styles.buttonBody} onPress={() => navigation.navigate('Add'.concat(currentTab),
                     {
                         handleLocationChange: handleLocationChange, handleDateTimeChange: handleDateTimeChange, handleGuestChange: handleGuestChange,
-                        guestList: guestList, locationList: locationList
+                        guestList: guestList, locationList: locationList, eventId: eventId
                     })}>
                     <Text style={styles.buttonText}>Add {currentTab}</Text>
                 </TouchableOpacity>

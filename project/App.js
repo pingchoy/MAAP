@@ -15,7 +15,7 @@ import GuestEventScreen from './screens/GuestEvent'
 import Home from './routes/Home';
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from '@react-navigation/native';
-
+console.disableYellowBox = true;
 const API_BASE_URL = 'http://192.168.1.52:5000';
 const Stack = createStackNavigator();
 export const AuthContext = React.createContext();
