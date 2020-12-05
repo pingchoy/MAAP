@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, useWindowDimensions, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const initialLayout = { width: Dimensions.get('window').width };
 
 
@@ -36,9 +36,24 @@ export default function GuestEventScreen({ route, navigation }) {
             let token2 = await AsyncStorage.getItem('userToken')
             setToken(token2)
             setAPIURL(api)
+            getEventDetails(api, token2)
         })()
     }, [])
 
+    const getEventDetails = (api, token) => {
+        fetch(`${api}/event/${eventId}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'GET',
+        }).then(res => res.json())
+            .then(body => {
+                console.log(body)
+            })
+
+    }
     const nth = (d) => {
         if (d > 3 && d < 21) return 'th';
         switch (d % 10) {

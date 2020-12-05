@@ -132,8 +132,8 @@ app.put('/event/join/id', catchErrors(authed(async (req, res, userId) => {
 
 app.put('/event/join/code', catchErrors(authed(async (req, res, userId) => {
   const { eventCode, } = req.body;
-  await joinEventWithCode(userId, eventCode);
-  return res.status(200).send({});
+  console.log("Joining Event with code: " + eventCode)
+  return res.json({ eventId: await joinEventWithCode(userId, eventCode) });
 })));
 
 app.put('/event/settings', catchErrors(authed(async (req, res, userId) => {
