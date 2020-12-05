@@ -6,40 +6,41 @@ import { List, Searchbar } from 'react-native-paper';
 import { } from 'react-native-gesture-handler'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = 'http://192.168.0.18:5000';
 const dimensions = Dimensions.get('window');
 
-// Can keep past boolean if we don't want to check if it's before current date
-// Need to add onPress methods for each event 
-const data = [
-  {
-    title: 'Movie at Matthew\'s',
-    description: '7pm-9pm, 25th Nov. 2020',
-    owner: false,
-    past: false
-  },
-  {
-    title: 'Anton\'s House',
-    description: '7pm-9pm, 26th Nov. 2020',
-    owner: true,
-    past: false
-  },
-  {
-    title: 'Dinner Date',
-    description: '7pm-9pm, 10th Oct. 2020',
-    owner: true,
-    past: true
-  },
+// // Can keep past boolean if we don't want to check if it's before current date
+// // Need to add onPress methods for each event 
+// const data = [
+//   {
+//     title: 'Movie at Matthew\'s',
+//     description: '7pm-9pm, 25th Nov. 2020',
+//     owner: false,
+//     past: false
+//   },
+//   {
+//     title: 'Anton\'s House',
+//     description: '7pm-9pm, 26th Nov. 2020',
+//     owner: true,
+//     past: false
+//   },
+//   {
+//     title: 'Dinner Date',
+//     description: '7pm-9pm, 10th Oct. 2020',
+//     owner: true,
+//     past: true
+//   },
 
-]
+// ]
 
 
 export default function Events({ navigation }) {
   const [expandedUpcoming, setExpandedUpcoming] = React.useState(true);
   const [expandedPast, setExpandedPast] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [filteredData, setFilteredData] = React.useState(data);
+  const [filteredData, setFilteredData] = React.useState([]);
   const [fetchedData, setFetchedData] = React.useState([]);
+  const [API_BASE_URL, setAPIURL] = React.useState('')
+  const [token, setToken] = React.useState('')
 
   const searchFilterFunction = (text) => {
     if (text) {
@@ -66,20 +67,19 @@ export default function Events({ navigation }) {
   React.useEffect(() => {
     // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
-      let userToken;
+        let userToken = await AsyncStorage.getItem('userToken');
+        let api = await AsyncStorage.getItem('api')
 
-      try {
-        userToken = await AsyncStorage.getItem('userToken');
-        getEvents(userToken)
-      } catch (e) {
-        // Restoring token failed
-        alert(e)
-      }
+        setToken(userToken)
+        setAPIURL(api)
+        getEvents(userToken, api)
     };
-    const getEvents = (token) => {
-      fetch(`${API_BASE_URL}/event/joined` , {
+    
+    const getEvents = (userToken, api) => {
+
+      fetch(`${api}/event/joined` , {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${userToken}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
@@ -89,17 +89,18 @@ export default function Events({ navigation }) {
         if (body.error !== undefined){
           //error stuff
         } else{
-          parseEvents(body.eventIds)
+          parseEvents(body.eventIds, userToken, api)
 
         }
       })
       .catch(err=>alert(err))
     }
-    const parseEvents = (eventIds) => {
-      eventIds.foreach((id) => {
-        fetch(`${API_BASE_URL}/event/${id}` , {
+    const parseEvents = (eventIds, userToken, api) => {
+      let allEvents = []
+      eventIds.forEach((id) => {
+        fetch(`${api}/event/${id}` , {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${userToken}`,
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
@@ -109,25 +110,20 @@ export default function Events({ navigation }) {
           method: 'GET',
         }).then(res=>res.json())
         .then(body=>{
+          
           if (body.error !== undefined){
             //error stuff
           } else{
-            addToEventsJSON(body.event)
-  
+            //addToEventsJSON(body.event)
+            allEvents.push(body.event)
           }
         })
         .catch(err=>alert(err))
       })
+      console.log(allEvents)
+      setFetchedData(allEvents)
     }
-    const addToEventsJSON = (event) => {
-      setFetchedData(...fetchedData, 
-        {title: event.name,
-          description: 'DESCRIPTION, PAST AND OWNER TO BE DETERMINED',
-          past: false,
-          owner: true,
-        }
-      )
-    }
+
     bootstrapAsync();
   }, []);
 
@@ -184,29 +180,6 @@ export default function Events({ navigation }) {
                         style={styles.accordionItem}
                       />
                     </TouchableOpacity>
-                  )
-                }
-              }
-            })}
-          </List.Accordion>
-
-          <List.Accordion
-            title="Past"
-            style={styles.accordion}
-            titleStyle={styles.accordionTitle}
-            theme={{ colors: { primary: '#000' } }}
-            expanded={expandedPast}
-            onPress={() => setExpandedPast(!expandedPast)}>
-            {filteredData.map(d => {
-              if (d.past) {
-                if (d.owner) {
-                  return (
-                    <List.Item
-                      title={d.title}
-                      description={d.description}
-                      style={styles.accordionItem}
-                      right={props => <Image {...props} style={{ height: 50, width: 50 }} source={require('../assets/AdminImage.png')}></Image>}
-                    />
                   )
                 }
               }

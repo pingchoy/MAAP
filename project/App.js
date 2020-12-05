@@ -16,7 +16,7 @@ import Home from './routes/Home';
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from '@react-navigation/native';
 
-const API_BASE_URL = 'http://192.168.1.52:5000';
+const API_BASE_URL = 'http://192.168.0.18:5000';
 const Stack = createStackNavigator();
 export const AuthContext = React.createContext();
 
@@ -59,7 +59,6 @@ export default function App({ navigation }) {
 
       try {
         userToken = await AsyncStorage.getItem('userToken');
-
       } catch (e) {
         // Restoring token failed
       }
@@ -80,7 +79,6 @@ export default function App({ navigation }) {
       await AsyncStorage.setItem('api', API_BASE_URL)
     } catch (e) {
       // saving error
-      console.log(e)
     }
   }
 
