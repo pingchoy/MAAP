@@ -332,6 +332,22 @@ export default function NewEventScreen({ route, navigation }) {
     const onChangeText = (text) => {
         setNewEventName(text)
     }
+
+    const handleEventNameChange = (newEventName) => {
+        fetch(`${API_BASE_URL}/event/settings`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'PUT',
+            body: JSON.stringify({
+                "eventId": eventId,
+                "newName": newEventName
+            })
+        })
+        setEventName(newEventName)
+    }
     return (
 
         <SafeAreaView style={[styles.container, { minHeight: Math.round(windowHeight) }]}>
@@ -425,7 +441,7 @@ export default function NewEventScreen({ route, navigation }) {
                         <TouchableOpacity
                             style={{ ...styles.openButton, backgroundColor: "#2196F3", width: 150, }}
                             onPress={() => {
-                                setEventName(newEventName)
+                                handleEventNameChange(newEventName)
                                 setModalVisible(!modalVisible);
                             }}
                         >
