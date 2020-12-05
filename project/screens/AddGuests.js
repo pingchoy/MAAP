@@ -5,7 +5,7 @@ import { SearchBar, withTheme } from 'react-native-elements'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const dimensions = Dimensions.get('window');
 const { height } = Dimensions.get('window');
-import SnackBar from 'react-native-snackbar-component'
+// import SnackBar from 'react-native-snackbar-component'
 
 
 export default function AddGuestScreen({ route, navigation }) {
@@ -181,7 +181,7 @@ export default function AddGuestScreen({ route, navigation }) {
                     }}>{inviteCode}</Text>
                 </Text>
             </View>
-            <SnackBar visible={snackbarVisible} textMessage="Copied!" actionHandler={() => { setSnackbarVisible(false) }} actionText="Hide" />
+            {/* <SnackBar visible={snackbarVisible} textMessage="Copied!" actionHandler={() => { setSnackbarVisible(false) }} actionText="Hide" /> */}
         </SafeAreaView >
 
     )

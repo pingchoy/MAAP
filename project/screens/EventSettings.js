@@ -1,6 +1,6 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, Dimensions, Text, SafeAreaView, View, Image, CheckBox } from 'react-native';
-
+import { TouchableOpacity, StyleSheet, Dimensions, Text, SafeAreaView, View, Image, CheckBox, Icon } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome'
 const dimensions = Dimensions.get('window');
 
 export default function EventSettings({ route, navigation }) {
@@ -50,7 +50,22 @@ export default function EventSettings({ route, navigation }) {
                     <Image source={require('../assets/whiteBackButton.png')} />
                 </TouchableOpacity>
                 <Text style={styles.heading}>Settings</Text>
+                <View style={styles.checkButton} >
+                    <Icon.Button
+                        // Change this onPress to affect state of guests later on
+                        onPress={() => {
+                            handleGuestChange(invitedFriends)
+                            navigation.goBack()
+                        }}
+                        name="check"
+                        size={30}
+                        backgroundColor="transparent"
+                        color="green"
 
+                    // onPress={this.loginWithFacebook}
+                    >
+                    </Icon.Button>
+                </View>
             </View>
 
             <View style={styles.settingsView}>
