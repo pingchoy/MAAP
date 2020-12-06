@@ -115,11 +115,10 @@ export default function Events({ navigation }) {
     }).then(res => res.json())
       .then(body => {
           return body.user.name
-    })
+    }).catch(err=>alert(err))
   }
 
   const getLocation = (locations) => {
-    console.log(locations)
     let sortedLocations = locations.sort(function(a, b) {
       return a.voters.length - b.voters.length
     });
@@ -140,6 +139,47 @@ export default function Events({ navigation }) {
 
     return (new Date(sortedTimes[0].start)).toString()
 
+  }
+
+  const acceptInvite = (eventId) =>{ 
+    let index = myEventIds.indexOf(eventId);
+    let temp = myEventIds
+    if (index > -1) {
+      temp.splice(index, 1);
+    }
+    fetch(`${API_BASE_URL}/event/join/id`, {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        "eventId": eventId
+      }),
+      method: 'PUT',
+    }).then(()=> setMyEventIds(temp))
+    .catch(err=>alert(err))
+  }
+
+  const declineInvite = (eventId) =>{ 
+    let index = myEventIds.indexOf(eventId);
+    let temp = myEventIds
+    if (index > -1) {
+      temp.splice(index, 1);
+    }
+
+    fetch(`${API_BASE_URL}/user/invites`, {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        "eventId": temp
+      }),
+      method: 'PUT',
+    }).catch(err=>alert(err))
+    setMyEventIds(temp)
   }
 
   return (
@@ -184,10 +224,10 @@ export default function Events({ navigation }) {
                 </View>
               </View>
               <View style={styles.inviteButtons}>
-                <TouchableOpacity style={styles.acceptButton} onPress={()=>console.log("Accept" +d.code)}>
+                <TouchableOpacity style={styles.acceptButton} onPress={()=>acceptInvite(d.eventId)}>
                   <Text style={styles.inviteButtonText}>Accept</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.declineButton} onPress={()=>console.log("Decline" +d.code)}>
+                <TouchableOpacity style={styles.declineButton} onPress={()=>declineInvite(d.eventId)}>
                   <Text style={styles.inviteButtonText}>Decline</Text>
                 </TouchableOpacity>
               </View>
