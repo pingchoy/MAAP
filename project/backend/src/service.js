@@ -357,7 +357,7 @@ export const sendInvite = (userId, eventId, friendId) => eventLock((resolve, rej
   }
 
   users[friendId].invites.push(eventId);
-  events[eventId].guests[friendId] = STATUS.MAYBE;
+  // events[eventId].guests[friendId] = STATUS.MAYBE;
   save();
   resolve();
 });

@@ -196,17 +196,17 @@ const styles = StyleSheet.create({
   },
   profilePicture: {
     borderStyle: 'dotted' // Not sure how to get rid of the purple border otherwise...
-  },    
+  },
   idView: {
-    flex: 1, 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    justifyContent: 'flex-start', 
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
     paddingLeft: 40
   },
   contentView: {
     position: 'absolute',
-    top:266,
+    top: 266,
     width: dimensions.width,
     height: dimensions.height - 356,
     flex: 1,
@@ -231,35 +231,35 @@ const styles = StyleSheet.create({
     color: '#3C3C3C',
 
   },
-    listsView: {
-      width: dimensions.width,
-      position: 'absolute',
-      flex: 1,
-      height: dimensions.height - 426,
-      bottom: 0,
-      paddingLeft: 40,
-    },
-    friendView:{
-      marginBottom: 10,
-      flexDirection: "row",
-      alignItems: 'center',
-    },
-    friendName: {
-      paddingLeft: 20, 
-      fontStyle: 'normal',
-      fontWeight: 'normal',
-      fontSize: 20,
-      lineHeight: 23,
-    },
-    yourIDText: {
-      fontStyle: 'normal',
-      fontWeight: 'bold',
-      fontSize: 16,
-      
-    },
-    yourID:{
-      fontStyle: 'normal',
-      fontWeight: 'normal',
-      fontSize: 16,
-    }
+  listsView: {
+    width: dimensions.width,
+    position: 'absolute',
+    flex: 1,
+    height: dimensions.height - 426,
+    bottom: 0,
+    paddingLeft: 40,
+  },
+  friendView: {
+    marginBottom: 10,
+    flexDirection: "row",
+    alignItems: 'center',
+  },
+  friendName: {
+    paddingLeft: 20,
+    fontStyle: 'normal',
+    fontWeight: 'normal',
+    fontSize: 20,
+    lineHeight: 23,
+  },
+  yourIDText: {
+    fontStyle: 'normal',
+    fontWeight: 'bold',
+    fontSize: 16,
+
+  },
+  yourID: {
+    fontStyle: 'normal',
+    fontWeight: 'normal',
+    fontSize: 16,
+  }
 });
