@@ -35,7 +35,6 @@ export default function AddFriend ({ navigation }) {
                 method: 'GET',
             }).then(res => res.json())
                 .then(body => {
-                    console.log(body.user.friends)
                     setMyFriends(body.user.friends)
                 })
         }
@@ -73,7 +72,6 @@ export default function AddFriend ({ navigation }) {
     // Should not be used outside of processRequest; sends the actual request after checking
     const processRequestHelper = () => {
         let newFriends = myFriends.concat([username])
-        console.log(token)
         fetch(`${API_BASE_URL}/user/friends` , {
             headers: {
                 Authorization: `Bearer ${token}`,

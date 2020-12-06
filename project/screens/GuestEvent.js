@@ -133,23 +133,30 @@ export default function GuestEventScreen({ route, navigation }) {
 
     const convertGuestList = (api, token, guests) => {
         let temp = []
+        let promises = []
+
         Object.keys(guests).map(guest => {
-            fetch(`${api}/user/${guest}`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': token
-                },
-                method: 'GET',
-            }).then(res => res.json())
-                .then(body => {
-                    temp.push({ username: body.user.name, status: guests[guest] })
-                    setGuestList(temp)
-                    forceUpdate()
+            promises.push(
+                fetch(`${api}/user/${guest}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': token
+                    },
+                    method: 'GET',
                 })
+                    .then(res => res.json())
+                    .then(body => {
+                        temp.push({ id: guest, username: body.user.name, status: guests[guest] })
+                    })
+            );
         })
 
-
+        Promise.all(promises)
+            .then(() => {
+                setGuestList(temp)
+                forceUpdate()
+            })
     }
 
     const handleAddLocationVote = (location) => {
@@ -238,26 +245,30 @@ export default function GuestEventScreen({ route, navigation }) {
                 return (
                     <ScrollView style={[styles.scene, { backgroundColor: 'white' }]} >
                         {guestList.map((guest) => {
+                            let iconName;
+                            let iconColor;
+
+                            if (guest.status === "GOING") {
+                                iconName = "check"
+                                iconColor = "green"
+                            } else if (guest.status === "MAYBE") {
+                                iconName = "question"
+                                iconColor = "orange"
+                            } else {
+                                iconName = "times"
+                                iconColor = "red"
+                            }
+
                             return (
                                 <Text style={styles.guestInformationText}>
-                                    {guest.status === "GOING" ? <Icon
-                                        name="check"
+                                    <Icon
+                                        name={iconName}
                                         size={30}
                                         backgroundColor="white"
-                                        color="green"
-                                    >
-                                    </Icon> :
-                                        <Icon
-                                            name="question"
-                                            size={30}
-                                            backgroundColor="white"
-                                            color="orange"
-                                        >
-                                        </Icon>
-                                    }
+                                        color={iconColor}
+                                        />
                                     <Text style={styles.guestUsernameText}>   {guest.username}</Text>
                                 </Text>
-
                             )
                         })}
                     </ScrollView>)
@@ -449,8 +460,8 @@ export default function GuestEventScreen({ route, navigation }) {
     }
 
     const handleGoing = () => {
-        let currentGuests = guestList
-        guestList
+        guestList.find(guest => guest.id === user.userId).status = "GOING"
+        forceUpdate()
 
         fetch(`${API_BASE_URL}/event/status`, {
             headers: {
@@ -468,6 +479,9 @@ export default function GuestEventScreen({ route, navigation }) {
 
 
     const handleMaybe = () => {
+        guestList.find(guest => guest.id === user.userId).status = "MAYBE"
+        forceUpdate()
+
         fetch(`${API_BASE_URL}/event/status`, {
             headers: {
                 'Content-Type': 'application/json',
@@ -483,6 +497,9 @@ export default function GuestEventScreen({ route, navigation }) {
     }
 
     const handleNotGoing = () => {
+        guestList.find(guest => guest.id === user.userId).status = "NOTGOING"
+        forceUpdate()
+
         fetch(`${API_BASE_URL}/event/status`, {
             headers: {
                 'Content-Type': 'application/json',
@@ -492,7 +509,7 @@ export default function GuestEventScreen({ route, navigation }) {
             method: 'PUT',
             body: JSON.stringify({
                 "eventId": eventId,
-                "status": "NOT GOING"
+                "status": "NOTGOING"
             })
         })
     }

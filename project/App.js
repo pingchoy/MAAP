@@ -17,7 +17,7 @@ import Home from './routes/Home';
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from '@react-navigation/native';
 console.disableYellowBox = true
-const API_BASE_URL = 'http://192.168.0.18:5000';
+const API_BASE_URL = 'http://192.168.0.94:5000';
 
 const Stack = createStackNavigator();
 export const AuthContext = React.createContext();

@@ -112,7 +112,6 @@ export default function AdminEventScreen({ route, navigation }) {
                 hasVoted = true
             }
             temp.push({ startDate: new Date(time.start), endDate: new Date(time.end), votes: time.voters.length, hasVoted: hasVoted })
-            console.log(temp)
             setTimesList(temp)
             forceUpdate()
         })
@@ -412,7 +411,6 @@ export default function AdminEventScreen({ route, navigation }) {
     const handleGuestChange = (guests) => {
         let temp = guestList
         let filteredList = []
-        console.log(guests)
         // Get unique guests from guestList
         guestList.map(guest => {
             if (filteredList.indexOf(guest.username) === -1) {
@@ -425,7 +423,6 @@ export default function AdminEventScreen({ route, navigation }) {
                 if (filteredList.indexOf(guest.username) === -1) {
                     filteredList.push(guest.username)
                     temp.push({ username: guest.username, id: guest.id, status: "MAYBE" })
-                    console.log("Sending Invites")
                     // send post request api
                     fetch(`${API_BASE_URL}/event/invite`, {
                         headers: {
