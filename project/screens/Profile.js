@@ -111,7 +111,7 @@ export default function Profile({ navigation }) {
           </TouchableOpacity>
         </View>
         <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center' }}>
-          <Avatar.Image style={styles.profilePicture} size={110} source={require('../assets/profilePicture.png')} />
+          <Image style={styles.profilePicture} source={require('../assets/profilePicture.png')} />
         </View>
         <View style={styles.idView}>
           <Text style={styles.yourIDText} >Your ID: </Text>
@@ -195,7 +195,9 @@ const styles = StyleSheet.create({
     top: 22,
   },
   profilePicture: {
-    borderStyle: 'dotted' // Not sure how to get rid of the purple border otherwise...
+    height: 100,
+    width: 100,
+    alignSelf: "center"
   },
   idView: {
     flex: 1,

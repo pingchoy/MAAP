@@ -26,7 +26,7 @@ export default function AddFriend ({ navigation }) {
             getMyFriends(userToken, api)
         };
         const getMyFriends = (userToken, api) => {
-            fetch(`${api}/user/friends`, {
+            fetch(`${api}/user`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
@@ -35,29 +35,61 @@ export default function AddFriend ({ navigation }) {
                 method: 'GET',
             }).then(res => res.json())
                 .then(body => {
-                    setMyFriends(body.userIds)
+                    console.log(body.user.friends)
+                    setMyFriends(body.user.friends)
                 })
         }
         bootstrapAsync();
     }, []);
 
     const processRequest = () => {
-        let newFriends = myFriends.concat([username]);
-        console.log(newFriends);
+        // Clear username and send request, doesn't give popup/notification
+        // First check the user exists
+        fetch(`${API_BASE_URL}/user/${username}` , {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            path: {
+              userId:`${username}`
+            },
+            method: 'GET',
+          }).then(res=>res.json())
+          .then(body=>{
+            if (body.error !== undefined){
+                setUsername('INVALID ID');
+            } else{
+                //addToEventsJSON(body.event)
+                processRequestHelper()
+                setUsername('')
+            }
+          })
+          .catch(err=>alert(err))
+        
+
+    }
+
+    // Should not be used outside of processRequest; sends the actual request after checking
+    const processRequestHelper = () => {
+        let newFriends = myFriends.concat([username])
+        console.log(token)
         fetch(`${API_BASE_URL}/user/friends` , {
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: {
+            body: JSON.stringify({
                 'userIds': newFriends
-            },
+            }),
             method: 'PUT',
-          })
+          }).then(res=>console.log(res))
           .catch(err=>{alert(err); return})
           setMyFriends(newFriends)
+          setUsername('')
     }
+
 
     return (
         <SafeAreaView style={styles.container}>
