@@ -220,9 +220,9 @@ export const createEvent = userId => eventLock((resolve, reject) => {
     host: userId,
     code: eventCode,
     permissions: {
-      guestsCanInvite: true,
-      guestsCanAddLocations: true,
-      guestsCanAddTimes: true,
+      guestsCanInvite: false,
+      guestsCanAddLocations: false,
+      guestsCanAddTimes: false,
     },
     guests: guests,
     locations: {},
