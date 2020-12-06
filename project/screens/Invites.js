@@ -69,7 +69,9 @@ export default function Events({ navigation }) {
             } else {
               //addToEventsJSON(body.event)
               getHostName(body.event.host)
-              allEvents.push(body.event)
+              let newEvent = body.event
+              newEvent['eventId'] = id
+              allEvents.push(newEvent)
               setFetchedData(allEvents)
               setFilteredData(allEvents)
               forceUpdate()
@@ -105,7 +107,7 @@ export default function Events({ navigation }) {
     }
   }
 
-  const getHostName = (hostId) => {
+  const getHostName = async (hostId) => {
     console.log(API_BASE_URL)
     console.log("Hostid = " + hostId)
     fetch(`${API_BASE_URL}/user/${hostId}`, {
@@ -166,6 +168,47 @@ export default function Events({ navigation }) {
 
   }
 
+  const acceptInvite = (eventId) => {
+    let index = myEventIds.indexOf(eventId);
+    let temp = myEventIds
+    if (index > -1) {
+      temp.splice(index, 1);
+    }
+    fetch(`${API_BASE_URL}/event/join/id`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        "eventId": eventId
+      }),
+      method: 'PUT',
+    }).then(() => setMyEventIds(temp))
+      .catch(err => alert(err))
+  }
+
+  const declineInvite = (eventId) => {
+    let index = myEventIds.indexOf(eventId);
+    let temp = myEventIds
+    if (index > -1) {
+      temp.splice(index, 1);
+    }
+
+    fetch(`${API_BASE_URL}/user/invites`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        "eventId": temp
+      }),
+      method: 'PUT',
+    }).catch(err => alert(err))
+    setMyEventIds(temp)
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.bannerView}>
@@ -210,10 +253,10 @@ export default function Events({ navigation }) {
                 </View>
               </View>
               <View style={styles.inviteButtons}>
-                <TouchableOpacity style={styles.acceptButton} onPress={() => console.log("Accept" + d.code)}>
+                <TouchableOpacity style={styles.acceptButton} onPress={() => acceptInvite(d.eventId)}>
                   <Text style={styles.inviteButtonText}>Accept</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.declineButton} onPress={() => console.log("Decline" + d.code)}>
+                <TouchableOpacity style={styles.declineButton} onPress={() => declineInvite(d.eventId)}>
                   <Text style={styles.inviteButtonText}>Decline</Text>
                 </TouchableOpacity>
               </View>

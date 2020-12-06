@@ -125,7 +125,10 @@ app.delete('/event', catchErrors(authed(async (req, res, userId) => {
 })));
 
 app.put('/event/join/id', catchErrors(authed(async (req, res, userId) => {
+
   const { eventId, } = req.body;
+  console.log("Joining: " + eventId)
+  console.log(userId)
   await assertValidEventId(eventId);
   await joinEventWithId(userId, eventId);
   return res.status(200).send({});
