@@ -34,6 +34,7 @@ export default function AddGuestScreen({ route, navigation }) {
 
     }, [])
 
+    // Function to get friends from backend
     const getFriends = (token, api) => {
         fetch(`${api}/user/friends`, {
             headers: {
@@ -56,6 +57,7 @@ export default function AddGuestScreen({ route, navigation }) {
                         method: 'GET',
                     }).then(res => res.json())
                         .then(body => {
+                            // Push friends to temp list
                             temp.push({ username: body.user.name, id: body.user.userId, disabled: false })
                             setFriends(temp)
                             forceUpdate()
@@ -65,7 +67,7 @@ export default function AddGuestScreen({ route, navigation }) {
 
             })
     }
-
+    // Function to get the unique invite code for event from backend
     const getInviteCode = (token, api) => {
         fetch(`${api}/event/${eventId}`, {
             headers: {
@@ -79,10 +81,14 @@ export default function AddGuestScreen({ route, navigation }) {
                 setInviteCode(body.event.code.toUpperCase())
             })
     }
+
     const updateSearch = (search) => {
         setSearch(search);
     };
 
+    // Function to invite a guest when the invite button is clicked
+    // Request is sent to backend and the receiver will receive an invite in their invites page
+    // Guests who are invited once can't be invited again
     const handleInviteGuest = friend => {
         // Disable button
         let prevFriends = friends

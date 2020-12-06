@@ -18,18 +18,19 @@ export default function AddTimeScreen({ route, navigation }) {
 
     const { handleDateTimeChange } = route.params
 
+    // Handling change when user wants to set a start date time
     const onChange = (event, selectedDate) => {
         const currentDate = selectedDate || startDate;
         setShow(Platform.OS === 'ios');
         setStartDate(currentDate);
     };
-
+    // Handling change when user wants to set an end date time
     const onEndChange = (event, selectedDate) => {
         const currentDate = selectedDate || endDate;
         setShowEnd(Platform.OS === 'ios');
         setEndDate(currentDate);
     }
-
+    // Select the correct date or time to show in modal when a user clicks on button
     const showMode = (currentMode, isStart) => {
         if (isStart) {
             setShow(true);

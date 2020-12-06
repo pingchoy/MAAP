@@ -49,6 +49,7 @@ export default function AdminEventScreen({ route, navigation }) {
     const [user, setUser] = React.useState({})
     const { eventId } = route.params
 
+    // Grab all information on screen load
     React.useEffect(() => {
         (async () => {
             let api = await AsyncStorage.getItem('api')
@@ -84,6 +85,7 @@ export default function AdminEventScreen({ route, navigation }) {
 
     }
 
+    // Convert backend location list format to a more friendly frontend format
     const convertLocationList = (userid, locations) => {
         let temp = []
         Object.keys(locations).map(location => {
@@ -101,6 +103,7 @@ export default function AdminEventScreen({ route, navigation }) {
 
     }
 
+    // Convert backend time list format to a more friendly frontend format
     const convertTimeList = (userid, times) => {
         let temp = []
         times.map(time => {
@@ -116,6 +119,7 @@ export default function AdminEventScreen({ route, navigation }) {
 
     }
 
+    // Convert backend guest list format to a more friendly frontend format
     const convertGuestList = (api, token, guests) => {
         let temp = []
         // console.log("Test" + api)
@@ -138,6 +142,7 @@ export default function AdminEventScreen({ route, navigation }) {
 
     }
 
+    // Get information about the current user 
     const getCurrentUser = (api, token) => {
         fetch(`${api}/user`, {
             headers: {
@@ -160,7 +165,7 @@ export default function AdminEventScreen({ route, navigation }) {
             default: return "th";
         }
     }
-
+    // Handles the onClick event for when a user votes on a location
     const handleAddLocationVote = (location) => {
         let tempList = locationList
 
@@ -191,7 +196,7 @@ export default function AdminEventScreen({ route, navigation }) {
         forceUpdate()
     }
 
-
+    // Handles the onClick event for when a user votes on a time
     const handleAddTimeVote = (time) => {
         let tempList = timeList
 
@@ -222,6 +227,8 @@ export default function AdminEventScreen({ route, navigation }) {
         setTimesList(tempList)
         forceUpdate()
     }
+
+    // This is to control which scene is being shown in our tab view
     const renderScene = ({ route }) => {
 
         switch (route.key) {
@@ -329,6 +336,8 @@ export default function AdminEventScreen({ route, navigation }) {
         />
     )
 
+    // when a time is added on the add time screen, we want it to update this screen's state
+    // we pass this function as a props to our add time screen
     const handleDateTimeChange = (startDate, endDate) => {
 
         // Add new time to time list
@@ -360,6 +369,8 @@ export default function AdminEventScreen({ route, navigation }) {
         forceUpdate()
     }
 
+    // when a location is added on the add location screen, we want it to update this screen's state
+    // we pass this function as a props to our add location screen
     const handleLocationChange = (locations) => {
         let temp = locationList
         let filteredList = []
@@ -396,7 +407,8 @@ export default function AdminEventScreen({ route, navigation }) {
 
         forceUpdate()
     }
-
+    // when a guest is added on the add guest screen, we want it to update this screen's state
+    // we pass this function as a props to our add guest screen
     const handleGuestChange = (guests) => {
         let temp = guestList
         let filteredList = []
@@ -440,6 +452,7 @@ export default function AdminEventScreen({ route, navigation }) {
         setNewEventName(text)
     }
 
+    // Handles the event when the event name is changed
     const handleEventNameChange = (newEventName) => {
         fetch(`${API_BASE_URL}/event/settings`, {
             headers: {
