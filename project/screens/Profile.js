@@ -197,7 +197,6 @@ const styles = StyleSheet.create({
   },
   profilePicture: {
     borderStyle: 'dotted' // Not sure how to get rid of the purple border otherwise...
-<<<<<<< HEAD
   },    
   idView: {
     flex: 1, 
@@ -209,12 +208,6 @@ const styles = StyleSheet.create({
   contentView: {
     position: 'absolute',
     top:266,
-=======
-  },
-  contentView: {
-    position: 'absolute',
-    top: 200,
->>>>>>> 194f584967a8a98169a1ebf69d572b0a56e2c5f5
     width: dimensions.width,
     height: dimensions.height - 356,
     flex: 1,
@@ -239,7 +232,6 @@ const styles = StyleSheet.create({
     color: '#3C3C3C',
 
   },
-<<<<<<< HEAD
     listsView: {
       width: dimensions.width,
       position: 'absolute',
@@ -272,26 +264,3 @@ const styles = StyleSheet.create({
       fontSize: 16,
     }
 });
-=======
-  listsView: {
-    width: dimensions.width,
-    position: 'absolute',
-    flex: 1,
-    height: dimensions.height - 426,
-    bottom: 0,
-    paddingLeft: 40,
-  },
-  friendView: {
-    marginBottom: 10,
-    flexDirection: "row",
-    alignItems: 'center',
-  },
-  friendName: {
-    paddingLeft: 20,
-    fontStyle: 'normal',
-    fontWeight: 'normal',
-    fontSize: 20,
-    lineHeight: 23,
-  }
-});
->>>>>>> 194f584967a8a98169a1ebf69d572b0a56e2c5f5
