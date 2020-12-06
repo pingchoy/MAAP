@@ -109,6 +109,19 @@ export default function AddGuestScreen({ route, navigation }) {
             }
         })
 
+        fetch(`${API_BASE_URL}/event/invite`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            body: JSON.stringify({
+                'eventId': eventId,
+                'userId': friend.id,
+            }),
+            method: 'PUT',
+        }).catch(err=>{alert(err); return})
+
         setInvitedFriends(retList)
     }
 

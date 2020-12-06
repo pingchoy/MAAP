@@ -186,6 +186,14 @@ export default function Events({ navigation }) {
       method: 'PUT',
     }).then(() => setMyEventIds(temp))
       .catch(err => alert(err))
+
+    let newFetchedData = [...fetchedData];
+    newFetchedData = newFetchedData.filter(event => event.eventId !== eventId);
+    setFetchedData(newFetchedData);
+
+    let newFilteredData = [...filteredData];
+    newFilteredData = newFilteredData.filter(event => event.eventId !== eventId);
+    setFilteredData(newFilteredData);
   }
 
   const declineInvite = (eventId) => {
@@ -202,11 +210,19 @@ export default function Events({ navigation }) {
         'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
-        "eventId": temp
+        "eventIds": temp
       }),
       method: 'PUT',
     }).catch(err => alert(err))
     setMyEventIds(temp)
+
+    let newFetchedData = [...fetchedData];
+    newFetchedData = newFetchedData.filter(event => event.eventId !== eventId);
+    setFetchedData(newFetchedData);
+
+    let newFilteredData = [...filteredData];
+    newFilteredData = newFilteredData.filter(event => event.eventId !== eventId);
+    setFilteredData(newFilteredData);
   }
 
   return (

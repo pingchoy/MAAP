@@ -61,7 +61,6 @@ export default function GuestEventScreen({ route, navigation }) {
             method: 'GET',
         }).then(res => res.json())
             .then(body => {
-                console.log(body)
                 getHost(api, token, body.event.host)
                 setEventName(body.event.name)
                 convertLocationList(userid, body.event.locations)
@@ -133,23 +132,30 @@ export default function GuestEventScreen({ route, navigation }) {
 
     const convertGuestList = (api, token, guests) => {
         let temp = []
+        let promises = []
+
         Object.keys(guests).map(guest => {
-            fetch(`${api}/user/${guest}`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': token
-                },
-                method: 'GET',
-            }).then(res => res.json())
-                .then(body => {
-                    temp.push({ username: body.user.name, status: guests[guest] })
-                    setGuestList(temp)
-                    forceUpdate()
+            promises.push(
+                fetch(`${api}/user/${guest}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': token
+                    },
+                    method: 'GET',
                 })
+                    .then(res => res.json())
+                    .then(body => {
+                        temp.push({ id: guest, username: body.user.name, status: guests[guest] })
+                    })
+            );
         })
 
-
+        Promise.all(promises)
+            .then(() => {
+                setGuestList(temp)
+                forceUpdate()
+            })
     }
 
     const handleAddLocationVote = (location) => {
@@ -157,22 +163,26 @@ export default function GuestEventScreen({ route, navigation }) {
 
         tempList.map(l => {
             if (l.name === location.name) {
-                if (l.hasVoted === false) {
-                    l.votes++
-                    l.hasVoted = true
-                    fetch(`${API_BASE_URL}/event/vote/location`, {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'Authorization': token
-                        },
-                        method: 'PUT',
-                        body: JSON.stringify({
-                            "eventId": eventId,
-                            "location": l.name,
-                        })
+                fetch(`${API_BASE_URL}/event/${l.hasVoted ? 'unvote' : 'vote'}/location`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': token
+                    },
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        "eventId": eventId,
+                        "location": l.name,
                     })
+                })
+
+                if (l.hasVoted) {
+                    l.votes--
+                } else {
+                    l.votes++
                 }
+
+                l.hasVoted = !l.hasVoted
             }
         })
         tempList.sort((a, b) => {
@@ -188,23 +198,26 @@ export default function GuestEventScreen({ route, navigation }) {
 
         tempList.map(t => {
             if (t.startDate === time.startDate) {
-                if (t.hasVoted === false) {
-                    t.votes++
-                    t.hasVoted = true
-                    fetch(`${API_BASE_URL}/event/vote/time`, {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'Authorization': token
-                        },
-                        method: 'PUT',
-                        body: JSON.stringify({
-                            "eventId": eventId,
-                            "start": t.startDate,
-                            "end": t.endDate
-                        })
+                fetch(`${API_BASE_URL}/event/${t.hasVoted ? 'unvote' : 'vote'}/location`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': token
+                    },
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        "eventId": eventId,
+                        "location": t.name,
                     })
+                })
+
+                if (t.hasVoted) {
+                    t.votes--
+                } else {
+                    t.votes++
                 }
+
+                t.hasVoted = !t.hasVoted
             }
         })
         tempList.sort((a, b) => {
@@ -238,26 +251,30 @@ export default function GuestEventScreen({ route, navigation }) {
                 return (
                     <ScrollView style={[styles.scene, { backgroundColor: 'white' }]} >
                         {guestList.map((guest) => {
+                            let iconName;
+                            let iconColor;
+
+                            if (guest.status === "GOING") {
+                                iconName = "check"
+                                iconColor = "green"
+                            } else if (guest.status === "MAYBE") {
+                                iconName = "question"
+                                iconColor = "orange"
+                            } else {
+                                iconName = "times"
+                                iconColor = "red"
+                            }
+
                             return (
                                 <Text style={styles.guestInformationText}>
-                                    {guest.status === "GOING" ? <Icon
-                                        name="check"
+                                    <Icon
+                                        name={iconName}
                                         size={30}
                                         backgroundColor="white"
-                                        color="green"
-                                    >
-                                    </Icon> :
-                                        <Icon
-                                            name="question"
-                                            size={30}
-                                            backgroundColor="white"
-                                            color="orange"
-                                        >
-                                        </Icon>
-                                    }
+                                        color={iconColor}
+                                        />
                                     <Text style={styles.guestUsernameText}>   {guest.username}</Text>
                                 </Text>
-
                             )
                         })}
                     </ScrollView>)
@@ -268,7 +285,7 @@ export default function GuestEventScreen({ route, navigation }) {
                             return (
                                 <View style={{ flexDirection: 'row' }}>
                                     <Icon.Button
-                                        name="chevron-up"
+                                        name={location.hasVoted ? "chevron-down" : "chevron-up"}
                                         size={30}
                                         iconStyle={styles.upvoteButton}
                                         backgroundColor="white"
@@ -294,7 +311,7 @@ export default function GuestEventScreen({ route, navigation }) {
 
                                 <View style={{ flexDirection: 'row' }}>
                                     <Icon.Button
-                                        name="chevron-up"
+                                        name={time.hasVoted ? "chevron-down" : "chevron-up"}
                                         size={30}
                                         iconStyle={styles.upvoteButton}
                                         backgroundColor="white"
@@ -408,7 +425,6 @@ export default function GuestEventScreen({ route, navigation }) {
     const handleGuestChange = (guests) => {
         let temp = guestList
         let filteredList = []
-        console.log(guests)
         // Get unique guests from guestList
         guestList.map(guest => {
             if (filteredList.indexOf(guest.username) === -1) {
@@ -421,7 +437,6 @@ export default function GuestEventScreen({ route, navigation }) {
                 if (filteredList.indexOf(guest.username) === -1) {
                     filteredList.push(guest.username)
                     temp.push({ username: guest.username, id: guest.id, status: "MAYBE" })
-                    console.log("Sending Invites")
                     // send post request api
                     fetch(`${API_BASE_URL}/event/invite`, {
                         headers: {
@@ -449,8 +464,8 @@ export default function GuestEventScreen({ route, navigation }) {
     }
 
     const handleGoing = () => {
-        let currentGuests = guestList
-        guestList
+        guestList.find(guest => guest.id === user.userId).status = "GOING"
+        forceUpdate()
 
         fetch(`${API_BASE_URL}/event/status`, {
             headers: {
@@ -468,6 +483,9 @@ export default function GuestEventScreen({ route, navigation }) {
 
 
     const handleMaybe = () => {
+        guestList.find(guest => guest.id === user.userId).status = "MAYBE"
+        forceUpdate()
+
         fetch(`${API_BASE_URL}/event/status`, {
             headers: {
                 'Content-Type': 'application/json',
@@ -483,6 +501,9 @@ export default function GuestEventScreen({ route, navigation }) {
     }
 
     const handleNotGoing = () => {
+        guestList.find(guest => guest.id === user.userId).status = "NOTGOING"
+        forceUpdate()
+
         fetch(`${API_BASE_URL}/event/status`, {
             headers: {
                 'Content-Type': 'application/json',
@@ -492,7 +513,7 @@ export default function GuestEventScreen({ route, navigation }) {
             method: 'PUT',
             body: JSON.stringify({
                 "eventId": eventId,
-                "status": "NOT GOING"
+                "status": "NOTGOING"
             })
         })
     }
@@ -509,6 +530,7 @@ export default function GuestEventScreen({ route, navigation }) {
                 "eventId": eventId,
             })
         })
+        navigation.navigate('Home')
     }
     return (
 

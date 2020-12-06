@@ -17,7 +17,7 @@ import Home from './routes/Home';
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from '@react-navigation/native';
 console.disableYellowBox = true
-const API_BASE_URL = 'http://192.168.0.18:5000';
+const API_BASE_URL = 'http://192.168.0.94:5000';
 
 const Stack = createStackNavigator();
 export const AuthContext = React.createContext();
@@ -163,7 +163,7 @@ export default function App({ navigation }) {
         removeToken()
         dispatch({ type: 'SIGN_OUT' })
       },
-      signUp: async ({ email, name, password }) => {
+      signUp: ({ email, name, password }) => {
 
         fetch(`${API_BASE_URL}/auth/register`, {
           headers: {
@@ -186,9 +186,7 @@ export default function App({ navigation }) {
               dispatch({ type: 'LOGIN', token: body.token })
 
             }
-          })
-          .catch(err => alert(err))
-
+          }).catch(err => alert(err))
       },
     }),
     []

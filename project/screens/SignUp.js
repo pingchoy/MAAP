@@ -19,6 +19,9 @@ export default function Login({ navigation }) {
   }
 
   const trySignUp = () => {
+    if (password !== rePassword) {
+      alert('Passwords don\'t match')
+    }
     signUp({ email, name, password })
   }
 
@@ -144,6 +147,7 @@ const styles = StyleSheet.create({
 
 
   textView: {
+    zIndex: -1,
     position: 'absolute',
     bottom: 0,
     width: "100%",
