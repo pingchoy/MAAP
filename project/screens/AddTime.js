@@ -92,6 +92,7 @@ export default function AddTimeScreen({ route, navigation }) {
                     </Icon.Button>
                 </View>
             </View>
+
             <View style={styles.datePickerView}>
 
                 <View style={styles.startDateHeaderView} >
@@ -152,6 +153,7 @@ export default function AddTimeScreen({ route, navigation }) {
                     />
                 )}
             </View>
+
         </SafeAreaView>
     )
 }
@@ -208,37 +210,16 @@ const styles = StyleSheet.create({
         // backgroundColor: "black",
     },
     datePickerView: {
-        position: 'absolute',
+        // position: 'absolute',
         top: "20%",
-        width: "100%",
-        alignItems: 'center'
-
-    },
-    startTimepickerButtonView: {
-        position: 'absolute',
-        top: 290,
-
-        width: "50%",
-    },
-    startDatePickerButtonView: {
-        position: 'absolute',
-        top: 140,
-        width: "50%",
-    },
-    buttonBody: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        // top: -6,
         bottom: 0,
-        /* darkgreen */
-        height: 50,
-        backgroundColor: '#165F22',
-        borderRadius: 30,
+        width: "100%",
+        height: "100%",
         alignItems: 'center',
-        justifyContent: 'center'
-    },
-    buttonText: {
+        backgroundColor: "white",
+
+
+    }, buttonText: {
         position: 'absolute',
         fontStyle: 'normal',
         fontWeight: 'bold',
@@ -251,7 +232,7 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
     },
     timeHeaderText: {
-        position: 'absolute',
+        // position: 'absolute',
         fontStyle: "normal",
         fontWeight: "bold",
         fontSize: 21,
@@ -265,45 +246,72 @@ const styles = StyleSheet.create({
 
         // left: 0,
         // top: 0,
-    },
-    startDateHeaderView: {
+    }, buttonBody: {
         position: 'absolute',
+        left: 0,
+        right: 0,
+        // top: -6,
+        bottom: 0,
+        /* darkgreen */
+        height: 50,
+        backgroundColor: '#165F22',
+        borderRadius: 30,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
 
+    startTimepickerButtonView: {
+        // position: 'absolute',
+        // top: 290,
+        // top: "0%",
+        // backgroundColor: "black",
+        top: "15%",
+        width: "50%",
+    },
+    startDatePickerButtonView: {
+        // position: 'absolute',
+        top: "7%",
+        width: "50%",
+    },
+
+
+    startDateHeaderView: {
+        // position: 'absolute',
         width: "100%",
         alignItems: 'center',
         // paddingBottom: 40,
 
     },
     startTimeHeaderView: {
-        position: 'absolute',
+        // position: 'absolute',
         width: "100%",
-        top: 150,
+        top: "8%",
         alignItems: 'center',
 
     },
     endDateHeaderView: {
-        position: 'absolute',
-        top: 300,
+        // position: 'absolute',
+        top: "17%",
         width: "100%",
         alignItems: 'center',
         // paddingBottom: 40,
 
     },
     endTimeHeaderView: {
-        position: 'absolute',
+        // position: 'absolute',
         width: "100%",
-        top: 450,
+        top: "25%",
         alignItems: 'center',
 
     },
     endTimepickerButtonView: {
-        position: 'absolute',
-        top: 590,
+        // position: 'absolute',
+        top: "32%",
         width: "50%",
     },
     endDatePickerButtonView: {
-        position: 'absolute',
-        top: 440,
+        // position: 'absolute',
+        top: "24%",
         width: "50%",
     },
 
