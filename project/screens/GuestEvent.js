@@ -594,7 +594,15 @@ export default function GuestEventScreen({ route, navigation }) {
 
                 />
             </View>
-
+            <View style={styles.bottomButtonView}>
+                <TouchableOpacity style={styles.buttonBody} onPress={() => navigation.navigate('Add'.concat(currentTab),
+                    {
+                        handleLocationChange: handleLocationChange, handleDateTimeChange: handleDateTimeChange, handleGuestChange: handleGuestChange,
+                        guestList: guestList, locationList: locationList, eventId: eventId
+                    })}>
+                    <Text style={styles.buttonText}>Add {currentTab}</Text>
+                </TouchableOpacity>
+            </View>
         </SafeAreaView >
 
     )
