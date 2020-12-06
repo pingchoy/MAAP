@@ -258,7 +258,11 @@ export const joinEventWithId = (userId, eventId) => eventLock((resolve, reject) 
   }
 
   events[eventId].guests[userId] = STATUS.MAYBE;
-
+  // remove event Id from user invites list
+  const index = users[userId].invites.indexOf(eventId)
+  if (index > -1) {
+    users[userId].invites.splice(index, 1)
+  }
   save();
   resolve();
 });

@@ -194,7 +194,7 @@ export default function Events({ navigation }) {
     if (index > -1) {
       temp.splice(index, 1);
     }
-
+    console.log("Invites list after declining: " + temp)
     fetch(`${API_BASE_URL}/user/invites`, {
       headers: {
         'Content-Type': 'application/json',
