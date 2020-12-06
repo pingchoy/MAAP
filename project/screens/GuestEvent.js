@@ -529,7 +529,11 @@ export default function GuestEventScreen({ route, navigation }) {
                 </Text>
                 <View style={styles.settingsButton} >
                     <TouchableOpacity
-                        onPress={() => handleLeaveEvent()}>
+                        onPress={() => {
+                            handleLeaveEvent()
+                            navigation.navigate('Home')
+                        }
+                        }>
                         <Text style={{ color: 'red' }}>Leave Event</Text>
                     </TouchableOpacity>
                 </View>
