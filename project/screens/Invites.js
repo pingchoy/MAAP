@@ -2,27 +2,35 @@ import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { View, StyleSheet, Dimensions, Text, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Searchbar  } from 'react-native-paper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useIsFocused } from "@react-navigation/native";
 
 const dimensions = Dimensions.get('window');
+const data = 
+[
+  {
+    title: 'Tim\'s b-day party',
+    host: 'VerylongnamethatisprobablyTim#1234',
+    location: 'Long text breaks everything?asdfasdfasdfasdf',
+    time: 'TBD'
+  },
+  {
+    title: 'Partyyyyyy',
+    host: "Chad#1",
+    location: 'Parramatta',
+    time: '4pm, 25th Nov. 2020'
+  }]
 
 export default function Events({ navigation }) {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [filteredData, setFilteredData] = React.useState([]);
   const [fetchedData, setFetchedData] = React.useState([])
-  const [token, setToken] = React.useState('')
-  const [API_BASE_URL, setAPIURL] = React.useState('')
-  const [myEventIds, setMyEventIds] = React.useState('')
-  const isVisible = useIsFocused()
 
   React.useEffect(() => {
     // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
         let userToken = await AsyncStorage.getItem('userToken');
         let api = await AsyncStorage.getItem('api');
-        setToken(userToken)
-        setAPIURL(api)
+        //let userId = await AsyncStorage.getItem('userId');
+        //setCurrentUserId(userId)
         getInvites(userToken, api)
 
     };
@@ -40,7 +48,6 @@ export default function Events({ navigation }) {
         if (body.error !== undefined){
           //error stuff
         } else{
-          setMyEventIds(body.eventIds)
           parseEvents(body.eventIds, userToken, api)
         }
       })
@@ -76,14 +83,14 @@ export default function Events({ navigation }) {
     }
 
     bootstrapAsync();
-  }, [isVisible]);
+  }, []);
 
   const searchFilterFunction = (text) => {
     if (text){
       // Inserted text is not blank
       // Filter the initial data
       // Update filteredDate
-      const newData = fetchedData.filter(function (item) {
+      const newData = data.filter(function (item) {
         const itemData = item.title
           ? item.title.toUpperCase()
           : ''.toUpperCase();
@@ -95,7 +102,7 @@ export default function Events({ navigation }) {
     } else {
       // Inserted text is blank
       // Update filteredData with the original
-      setFilteredData(fetchedData);
+      setFilteredData(data);
       setSearchQuery(text);
     }
   }
@@ -159,31 +166,31 @@ export default function Events({ navigation }) {
             <View style={styles.inviteView}>
               <View style={styles.inviteDetails}> 
 
-                <Text style={styles.inviteTitle}> {d.name} </Text>
+                <Text style={styles.inviteTitle}> {d.title} </Text>
 
                 <View style={styles.textView}>
                   <Text style={styles.boldText}>Host: </Text>
                   <View style={{flex: 1}}>
-                    <Text ellipsizeMode='tail'  numberOfLines={1} style={styles.dataText}>{getHostName(d.host)}</Text>
+                    <Text ellipsizeMode='tail'  numberOfLines={1} style={styles.dataText}>{d.host}</Text>
                   </View>
                 </View>
                 <View style={styles.textView}>
                   <Text style={styles.boldText}>Location: </Text>
                   <View style={{flex: 1}}>
-                    <Text ellipsizeMode='tail'  numberOfLines={1} style={styles.dataText}>{getLocation(d.locations)}</Text>
+                    <Text ellipsizeMode='tail'  numberOfLines={1} style={styles.dataText}>{d.location}</Text>
                   </View>
                 </View>
                 <View style={styles.textView}>
                   <Text style={styles.boldText}>Time: </Text>
-                  <Text ellipsizeMode='tail' numberOfLines={1} style={styles.dataText}>{getTime(d.times)}</Text>
+                  <Text ellipsizeMode='tail' numberOfLines={1} style={styles.dataText}>{d.time}</Text>
 
                 </View>
               </View>
               <View style={styles.inviteButtons}>
-                <TouchableOpacity style={styles.acceptButton} onPress={()=>console.log("Accept" +d.code)}>
+                <TouchableOpacity style={styles.acceptButton}>
                   <Text style={styles.inviteButtonText}>Accept</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.declineButton} onPress={()=>console.log("Decline" +d.code)}>
+                <TouchableOpacity style={styles.declineButton}>
                   <Text style={styles.inviteButtonText}>Decline</Text>
                 </TouchableOpacity>
               </View>

@@ -76,9 +76,9 @@ export default function AdminEventScreen({ route, navigation }) {
                 convertLocationList(userid, body.event.locations)
                 convertTimeList(userid, body.event.times)
                 convertGuestList(api, token, body.event.guests)
-                setGuestsCanAddTimes(body.event.permissions.guestsCanAddTimes)
-                setGuestsCanAddLocations(body.event.permissions.guestsCanAddLocations)
-                setGuestsCanInvitePeople(body.event.permissions.guestsCanInvitePeople)
+                // setGuestsCanAddTimes(body.event.permissions.guestsCanAddTimes)
+                // setGuestsCanAddLocations(body.event.permissions.guestsCanAddLocations)
+                // setGuestsCanInvitePeople(body.event.permissions.guestsCanInvitePeople)
                 forceUpdate()
             })
 
@@ -412,7 +412,7 @@ export default function AdminEventScreen({ route, navigation }) {
             if (guest) {
                 if (filteredList.indexOf(guest.username) === -1) {
                     filteredList.push(guest.username)
-                    temp.push({ username: guest.username, id: guest.id, status: "maybe" })
+                    temp.push({ username: guest.username, id: guest.id, status: "MAYBE" })
                     console.log("Sending Invites")
                     // send post request api
                     fetch(`${API_BASE_URL}/event/invite`, {

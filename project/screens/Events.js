@@ -9,6 +9,31 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const dimensions = Dimensions.get('window');
 
+// // Can keep past boolean if we don't want to check if it's before current date
+// // Need to add onPress methods for each event 
+// const data = [
+//   {
+//     title: 'Movie at Matthew\'s',
+//     description: '7pm-9pm, 25th Nov. 2020',
+//     owner: false,
+//     past: false
+//   },
+//   {
+//     title: 'Anton\'s House',
+//     description: '7pm-9pm, 26th Nov. 2020',
+//     owner: true,
+//     past: false
+//   },
+//   {
+//     title: 'Dinner Date',
+//     description: '7pm-9pm, 10th Oct. 2020',
+//     owner: true,
+//     past: true
+//   },
+
+// ]
+
+
 export default function Events({ navigation }) {
   const [expandedUpcoming, setExpandedUpcoming] = React.useState(false);
   const [expandedPast, setExpandedPast] = React.useState(false);
