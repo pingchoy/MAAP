@@ -170,22 +170,26 @@ export default function AdminEventScreen({ route, navigation }) {
 
         tempList.map(l => {
             if (l.name === location.name) {
-                if (l.hasVoted === false) {
-                    l.votes++
-                    l.hasVoted = true
-                    fetch(`${API_BASE_URL}/event/vote/location`, {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'Authorization': token
-                        },
-                        method: 'PUT',
-                        body: JSON.stringify({
-                            "eventId": eventId,
-                            "location": l.name,
-                        })
+                fetch(`${API_BASE_URL}/event/${l.hasVoted ? 'unvote' : 'vote'}/location`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': token
+                    },
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        "eventId": eventId,
+                        "location": l.name,
                     })
+                })
+
+                if (l.hasVoted) {
+                    l.votes--
+                } else {
+                    l.votes++
                 }
+
+                l.hasVoted = !l.hasVoted
             }
         })
         tempList.sort((a, b) => {
@@ -201,23 +205,26 @@ export default function AdminEventScreen({ route, navigation }) {
 
         tempList.map(t => {
             if (t.startDate === time.startDate) {
-                if (t.hasVoted === false) {
-                    t.votes++
-                    t.hasVoted = true
-                    fetch(`${API_BASE_URL}/event/vote/time`, {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'Authorization': token
-                        },
-                        method: 'PUT',
-                        body: JSON.stringify({
-                            "eventId": eventId,
-                            "start": t.startDate,
-                            "end": t.endDate
-                        })
+                fetch(`${API_BASE_URL}/event/${t.hasVoted ? 'unvote' : 'vote'}/location`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': token
+                    },
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        "eventId": eventId,
+                        "location": t.name,
                     })
+                })
+
+                if (t.hasVoted) {
+                    t.votes--
+                } else {
+                    t.votes++
                 }
+
+                t.hasVoted = !t.hasVoted
             }
         })
         tempList.sort((a, b) => {
@@ -265,7 +272,7 @@ export default function AdminEventScreen({ route, navigation }) {
                             return (
                                 <View style={{ flexDirection: 'row' }}>
                                     <Icon.Button
-                                        name="chevron-up"
+                                        name={location.hasVoted ? "chevron-down" : "chevron-up"}
                                         size={30}
                                         iconStyle={styles.upvoteButton}
                                         backgroundColor="white"
@@ -291,7 +298,7 @@ export default function AdminEventScreen({ route, navigation }) {
 
                                 <View style={{ flexDirection: 'row' }}>
                                     <Icon.Button
-                                        name="chevron-up"
+                                        name={time.hasVoted ? "chevron-down" : "chevron-up"}
                                         size={30}
                                         iconStyle={styles.upvoteButton}
                                         backgroundColor="white"
@@ -652,7 +659,7 @@ const styles = StyleSheet.create({
     tabBar: {
         position: 'absolute',
         width: 360,
-        top: "30%",
+        top: "32%",
         height: "55%",
     },
     scene: {
