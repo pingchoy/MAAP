@@ -4,7 +4,8 @@ import { AuthContext } from '../App';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Avatar } from 'react-native-paper';
-
+import { useIsFocused } from "@react-navigation/native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const dimensions = Dimensions.get('window');
 
 export default function Profile({ navigation }) {
@@ -14,86 +15,88 @@ export default function Profile({ navigation }) {
   const [myName, setMyName] = React.useState('')
   const [myId, setMyId] = React.useState('')
   const isVisible = useIsFocused()
-
-  const [friends, setFriends] = React.useState([{ username: "Brad#1314" }, { username: "Andrew#439" }])
+  const [, updateState] = React.useState();
+  const forceUpdate = React.useCallback(() => updateState({}), []);
+  // const [friends, setFriends] = React.useState([{ username: "Brad#1314" }, { username: "Andrew#439" }])
   const { signOut } = React.useContext(AuthContext);
 
   React.useEffect(() => {
     // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
-        let userToken = await AsyncStorage.getItem('userToken');
-        let api = await AsyncStorage.getItem('api');
-        let id = await AsyncStorage.getItem('userId')
-        setToken(userToken)
-        setAPIURL(api)
-        setMyId(id)
-        getFriends(userToken, api)
-        getMyName(userToken, api)
+      let userToken = await AsyncStorage.getItem('userToken');
+      let api = await AsyncStorage.getItem('api');
+      let id = await AsyncStorage.getItem('userId')
+      setToken(userToken)
+      setAPIURL(api)
+      setMyId(id)
+      getFriends(userToken, api)
+      getMyName(userToken, api)
     };
-    
+
     const getFriends = (userToken, api) => {
-      fetch(`${api}/user/friends` , {
+      fetch(`${api}/user/friends`, {
         headers: {
           Authorization: `Bearer ${userToken}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
         method: 'GET',
-      }).then(res=>res.json())
-      .then(body=>{
-        if (body.error !== undefined){
-          //error stuff
-        } else{
-
-          parseFriends(body.userIds, userToken, api)
-        }
-      })
-      .catch(err=>alert(err))
+      }).then(res => res.json())
+        .then(body => {
+          if (body.error !== undefined) {
+            //error stuff
+          } else {
+            parseFriends(body.userIds, userToken, api)
+          }
+        })
+        .catch(err => alert(err))
     }
     const parseFriends = (friendIds, userToken, api) => {
       let allFriends = []
       friendIds.forEach((id) => {
-        fetch(`${api}/user/${id}` , {
+        fetch(`${api}/user/${id}`, {
           headers: {
             Authorization: `Bearer ${userToken}`,
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
           path: {
-            userId:`${id}`
+            userId: `${id}`
           },
           method: 'GET',
-        }).then(res=>res.json())
-        .then(body=>{
-          
-          if (body.error !== undefined){
-            //error stuff
-          } else{
-            //addToEventsJSON(body.event)
-            allFriends.push(body.user)
-          }
-        })
-        .catch(err=>alert(err))
+        }).then(res => res.json())
+          .then(body => {
+
+            if (body.error !== undefined) {
+              //error stuff
+            } else {
+              //addToEventsJSON(body.event)
+              allFriends.push(body.user)
+              setFriends(allFriends)
+              forceUpdate()
+            }
+          })
+          .catch(err => alert(err))
       })
-      setFriends(allFriends)
+
     }
     const getMyName = (userToken, api) => {
-      fetch(`${api}/user` , {
+      fetch(`${api}/user`, {
         headers: {
           Authorization: `Bearer ${userToken}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
         method: 'GET',
-      }).then(res=>res.json())
-      .then(body=>{
-        if (body.error !== undefined){
-          //error stuff
-        } else{
-          setMyName(body.user.name)
-        }
-      })
-      .catch(err=>alert(err))
+      }).then(res => res.json())
+        .then(body => {
+          if (body.error !== undefined) {
+            //error stuff
+          } else {
+            setMyName(body.user.name)
+          }
+        })
+        .catch(err => alert(err))
     }
     bootstrapAsync();
   }, [isVisible]);
@@ -104,11 +107,11 @@ export default function Profile({ navigation }) {
       <View style={styles.bannerView}>
         <View style={styles.headingView}>
           <Text style={styles.heading}>{myName}</Text>
-          <TouchableOpacity style={styles.settings} onPress={() => {navigation.navigate('ProfileSettings')}} >
-            <MaterialCommunityIcons  name="settings" color={"#165F22"} size={50} />
+          <TouchableOpacity style={styles.settings} onPress={() => { navigation.navigate('ProfileSettings') }} >
+            <MaterialCommunityIcons name="settings" color={"#165F22"} size={50} />
           </TouchableOpacity>
         </View>
-        <View style={{flex: 2, alignItems: 'center', justifyContent: 'center'}}>
+        <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center' }}>
           <Avatar.Image style={styles.profilePicture} size={110} source={require('../assets/profilePicture.png')} />
         </View>
         <View style={styles.idView}>
@@ -120,28 +123,28 @@ export default function Profile({ navigation }) {
       <View style={styles.contentView}>
         <View style={styles.subheadingView}>
           <Text style={styles.subHeading}>Friends</Text>
-          <TouchableOpacity  style={{justifyContent: "center", alignItems: "center", paddingRight: 20}}   onPress={() => navigation.navigate('AddFriend')}>
-            <MaterialCommunityIcons name="plus" color={"#165F22"} size={50}/>
+          <TouchableOpacity style={{ justifyContent: "center", alignItems: "center", paddingRight: 20 }} onPress={() => navigation.navigate('AddFriend')}>
+            <MaterialCommunityIcons name="plus" color={"#165F22"} size={50} />
           </TouchableOpacity>
         </View>
 
         <ScrollView style={styles.listsView}>
-                {friends && friends.map(friend => {
-                  console.log(friend)
-                    return (
-                        <View style={styles.friendView}>
-                              <Icon
-                                name="user-circle-o"
-                                size={60}
-                              />
-                              <Text style={styles.friendName}>{friend.username}</Text>
-                        </View>
-                    )
-                })}
+          {friends && friends.map(friend => {
+            console.log(friend)
+            return (
+              <View style={styles.friendView}>
+                <Icon
+                  name="user-circle-o"
+                  size={60}
+                />
+                <Text style={styles.friendName}>{friend.name}</Text>
+              </View>
+            )
+          })}
 
         </ScrollView>
 
-      </View>      
+      </View>
     </SafeAreaView>
   );
 }
@@ -160,7 +163,7 @@ const styles = StyleSheet.create({
     top: 0,
     shadowColor: '#000',
     shadowOffset: { width: 1, height: 1 },
-    shadowOpacity:  0.75,
+    shadowOpacity: 0.75,
     shadowRadius: 3,
     elevation: 5,
     backgroundColor: '#FFFFFF',
@@ -194,10 +197,10 @@ const styles = StyleSheet.create({
   },
   profilePicture: {
     borderStyle: 'dotted' // Not sure how to get rid of the purple border otherwise...
-  },    
+  },
   contentView: {
     position: 'absolute',
-    top:200,
+    top: 200,
     width: dimensions.width,
     height: dimensions.height - 290,
     flex: 1,
@@ -212,7 +215,7 @@ const styles = StyleSheet.create({
     height: 70,
     width: dimensions.width,
 
-  },  
+  },
   subHeading: {
 
     fontStyle: 'normal',
@@ -222,24 +225,24 @@ const styles = StyleSheet.create({
     color: '#3C3C3C',
 
   },
-    listsView: {
-      width: dimensions.width,
-      position: 'absolute',
-      flex: 1,
-      height: dimensions.height - 426,
-      bottom: 0,
-      paddingLeft: 40,
-    },
-    friendView:{
-      marginBottom: 10,
-      flexDirection: "row",
-      alignItems: 'center',
-    },
-    friendName: {
-      paddingLeft: 20, 
-      fontStyle: 'normal',
-      fontWeight: 'normal',
-      fontSize: 20,
-      lineHeight: 23,
-    }
+  listsView: {
+    width: dimensions.width,
+    position: 'absolute',
+    flex: 1,
+    height: dimensions.height - 426,
+    bottom: 0,
+    paddingLeft: 40,
+  },
+  friendView: {
+    marginBottom: 10,
+    flexDirection: "row",
+    alignItems: 'center',
+  },
+  friendName: {
+    paddingLeft: 20,
+    fontStyle: 'normal',
+    fontWeight: 'normal',
+    fontSize: 20,
+    lineHeight: 23,
+  }
 });
