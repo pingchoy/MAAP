@@ -13,7 +13,6 @@ export default function Profile({ navigation }) {
   const [friends, setFriends] = React.useState([])
   const [token, setToken] = React.useState('')
   const [API_BASE_URL, setAPIURL] = React.useState('')
-  const [myEventIds, setMyEventIds] = React.useState('')
   const [myName, setMyName] = React.useState('')
   const [myId, setMyId] = React.useState('')
   const isVisible = useIsFocused()
@@ -46,7 +45,7 @@ export default function Profile({ navigation }) {
         if (body.error !== undefined){
           //error stuff
         } else{
-          setMyEventIds(body.userIds)
+
           parseFriends(body.userIds, userToken, api)
         }
       })
@@ -105,7 +104,7 @@ export default function Profile({ navigation }) {
       <View style={styles.bannerView}>
         <View style={styles.headingView}>
           <Text style={styles.heading}>{myName}</Text>
-          <TouchableOpacity style={styles.settings} onPress={() => navigation.navigate('ProfileSettings')} >
+          <TouchableOpacity style={styles.settings} onPress={() => {navigation.navigate('ProfileSettings')}} >
             <MaterialCommunityIcons  name="settings" color={"#165F22"} size={50} />
           </TouchableOpacity>
         </View>
@@ -114,20 +113,21 @@ export default function Profile({ navigation }) {
         </View>
         <View style={styles.idView}>
           <Text style={styles.yourIDText} >Your ID: </Text>
-          <Text style={styles.yourID} >{123135413}</Text>
+          <Text style={styles.yourID} >{myId}</Text>
         </View>
       </View>
 
       <View style={styles.contentView}>
         <View style={styles.subheadingView}>
           <Text style={styles.subHeading}>Friends</Text>
-          <TouchableOpacity  style={{justifyContent: "center", alignItems: "center", paddingRight: 20}} onPress={() => navigation.navigate('AddFriend')}>
+          <TouchableOpacity  style={{justifyContent: "center", alignItems: "center", paddingRight: 20}}   onPress={() => navigation.navigate('AddFriend')}>
             <MaterialCommunityIcons name="plus" color={"#165F22"} size={50}/>
           </TouchableOpacity>
         </View>
 
         <ScrollView style={styles.listsView}>
-                {friends.map((friend) => {
+                {friends && friends.map(friend => {
+                  console.log(friend)
                     return (
                         <View style={styles.friendView}>
                               <Icon
@@ -187,6 +187,11 @@ const styles = StyleSheet.create({
     right: 20,
     top: 22,
   },
+  addButton: {
+    position: 'absolute',
+    right: 20,
+    top: 22,
+  },
   profilePicture: {
     borderStyle: 'dotted' // Not sure how to get rid of the purple border otherwise...
   },    
@@ -228,7 +233,7 @@ const styles = StyleSheet.create({
       width: dimensions.width,
       position: 'absolute',
       flex: 1,
-      height: dimensions.height - 360,
+      height: dimensions.height - 426,
       bottom: 0,
       paddingLeft: 40,
     },

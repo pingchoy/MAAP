@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, } from 'react-native';
 import AddGuestScreen from './AddGuests';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const dimensions = Dimensions.get('window');
 
@@ -55,7 +56,6 @@ export default function AddFriend ({ navigation }) {
             method: 'GET',
           }).then(res=>res.json())
           .then(body=>{
-            
             if (body.error !== undefined){
                 setUsername('INVALID ID');
             } else{
@@ -72,17 +72,18 @@ export default function AddFriend ({ navigation }) {
     // Should not be used outside of processRequest; sends the actual request after checking
     const processRequestHelper = () => {
         let newFriends = myFriends.concat([username])
-        fetch(`${API_BASE_URL}/user/${username}` , {
+        console.log(token)
+        fetch(`${API_BASE_URL}/user/friends` , {
             headers: {
-                Authorization: `Bearer ${userToken}`,
+                Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: {
+            body: JSON.stringify({
                 'userIds': newFriends
-            },
+            }),
             method: 'PUT',
-          })
+          }).then(res=>console.log(res))
           .catch(err=>{alert(err); return})
           setMyFriends(newFriends)
     }
@@ -110,7 +111,7 @@ export default function AddFriend ({ navigation }) {
                 <TextInput
                     style={styles.inputBody}
                     placeholder={'XXXXXXXXX'}
-                    onChangeText={text => setUserName(text)}
+                    onChangeText={text => setUsername(text)}
                     username={username}
                 />
                 <View style={{ alignSelf: 'flex-start', marginLeft: 20, flex: 1, flexDirection: "row" }}>

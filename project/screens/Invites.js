@@ -115,6 +115,7 @@ export default function Events({ navigation }) {
   }
 
   const getLocation = (locations) => {
+    console.log(locations)
     let sortedLocations = locations.sort(function(a, b) {
       return a.voters.length - b.voters.length
     });
