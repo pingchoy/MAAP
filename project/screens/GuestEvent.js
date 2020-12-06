@@ -69,7 +69,7 @@ export default function GuestEventScreen({ route, navigation }) {
                 convertGuestList(api, token, body.event.guests)
                 setGuestsCanAddTimes(body.event.permissions.guestsCanAddTimes)
                 setGuestsCanAddLocations(body.event.permissions.guestsCanAddLocations)
-                setGuestsCanInvitePeople(body.event.permissions.guestsCanInvitePeople)
+                setGuestsCanInvitePeople(body.event.permissions.guestsCanInvite)
                 forceUpdate()
             })
 
@@ -238,21 +238,20 @@ export default function GuestEventScreen({ route, navigation }) {
                 return (
                     <ScrollView style={[styles.scene, { backgroundColor: 'white' }]} >
                         {guestList.map((guest) => {
-
                             return (
                                 <Text style={styles.guestInformationText}>
-                                    {guest.status === "MAYBE" ? <Icon
-                                        name="question"
+                                    {guest.status === "GOING" ? <Icon
+                                        name="check"
                                         size={30}
                                         backgroundColor="white"
-                                        color="orange"
+                                        color="green"
                                     >
                                     </Icon> :
                                         <Icon
-                                            name="check"
+                                            name="question"
                                             size={30}
                                             backgroundColor="white"
-                                            color="green"
+                                            color="orange"
                                         >
                                         </Icon>
                                     }
@@ -421,7 +420,7 @@ export default function GuestEventScreen({ route, navigation }) {
             if (guest) {
                 if (filteredList.indexOf(guest.username) === -1) {
                     filteredList.push(guest.username)
-                    temp.push({ username: guest.username, id: guest.id, status: "maybe" })
+                    temp.push({ username: guest.username, id: guest.id, status: "MAYBE" })
                     console.log("Sending Invites")
                     // send post request api
                     fetch(`${API_BASE_URL}/event/invite`, {
@@ -594,7 +593,7 @@ export default function GuestEventScreen({ route, navigation }) {
 
                 />
             </View>
-            <View style={styles.bottomButtonView}>
+            {currentTab === "Guests" && guestsCanInvitePeople && <View style={styles.bottomButtonView}>
                 <TouchableOpacity style={styles.buttonBody} onPress={() => navigation.navigate('Add'.concat(currentTab),
                     {
                         handleLocationChange: handleLocationChange, handleDateTimeChange: handleDateTimeChange, handleGuestChange: handleGuestChange,
@@ -602,7 +601,26 @@ export default function GuestEventScreen({ route, navigation }) {
                     })}>
                     <Text style={styles.buttonText}>Add {currentTab}</Text>
                 </TouchableOpacity>
-            </View>
+            </View>}
+            {currentTab === "Locations" && guestsCanAddLocations && <View style={styles.bottomButtonView}>
+                <TouchableOpacity style={styles.buttonBody} onPress={() => navigation.navigate('Add'.concat(currentTab),
+                    {
+                        handleLocationChange: handleLocationChange, handleDateTimeChange: handleDateTimeChange, handleGuestChange: handleGuestChange,
+                        guestList: guestList, locationList: locationList, eventId: eventId
+                    })}>
+                    <Text style={styles.buttonText}>Add {currentTab}</Text>
+                </TouchableOpacity>
+            </View>}
+            {currentTab === "Times" && guestsCanAddTimes && <View style={styles.bottomButtonView}>
+                <TouchableOpacity style={styles.buttonBody} onPress={() => navigation.navigate('Add'.concat(currentTab),
+                    {
+                        handleLocationChange: handleLocationChange, handleDateTimeChange: handleDateTimeChange, handleGuestChange: handleGuestChange,
+                        guestList: guestList, locationList: locationList, eventId: eventId
+                    })}>
+                    <Text style={styles.buttonText}>Add {currentTab}</Text>
+                </TouchableOpacity>
+            </View>}
+
         </SafeAreaView >
 
     )
