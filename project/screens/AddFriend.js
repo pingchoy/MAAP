@@ -5,12 +5,13 @@ import AddGuestScreen from './AddGuests';
 const dimensions = Dimensions.get('window');
 
 //TODO - notification/red border for invalid username
-const AddFriendScreen = ({ navigation }) => {
+
+export default function AddFriend ({ navigation }) {
     const [username, setUsername] = React.useState('')
     const [myId, setMyId] = React.useState('')
     const [token, setToken] = React.useState('')
     const [API_BASE_URL, setAPIURL] = React.useState('')
-    const [myFriends, setMyFriends] = Reach.useState([])
+    const [myFriends, setMyFriends] = React.useState([])
 
     React.useEffect(() => {
         // Fetch the token from storage then navigate to our appropriate place
@@ -128,7 +129,6 @@ const AddFriendScreen = ({ navigation }) => {
 }
 
 
-export default AddFriendScreen;
 
 const styles = StyleSheet.create({
     container: {
@@ -190,7 +190,8 @@ const styles = StyleSheet.create({
         fontStyle: 'normal',
         fontSize: 20,
         color: '#444444',
-        textAlign: 'center'
+        textAlign: 'center',
+        
     },
     usernameText: {
         alignSelf: 'flex-start',

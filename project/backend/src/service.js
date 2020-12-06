@@ -216,6 +216,7 @@ export const createEvent = userId => eventLock((resolve, reject) => {
   guests[userId] = STATUS.GOING;
 
   events[eventId] = {
+    eventId: eventId,
     name: 'Untitled Event',
     host: userId,
     code: eventCode,
@@ -350,14 +351,14 @@ export const sendInvite = (userId, eventId, friendId) => eventLock((resolve, rej
     reject(new InputError('Invalid user ID'));
     return;
   }
-
+  console.log("TEST")
   if (users[friendId].invites.find(eId => eId === eventId) !== undefined) {
     reject(new InputError('User has already been invited to this event'));
     return;
   }
 
   users[friendId].invites.push(eventId);
-
+  events[eventId].guests[friendId] = STATUS.MAYBE;
   save();
   resolve();
 });

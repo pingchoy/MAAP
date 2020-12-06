@@ -2,36 +2,12 @@ import { setStatusBarNetworkActivityIndicatorVisible, StatusBar } from 'expo-sta
 import React from 'react';
 import { TouchableOpacity, View, StyleSheet, Dimensions, Text, SafeAreaView, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useIsFocused } from "@react-navigation/native";
 import { List, Searchbar } from 'react-native-paper';
 import { } from 'react-native-gesture-handler'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const dimensions = Dimensions.get('window');
-
-// // Can keep past boolean if we don't want to check if it's before current date
-// // Need to add onPress methods for each event 
-// const data = [
-//   {
-//     title: 'Movie at Matthew\'s',
-//     description: '7pm-9pm, 25th Nov. 2020',
-//     owner: false,
-//     past: false
-//   },
-//   {
-//     title: 'Anton\'s House',
-//     description: '7pm-9pm, 26th Nov. 2020',
-//     owner: true,
-//     past: false
-//   },
-//   {
-//     title: 'Dinner Date',
-//     description: '7pm-9pm, 10th Oct. 2020',
-//     owner: true,
-//     past: true
-//   },
-
-// ]
-
 
 export default function Events({ navigation }) {
   const [expandedUpcoming, setExpandedUpcoming] = React.useState(false);
@@ -40,70 +16,7 @@ export default function Events({ navigation }) {
   const [filteredData, setFilteredData] = React.useState([]);
   const [fetchedData, setFetchedData] = React.useState([]);
   const [currentUserId, setCurrentUserId] = React.useState('');
-
-  React.useEffect(() => {
-    // Fetch the token from storage then navigate to our appropriate place
-    const bootstrapAsync = async () => {
-        let userToken = await AsyncStorage.getItem('userToken');
-        let api = await AsyncStorage.getItem('api');
-        let userId = await AsyncStorage.getItem('userId');
-        setCurrentUserId(userId)
-        getEvents(userToken, api)
-
-    };
-    
-    const getEvents = (userToken, api) => {
-
-      fetch(`${api}/event/joined` , {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        method: 'GET',
-      }).then(res=>res.json())
-      .then(body=>{
-        if (body.error !== undefined){
-          //error stuff
-        } else{
-          parseEvents(body.eventIds, userToken, api)
-
-        }
-      })
-      .catch(err=>alert(err))
-    }
-    const parseEvents = (eventIds, userToken, api) => {
-      let allEvents = []
-      eventIds.forEach((id) => {
-        fetch(`${api}/event/${id}` , {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          path: {
-            eventId:`${id}`
-          },
-          method: 'GET',
-        }).then(res=>res.json())
-        .then(body=>{
-          
-          if (body.error !== undefined){
-            //error stuff
-          } else{
-            //addToEventsJSON(body.event)
-            allEvents.push(body.event)
-          }
-        })
-        .catch(err=>alert(err))
-      })
-      setFetchedData(allEvents)
-      setFilteredData(allEvents)
-    }
-
-    bootstrapAsync();
-  }, []);
-  
+  const isVisible = useIsFocused()
   const searchFilterFunction = (text) => {
     if (text) {
       // Inserted text is not blank
@@ -126,11 +39,76 @@ export default function Events({ navigation }) {
     }
   }
 
-  const getMostUpvotedTime = (times) =>{
+  React.useEffect(() => {
+    // Fetch the token from storage then navigate to our appropriate place
+    const bootstrapAsync = async () => {
+      let userToken = await AsyncStorage.getItem('userToken');
+      let api = await AsyncStorage.getItem('api');
+      let userId = await AsyncStorage.getItem('userId');
+      setCurrentUserId(userId)
+      getEvents(userToken, api)
+    };
+    setExpandedPast(false)
+    setExpandedUpcoming(false)
+    const getEvents = (userToken, api) => {
+
+      fetch(`${api}/event/joined`, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        method: 'GET',
+      }).then(res => res.json())
+        .then(body => {
+          if (body.error !== undefined) {
+            //error stuff
+          } else {
+            parseEvents(body.eventIds, userToken, api)
+
+          }
+        })
+
+    }
+    const parseEvents = (eventIds, userToken, api) => {
+      let allEvents = []
+      eventIds.forEach((id) => {
+        fetch(`${api}/event/${id}`, {
+          headers: {
+            Authorization: userToken,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          path: {
+            eventId: `${id}`
+          },
+          method: 'GET',
+        }).then(res => res.json())
+          .then(body => {
+
+            if (body.error !== undefined) {
+              //error stuff
+            } else {
+              //addToEventsJSON(body.event)
+
+              body.event['eventId'] = id
+              allEvents.push(body.event)
+            }
+          })
+          .catch(err => alert(err))
+      })
+      setFetchedData(allEvents)
+      setFilteredData(allEvents)
+    }
+
+    bootstrapAsync();
+  }, [isVisible]);
+
+  const getMostUpvotedTime = (times) => {
     if (times.length <= 0) {
       return 'TBD'
     }
-    let sortedTimes = times.sort(function(a, b) {
+    let sortedTimes = times.sort(function (a, b) {
       return a.voters.length - b.voters.length
 
     });
@@ -139,8 +117,8 @@ export default function Events({ navigation }) {
 
   // Turns Date into readable format
   const getTime = (times) => {
- 
-    let sortedTimes = times.sort(function(a, b) {
+
+    let sortedTimes = times.sort(function (a, b) {
       return a.voters.length - b.voters.length
     });
     if (sortedTimes.length <= 0 || sortedTimes[0].start === null) {
@@ -182,12 +160,14 @@ export default function Events({ navigation }) {
             onPress={() => setExpandedUpcoming(!expandedUpcoming)}>
             {filteredData && filteredData.map(d => {
               let time = getMostUpvotedTime(d.times)
-              if (time >= new Date() || time ==='TBD') {
-                if (d.host ===currentUserId) {
+              if (time >= new Date() || time === 'TBD') {
+                console.log(d.host)
+                console.log("currentUserId = " + currentUserId)
+                if (d.host === currentUserId) {
                   return (
                     <List.Item
                       key={d.code}
-                      onPress={() => { }}
+                      onPress={() => navigation.navigate("AdminEvent", { eventId: d.eventId })}
                       title={d.name}
                       description={getTime(d.times)}
                       style={styles.accordionItem}
@@ -197,15 +177,13 @@ export default function Events({ navigation }) {
                 }
                 else {
                   return (
-                    <TouchableOpacity
-                      onPress={() => { navigation.navigate("GuestEvent", { eventId: "116467958" }) }}>
-                      <List.Item
-                        key={d.code}
-                        title={d.name}
-                        description={getTime(d.times)}
-                        style={styles.accordionItem}
-                      />
-                    </TouchableOpacity>
+                    <List.Item
+                      onPress={() => { navigation.navigate("GuestEvent", { eventId: d.eventId }) }}
+                      key={d.code}
+                      title={d.name}
+                      description={getTime(d.times)}
+                      style={styles.accordionItem}
+                    />
                   )
                 }
               }
@@ -222,9 +200,10 @@ export default function Events({ navigation }) {
             {filteredData && filteredData.map(d => {
               let time = getMostUpvotedTime(d.times)
               if (time !== 'TBD' && time < new Date()) {
-                if (d.host ===currentUserId) {
+                if (d.host === currentUserId) {
                   return (
                     <List.Item
+                      onPress={() => { navigation.navigate("AdminEvent", { eventId: d.eventId }) }}
                       key={d.code}
                       title={d.name}
                       description={getTime(d.times)}
@@ -236,9 +215,7 @@ export default function Events({ navigation }) {
                 else {
                   return (
                     <TouchableOpacity
-                      // Using a sample eventID 
-
-                      onPress={() => { navigation.navigate("GuestEvent", { eventId: "116467958" }) }}>
+                      onPress={() => { navigation.navigate("GuestEvent", { eventId: d.eventId }) }}>
                       <List.Item
                         key={d.code}
                         title={d.name}

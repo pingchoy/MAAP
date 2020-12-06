@@ -3,6 +3,7 @@ import React from 'react';
 import { View, StyleSheet, Dimensions, Text, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Searchbar  } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useIsFocused } from "@react-navigation/native";
 
 const dimensions = Dimensions.get('window');
 
@@ -13,6 +14,7 @@ export default function Events({ navigation }) {
   const [token, setToken] = React.useState('')
   const [API_BASE_URL, setAPIURL] = React.useState('')
   const [myEventIds, setMyEventIds] = React.useState('')
+  const isVisible = useIsFocused()
 
   React.useEffect(() => {
     // Fetch the token from storage then navigate to our appropriate place
@@ -74,7 +76,7 @@ export default function Events({ navigation }) {
     }
 
     bootstrapAsync();
-  }, []);
+  }, [isVisible]);
 
   const searchFilterFunction = (text) => {
     if (text){

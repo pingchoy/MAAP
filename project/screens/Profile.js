@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Avatar } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useIsFocused } from "@react-navigation/native";
 
 const dimensions = Dimensions.get('window');
 
@@ -15,6 +16,7 @@ export default function Profile({ navigation }) {
   const [myEventIds, setMyEventIds] = React.useState('')
   const [myName, setMyName] = React.useState('')
   const [myId, setMyId] = React.useState('')
+  const isVisible = useIsFocused()
 
   const { signOut } = React.useContext(AuthContext);
 
@@ -96,7 +98,7 @@ export default function Profile({ navigation }) {
       .catch(err=>alert(err))
     }
     bootstrapAsync();
-  }, []);
+  }, [isVisible]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -119,7 +121,7 @@ export default function Profile({ navigation }) {
       <View style={styles.contentView}>
         <View style={styles.subheadingView}>
           <Text style={styles.subHeading}>Friends</Text>
-          <TouchableOpacity onPress={() => {console.log('success');navigation.navigate('AddFriend')}} style={{justifyContent: "center", alignItems: "center", paddingRight: 20}}>
+          <TouchableOpacity  style={{justifyContent: "center", alignItems: "center", paddingRight: 20}} onPress={() => navigation.navigate('AddFriend')}>
             <MaterialCommunityIcons name="plus" color={"#165F22"} size={50}/>
           </TouchableOpacity>
         </View>

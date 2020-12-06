@@ -78,7 +78,6 @@ const authed = fn => async (req, res) => {
 ***************************************************************/
 
 app.post('/auth/login', catchErrors(async (req, res) => {
-
   const { email, password, } = req.body;
   console.log()
   const token = await login(email, password);
@@ -162,7 +161,6 @@ app.put('/event/status', catchErrors(authed(async (req, res, userId) => {
 })));
 
 app.put('/event/invite', catchErrors(authed(async (req, res, thisUserId) => {
-
   const { eventId, userId, } = req.body;
   console.log("Inviting new user: " + userId)
   await assertValidEventId(eventId);
@@ -225,11 +223,6 @@ app.put('/event/unvote/time', catchErrors(authed(async (req, res, userId) => {
                           User Functions
 ***************************************************************/
 
-app.get('/user/:userId', catchErrors(authed(async (req, res, thisUserId) => {
-  const { userId, } = req.params;
-  await assertValidUserId(userId);
-  return res.json({ user: await getUser(userId) });
-})));
 
 app.get('/user', catchErrors(authed(async (req, res, userId) => {
   return res.json({ user: await getUser(userId) });
@@ -257,6 +250,11 @@ app.put('/user/invites', catchErrors(authed(async (req, res, userId) => {
   return res.status(200).send({});
 })));
 
+app.get('/user/:userId', catchErrors(authed(async (req, res, thisUserId) => {
+  const { userId, } = req.params;
+  await assertValidUserId(userId);
+  return res.json({ user: await getUser(userId) });
+})));
 /***************************************************************
                        Running Server
 ***************************************************************/

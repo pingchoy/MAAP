@@ -24,7 +24,7 @@ const ThirdRoute = () => (
 const initialLayout = { width: Dimensions.get('window').width };
 
 
-export default function NewEventScreen({ route, navigation }) {
+export default function AdminEventScreen({ route, navigation }) {
     const [code, onChangeCode] = React.useState('Enter an event code');
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
@@ -32,7 +32,7 @@ export default function NewEventScreen({ route, navigation }) {
         { key: 'second', title: 'Locations' },
         { key: 'third', title: 'Times' }
     ]);
-    const [eventName, setEventName] = React.useState("New Event")
+    const [eventName, setEventName] = React.useState("")
     const [currentTab, setCurrentTab] = React.useState("Guests")
     const [timeList, setTimesList] = React.useState([])
     const [locationList, setLocationList] = React.useState([])
@@ -53,11 +53,90 @@ export default function NewEventScreen({ route, navigation }) {
         (async () => {
             let api = await AsyncStorage.getItem('api')
             let token2 = await AsyncStorage.getItem('userToken')
+            let userid = await AsyncStorage.getItem('userId');
+
+            getCurrentUser(api, token2)
             setToken(token2)
             setAPIURL(api)
-            getCurrentUser(api, token2)
+            getEventDetails(api, token2, userid)
         })()
     }, [])
+
+    const getEventDetails = (api, token, userid) => {
+        fetch(`${api}/event/${eventId}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': token
+            },
+            method: 'GET',
+        }).then(res => res.json())
+            .then(body => {
+                setEventName(body.event.name)
+                convertLocationList(userid, body.event.locations)
+                convertTimeList(userid, body.event.times)
+                convertGuestList(api, token, body.event.guests)
+                setGuestsCanAddTimes(body.event.permissions.guestsCanAddTimes)
+                setGuestsCanAddLocations(body.event.permissions.guestsCanAddLocations)
+                setGuestsCanInvitePeople(body.event.permissions.guestsCanInvitePeople)
+                forceUpdate()
+            })
+
+    }
+
+    const convertLocationList = (userid, locations) => {
+        let temp = []
+        Object.keys(locations).map(location => {
+
+            let hasVoted = false
+            if (locations[location].includes(userid)) {
+                hasVoted = true
+            }
+            temp.push({ name: location, votes: locations[location].length, hasVoted: hasVoted })
+
+            setLocationList(temp)
+            forceUpdate()
+        })
+
+
+    }
+
+    const convertTimeList = (userid, times) => {
+        let temp = []
+        times.map(time => {
+            let hasVoted = false
+            if (time.voters.includes(userid)) {
+                hasVoted = true
+            }
+            temp.push({ startDate: new Date(time.start), endDate: new Date(time.end), votes: time.voters.length, hasVoted: hasVoted })
+            console.log(temp)
+            setTimesList(temp)
+            forceUpdate()
+        })
+
+    }
+
+    const convertGuestList = (api, token, guests) => {
+        let temp = []
+        // console.log("Test" + api)
+        Object.keys(guests).map(guest => {
+            fetch(`${api}/user/${guest}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': token
+                },
+                method: 'GET',
+            }).then(res => res.json())
+                .then(body => {
+                    temp.push({ username: body.user.name, status: guests[guest] })
+                    setGuestList(temp)
+                    forceUpdate()
+                })
+        })
+
+
+    }
 
     const getCurrentUser = (api, token) => {
         fetch(`${api}/user`, {
@@ -152,13 +231,21 @@ export default function NewEventScreen({ route, navigation }) {
                         {guestList.map((guest) => {
                             return (
                                 <Text style={styles.guestInformationText}>
-                                    <Icon
+                                    {guest.status === "MAYBE" ? <Icon
                                         name="question"
                                         size={30}
                                         backgroundColor="white"
                                         color="orange"
                                     >
-                                    </Icon>
+                                    </Icon> :
+                                        <Icon
+                                            name="check"
+                                            size={30}
+                                            backgroundColor="white"
+                                            color="green"
+                                        >
+                                        </Icon>
+                                    }
                                     <Text style={styles.guestUsernameText}>   {guest.username}</Text>
                                 </Text>
 
@@ -452,7 +539,7 @@ export default function NewEventScreen({ route, navigation }) {
             >
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
-                        <Text style={styles.modalText}>New Event Name:</Text>
+                        <Text style={styles.modalText}>{eventName}</Text>
                         <TextInput
                             style={styles.modalInput}
                             onChangeText={text => onChangeText(text)}

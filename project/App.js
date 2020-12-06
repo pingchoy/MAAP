@@ -8,10 +8,11 @@ import NewEventScreen from './screens/NewEvent'
 import AddGuestScreen from './screens/AddGuests'
 import AddLocationScreen from './screens/AddLocation'
 import AddTimeScreen from './screens/AddTime'
-import AddFriendScreen from './screens/AddFriend'
+import AddFriend from './screens/AddFriend'
 import ProfileSettings from './screens/ProfileSettings'
 import EventSettingsScreen from './screens/EventSettings'
 import GuestEventScreen from './screens/GuestEvent'
+import AdminEventScreen from './screens/AdminEvent'
 import Home from './routes/Home';
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from '@react-navigation/native';
@@ -117,7 +118,7 @@ export default function App({ navigation }) {
     }
   }
 
-  const setUserIdHelper = async (userId) =>{
+  const setUserIdHelper = async (userId) => {
 
     try {
       await AsyncStorage.setItem('userId', userId)
@@ -213,9 +214,10 @@ export default function App({ navigation }) {
                 <Stack.Screen name="AddGuests" component={AddGuestScreen} />
                 <Stack.Screen name="AddLocations" component={AddLocationScreen} />
                 <Stack.Screen name="AddTimes" component={AddTimeScreen} />
-                <Stack.Screen name="AddFriend" component={AddFriendScreen} />
+                <Stack.Screen name="AddFriend" component={AddFriend} />
                 <Stack.Screen name="EventSettings" component={EventSettingsScreen} />
                 <Stack.Screen name="GuestEvent" component={GuestEventScreen} />
+                <Stack.Screen name="AdminEvent" component={AdminEventScreen} />
               </>
             )}
         </Stack.Navigator>
