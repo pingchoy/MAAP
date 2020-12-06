@@ -163,7 +163,7 @@ export default function App({ navigation }) {
         removeToken()
         dispatch({ type: 'SIGN_OUT' })
       },
-      signUp: async ({ email, name, password }) => {
+      signUp: ({ email, name, password }) => {
 
         fetch(`${API_BASE_URL}/auth/register`, {
           headers: {
@@ -186,9 +186,7 @@ export default function App({ navigation }) {
               dispatch({ type: 'LOGIN', token: body.token })
 
             }
-          })
-          .catch(err => alert(err))
-
+          }).catch(err => alert(err))
       },
     }),
     []

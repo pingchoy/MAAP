@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   textView: {
+    zIndex: -1,
     position: 'absolute',
     bottom: 0,
     width: "100%",
