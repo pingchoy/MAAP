@@ -1,93 +1,16 @@
 import React from 'react';
 import { View, StyleSheet, Dimensions, Text, Image, SafeAreaView, TouchableOpacity, TextInput, ScrollView, } from 'react-native';
-import AddGuestScreen from './AddGuests';
 
 const dimensions = Dimensions.get('window');
 
 //TODO - notification/red border for invalid username
-
-export default function AddFriend ({ navigation }) {
-    const [username, setUsername] = React.useState('')
-    const [myId, setMyId] = React.useState('')
-    const [token, setToken] = React.useState('')
-    const [API_BASE_URL, setAPIURL] = React.useState('')
-    const [myFriends, setMyFriends] = React.useState([])
-
-    React.useEffect(() => {
-        // Fetch the token from storage then navigate to our appropriate place
-        const bootstrapAsync = async () => {
-            let userToken = await AsyncStorage.getItem('userToken');
-            let api = await AsyncStorage.getItem('api');
-            let id = await AsyncStorage.getItem('userId')
-            setToken(userToken)
-            setAPIURL(api)
-            setMyId(id)
-            getMyFriends(userToken, api)
-        };
-        const getMyFriends = (userToken, api) => {
-            fetch(`${api}/user`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${userToken}`
-                },
-                method: 'GET',
-            }).then(res => res.json())
-                .then(body => {
-                    setMyFriends(body.user.friends)
-                })
-        }
-        bootstrapAsync();
-    }, []);
+const AddFriendScreen = ({ navigation }) => {
+    const [username, setUsername] = React.useState('Username#0000')
 
     const processRequest = () => {
-        // Clear username and send request, doesn't give popup/notification
-        // First check the user exists
-        fetch(`${API_BASE_URL}/user/${username}` , {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            path: {
-              userId:`${username}`
-            },
-            method: 'GET',
-          }).then(res=>res.json())
-          .then(body=>{
-            
-            if (body.error !== undefined){
-                setUsername('INVALID ID');
-            } else{
-                //addToEventsJSON(body.event)
-                processRequestHelper()
-                setUsername('')
-            }
-          })
-          .catch(err=>alert(err))
-        
-
+        // This should probably not go back, but rather it should clear the username text and give a notification.
+        navigation.goBack()
     }
-
-    // Should not be used outside of processRequest; sends the actual request after checking
-    const processRequestHelper = () => {
-        let newFriends = myFriends.concat([username])
-        fetch(`${API_BASE_URL}/user/${username}` , {
-            headers: {
-                Authorization: `Bearer ${userToken}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: {
-                'userIds': newFriends
-            },
-            method: 'PUT',
-          })
-          .catch(err=>{alert(err); return})
-          setMyFriends(newFriends)
-    }
-
-
     return (
         <SafeAreaView style={styles.container}>
 
@@ -99,23 +22,23 @@ export default function AddFriend ({ navigation }) {
             </View>
 
             <View style={styles.detailsView}>
-                <Text style={styles.subHeadingText}>Add your friend on 'Roll Call'</Text>
-                <Text style={styles.explanationText}>You will need their user ID, a 9 digit number.</Text>
+                <Text style={styles.subHeadingText}>Add your friend on 'appname'</Text>
+                <Text style={styles.explanationText}>You will need both their username and a tag. Keep in mind that username is case sensitive.</Text>
             </View>
 
             <View style={styles.buttonInputView}>
 
-                <Text style={styles.usernameText}>USER ID</Text>
+                <Text style={styles.usernameText}>USERNAME</Text>
 
                 <TextInput
                     style={styles.inputBody}
-                    placeholder={'XXXXXXXXX'}
-                    onChangeText={text => setUserName(text)}
+                    placeholder={username}
+                    onChangeUsername={text => setUserName(text)}
                     username={username}
                 />
                 <View style={{ alignSelf: 'flex-start', marginLeft: 20, flex: 1, flexDirection: "row" }}>
-                    <Text style={styles.yourUsernameText}>Your user ID is  </Text>
-                    <Text style={styles.myUsernameText}>{myId}</Text>
+                    <Text style={styles.yourUsernameText}>Your username and tag is </Text>
+                    <Text style={styles.myUsernameText}>Anton#7029</Text>
                 </View>
                 <View style={styles.buttonView}>
                     <TouchableOpacity style={styles.buttonBody} onPress={processRequest}>
@@ -129,6 +52,7 @@ export default function AddFriend ({ navigation }) {
 }
 
 
+export default AddFriendScreen;
 
 const styles = StyleSheet.create({
     container: {
@@ -190,8 +114,7 @@ const styles = StyleSheet.create({
         fontStyle: 'normal',
         fontSize: 20,
         color: '#444444',
-        textAlign: 'center',
-        
+        textAlign: 'center'
     },
     usernameText: {
         alignSelf: 'flex-start',

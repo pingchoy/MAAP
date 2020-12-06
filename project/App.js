@@ -8,7 +8,7 @@ import NewEventScreen from './screens/NewEvent'
 import AddGuestScreen from './screens/AddGuests'
 import AddLocationScreen from './screens/AddLocation'
 import AddTimeScreen from './screens/AddTime'
-import AddFriend from './screens/AddFriend'
+import AddFriendScreen from './screens/AddFriend'
 import ProfileSettings from './screens/ProfileSettings'
 import EventSettingsScreen from './screens/EventSettings'
 import GuestEventScreen from './screens/GuestEvent'
@@ -16,8 +16,8 @@ import AdminEventScreen from './screens/AdminEvent'
 import Home from './routes/Home';
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from '@react-navigation/native';
-
-const API_BASE_URL = 'http://192.168.0.18:5000';
+console.disableYellowBox = true
+const API_BASE_URL = 'http://192.168.1.52:5000';
 
 const Stack = createStackNavigator();
 export const AuthContext = React.createContext();
@@ -214,7 +214,7 @@ export default function App({ navigation }) {
                 <Stack.Screen name="AddGuests" component={AddGuestScreen} />
                 <Stack.Screen name="AddLocations" component={AddLocationScreen} />
                 <Stack.Screen name="AddTimes" component={AddTimeScreen} />
-                <Stack.Screen name="AddFriend" component={AddFriend} />
+                <Stack.Screen name="AddFriend" component={AddFriendScreen} />
                 <Stack.Screen name="EventSettings" component={EventSettingsScreen} />
                 <Stack.Screen name="GuestEvent" component={GuestEventScreen} />
                 <Stack.Screen name="AdminEvent" component={AdminEventScreen} />

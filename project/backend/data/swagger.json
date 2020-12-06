@@ -163,9 +163,6 @@
                 "type": "object",
                 "description": "Full event data structure",
                 "properties": {
-                    "eventId": {
-                        "$ref": "#/components/fields/EventId"
-                    },
                     "name": {
                         "$ref": "#/components/fields/EventName"
                     },

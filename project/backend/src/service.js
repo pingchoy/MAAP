@@ -216,14 +216,13 @@ export const createEvent = userId => eventLock((resolve, reject) => {
   guests[userId] = STATUS.GOING;
 
   events[eventId] = {
-    eventId: eventId,
     name: 'Untitled Event',
     host: userId,
     code: eventCode,
     permissions: {
-      guestsCanInvite: true,
-      guestsCanAddLocations: true,
-      guestsCanAddTimes: true,
+      guestsCanInvite: false,
+      guestsCanAddLocations: false,
+      guestsCanAddTimes: false,
     },
     guests: guests,
     locations: {},
