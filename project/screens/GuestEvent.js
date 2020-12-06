@@ -579,33 +579,39 @@ export default function GuestEventScreen({ route, navigation }) {
                 </Text>
             </View>
             <View style={styles.choiceView}>
-                <Icon.Button
-                    name="check-circle"
-                    size={50}
-                    iconStyle={styles.upvoteButton}
-                    backgroundColor="white"
-                    color="green"
-                    onPress={() => handleGoing()}
-                ></Icon.Button>
-                <Text style={styles.choiceText}> Going</Text>
-                <Icon.Button
-                    name="question-circle"
-                    size={50}
-                    iconStyle={styles.upvoteButton}
-                    backgroundColor="white"
-                    color="orange"
-                    onPress={() => handleMaybe()}
-                ></Icon.Button>
-                <Text style={styles.choiceText}>Maybe</Text>
-                <Icon.Button
-                    name="times-circle"
-                    size={50}
-                    iconStyle={styles.upvoteButton}
-                    backgroundColor="white"
-                    color="red"
-                    onPress={() => handleNotGoing()}
-                ></Icon.Button>
-                <Text style={styles.choiceText}> Not Going</Text>
+                <View style={styles.choiceColumn}>
+                    <Icon.Button
+                        name="check-circle"
+                        size={50}
+                        iconStyle={styles.upvoteButton}
+                        backgroundColor="transparent"
+                        color="green"
+                        onPress={() => handleGoing()}
+                    ></Icon.Button>
+                    <Text style={styles.choiceText}>Going</Text>
+                </View>
+                <View style={styles.choiceColumn}>
+                    <Icon.Button
+                        name="question-circle"
+                        size={50}
+                        iconStyle={styles.upvoteButton}
+                        backgroundColor="transparent"
+                        color="orange"
+                        onPress={() => handleMaybe()}
+                    ></Icon.Button>
+                    <Text style={styles.choiceText}>Maybe</Text>
+                </View>
+                <View style={styles.choiceColumn}>
+                    <Icon.Button
+                        name="times-circle"
+                        size={50}
+                        iconStyle={styles.upvoteButton}
+                        backgroundColor="transparent"
+                        color="red"
+                        onPress={() => handleNotGoing()}
+                    ></Icon.Button>
+                    <Text style={styles.choiceText}> Not Going</Text>
+                </View>
             </View>
 
             <View style={styles.tabBar}>
@@ -870,16 +876,17 @@ const styles = StyleSheet.create({
         position: 'absolute',
         flexDirection: 'row',
         // backgroundColor: "black",
-        top: "30%",
+        top: "32%",
         height: 100,
         width: "80%",
+        justifyContent: 'space-around',
+    },
+    choiceColumn: {
+        flexDirection: 'column',
+        alignItems: 'center',
     },
     choiceText: {
-        fontWeight: "bold",
-        lineHeight: 25,
-        marginTop: 60,
-        left: -50
-
+        fontWeight: 'bold',
+        textAlign: 'center',
     }
-
 })
