@@ -21,6 +21,7 @@ export default function Login({ navigation }) {
   const trySignUp = () => {
     if (password !== rePassword) {
       alert('Passwords don\'t match')
+      return
     }
     signUp({ email, name, password })
   }
