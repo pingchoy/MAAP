@@ -20,7 +20,7 @@ export default function AddLocationScreen({ route, navigation }) {
     const updateSearch = (search) => {
         setSearch(search);
     };
-
+    // Function to add location when the add button is clicked
     const handleAddLocation = async location => {
         // Disable button
         let prevLocations = locations
