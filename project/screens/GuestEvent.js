@@ -61,7 +61,6 @@ export default function GuestEventScreen({ route, navigation }) {
             method: 'GET',
         }).then(res => res.json())
             .then(body => {
-                console.log(body)
                 getHost(api, token, body.event.host)
                 setEventName(body.event.name)
                 convertLocationList(userid, body.event.locations)
@@ -419,7 +418,6 @@ export default function GuestEventScreen({ route, navigation }) {
     const handleGuestChange = (guests) => {
         let temp = guestList
         let filteredList = []
-        console.log(guests)
         // Get unique guests from guestList
         guestList.map(guest => {
             if (filteredList.indexOf(guest.username) === -1) {
@@ -432,7 +430,6 @@ export default function GuestEventScreen({ route, navigation }) {
                 if (filteredList.indexOf(guest.username) === -1) {
                     filteredList.push(guest.username)
                     temp.push({ username: guest.username, id: guest.id, status: "MAYBE" })
-                    console.log("Sending Invites")
                     // send post request api
                     fetch(`${API_BASE_URL}/event/invite`, {
                         headers: {
@@ -526,6 +523,7 @@ export default function GuestEventScreen({ route, navigation }) {
                 "eventId": eventId,
             })
         })
+        navigation.navigate('Home')
     }
     return (
 

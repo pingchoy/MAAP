@@ -511,13 +511,18 @@ export default function AdminEventScreen({ route, navigation }) {
                     <Text style={styles.eventDetailsBoldText}>Location:</Text><Text style={styles.eventDetailsNormalText}> {locationList.length > 0 ? locationList[0].name : "TBD"}</Text>
                 </Text>
                 <Text>
-                    <Text style={styles.eventDetailsBoldText}>Time:</Text><Text style={styles.eventDetailsNormalText}> {timeList.length > 0 ? <Text style={styles.timeInformationText} numberOfLines={2}>
-                        <Text>{timeList[0].startDate.getHours()}:{timeList[0].startDate.getUTCMinutes() < 10 ? '0' + timeList[0].startDate.getMinutes() : timeList[0].startDate.getMinutes()}{timeList[0].startDate.getHours() > 12 ? "pm" : "am"}</Text>
-                        <Text> {days[timeList[0].startDate.getDay()]}</Text>
-                        <Text> {timeList[0].startDate.getDate()}{nth(timeList[0].startDate.getDate())}</Text>
-                        <Text> {months[timeList[0].startDate.getMonth()]}</Text>
-
-                    </Text> : "TBD"}</Text>
+                    <Text style={styles.eventDetailsBoldText}>Time:</Text>
+                    <Text style={styles.eventDetailsNormalText}>
+                        {
+                            timeList.length > 0 ?
+                            <Text style={styles.timeInformationText} numberOfLines={2}>
+                                <Text>{timeList[0].startDate.getHours()}:{timeList[0].startDate.getUTCMinutes() < 10 ? '0' + timeList[0].startDate.getMinutes() : timeList[0].startDate.getMinutes()}{timeList[0].startDate.getHours() > 12 ? "pm" : "am"}</Text>
+                                <Text> {days[timeList[0].startDate.getDay()]}</Text>
+                                <Text> {timeList[0].startDate.getDate()}{nth(timeList[0].startDate.getDate())}</Text>
+                                <Text> {months[timeList[0].startDate.getMonth()]}</Text>
+                            </Text> : "TBD"
+                        }
+                    </Text>
                 </Text>
             </View>
             <View style={styles.tabBar}>

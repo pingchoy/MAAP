@@ -53,9 +53,7 @@ export default function CreateEventScreen({ navigation }) {
             })
         }).then((res) => res.json())
             .then(body => {
-                console.log(body)
                 if (!body.error) {
-
                     navigation.navigate('GuestEvent', { eventId: body.eventId })
                 } else {
                     alert(body.error)
