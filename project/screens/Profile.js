@@ -17,7 +17,6 @@ export default function Profile({ navigation }) {
   const isVisible = useIsFocused()
   const [, updateState] = React.useState();
   const forceUpdate = React.useCallback(() => updateState({}), []);
-  // const [friends, setFriends] = React.useState([{ username: "Brad#1314" }, { username: "Andrew#439" }])
   const { signOut } = React.useContext(AuthContext);
 
   React.useEffect(() => {
