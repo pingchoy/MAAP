@@ -3,7 +3,6 @@ COMP4511 MAAP Project Repository
 
 Hello. We are a group of students within the University of New South Wales course COMP4511 and we are developing a mobile application to help groups of friends organise meetups.
 
-What we offer is an application that you can use to plan your own events. 
 Some novel features we have decided to include based on user research are: 
 - Being able to join events with just a code
 - Being able to vote on your favourite location
