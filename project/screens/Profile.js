@@ -17,7 +17,6 @@ export default function Profile({ navigation }) {
   const isVisible = useIsFocused()
   const [, updateState] = React.useState();
   const forceUpdate = React.useCallback(() => updateState({}), []);
-  // const [friends, setFriends] = React.useState([{ username: "Brad#1314" }, { username: "Andrew#439" }])
   const { signOut } = React.useContext(AuthContext);
 
   React.useEffect(() => {
@@ -158,7 +157,7 @@ const styles = StyleSheet.create({
   },
   bannerView: {
     position: 'absolute',
-    height: 200,
+    height: 266,
     width: dimensions.width,
     top: 0,
     shadowColor: '#000',
@@ -198,11 +197,18 @@ const styles = StyleSheet.create({
   profilePicture: {
     borderStyle: 'dotted' // Not sure how to get rid of the purple border otherwise...
   },
+  idView: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingLeft: 40
+  },
   contentView: {
     position: 'absolute',
-    top: 200,
+    top: 266,
     width: dimensions.width,
-    height: dimensions.height - 290,
+    height: dimensions.height - 356,
     flex: 1,
 
   },
@@ -244,5 +250,16 @@ const styles = StyleSheet.create({
     fontWeight: 'normal',
     fontSize: 20,
     lineHeight: 23,
+  },
+  yourIDText: {
+    fontStyle: 'normal',
+    fontWeight: 'bold',
+    fontSize: 16,
+
+  },
+  yourID: {
+    fontStyle: 'normal',
+    fontWeight: 'normal',
+    fontSize: 16,
   }
 });

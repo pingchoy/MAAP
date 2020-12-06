@@ -9,39 +9,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const dimensions = Dimensions.get('window');
 
-// // Can keep past boolean if we don't want to check if it's before current date
-// // Need to add onPress methods for each event 
-// const data = [
-//   {
-//     title: 'Movie at Matthew\'s',
-//     description: '7pm-9pm, 25th Nov. 2020',
-//     owner: false,
-//     past: false
-//   },
-//   {
-//     title: 'Anton\'s House',
-//     description: '7pm-9pm, 26th Nov. 2020',
-//     owner: true,
-//     past: false
-//   },
-//   {
-//     title: 'Dinner Date',
-//     description: '7pm-9pm, 10th Oct. 2020',
-//     owner: true,
-//     past: true
-//   },
-
-// ]
-
-
 export default function Events({ navigation }) {
-  const [expandedUpcoming, setExpandedUpcoming] = React.useState(false);
-  const [expandedPast, setExpandedPast] = React.useState(false);
+  const [expandedUpcoming, setExpandedUpcoming] = React.useState(true);
+  const [expandedPast, setExpandedPast] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [filteredData, setFilteredData] = React.useState([]);
   const [fetchedData, setFetchedData] = React.useState([]);
   const [currentUserId, setCurrentUserId] = React.useState('');
   const isVisible = useIsFocused()
+  const [, updateState] = React.useState();
+  const forceUpdate = React.useCallback(() => updateState({}), []);
+
   const searchFilterFunction = (text) => {
     if (text) {
       // Inserted text is not blank
@@ -73,8 +51,6 @@ export default function Events({ navigation }) {
       setCurrentUserId(userId)
       getEvents(userToken, api)
     };
-    setExpandedPast(false)
-    setExpandedUpcoming(false)
     const getEvents = (userToken, api) => {
 
       fetch(`${api}/event/joined`, {
@@ -118,12 +94,14 @@ export default function Events({ navigation }) {
 
               body.event['eventId'] = id
               allEvents.push(body.event)
+              setFetchedData(allEvents)
+              setFilteredData(allEvents)
+              forceUpdate()
             }
           })
           .catch(err => alert(err))
       })
-      setFetchedData(allEvents)
-      setFilteredData(allEvents)
+
     }
 
     bootstrapAsync();
@@ -186,8 +164,6 @@ export default function Events({ navigation }) {
             {filteredData && filteredData.map(d => {
               let time = getMostUpvotedTime(d.times)
               if (time >= new Date() || time === 'TBD') {
-                console.log(d.host)
-                console.log("currentUserId = " + currentUserId)
                 if (d.host === currentUserId) {
                   return (
                     <List.Item

@@ -1,96 +1,96 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { View, StyleSheet, Dimensions, Text, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
-import { Searchbar  } from 'react-native-paper';
+import { Searchbar } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useIsFocused } from "@react-navigation/native";
 
 const dimensions = Dimensions.get('window');
-const data = 
-[
-  {
-    title: 'Tim\'s b-day party',
-    host: 'VerylongnamethatisprobablyTim#1234',
-    location: 'Long text breaks everything?asdfasdfasdfasdf',
-    time: 'TBD'
-  },
-  {
-    title: 'Partyyyyyy',
-    host: "Chad#1",
-    location: 'Parramatta',
-    time: '4pm, 25th Nov. 2020'
-  }]
 
 export default function Events({ navigation }) {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [filteredData, setFilteredData] = React.useState([]);
   const [fetchedData, setFetchedData] = React.useState([])
-
+  const [token, setToken] = React.useState('')
+  const [API_BASE_URL, setAPIURL] = React.useState('')
+  const [myEventIds, setMyEventIds] = React.useState('')
+  const [hostMap, setHostMap] = React.useState({})
+  const isVisible = useIsFocused()
+  const [, updateState] = React.useState();
+  const forceUpdate = React.useCallback(() => updateState({}), []);
   React.useEffect(() => {
     // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
-        let userToken = await AsyncStorage.getItem('userToken');
-        let api = await AsyncStorage.getItem('api');
-        //let userId = await AsyncStorage.getItem('userId');
-        //setCurrentUserId(userId)
-        getInvites(userToken, api)
+      let userToken = await AsyncStorage.getItem('userToken');
+      let api = await AsyncStorage.getItem('api');
+      setToken(userToken)
+      setAPIURL(api)
+      getInvites(userToken, api)
 
     };
-    
+
     const getInvites = (userToken, api) => {
-      fetch(`${api}/user/invites` , {
+      fetch(`${api}/user/invites`, {
         headers: {
           Authorization: `Bearer ${userToken}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
         method: 'GET',
-      }).then(res=>res.json())
-      .then(body=>{
-        if (body.error !== undefined){
-          //error stuff
-        } else{
-          parseEvents(body.eventIds, userToken, api)
-        }
-      })
-      .catch(err=>alert(err))
+      }).then(res => res.json())
+        .then(body => {
+          if (body.error !== undefined) {
+            //error stuff
+          } else {
+            setMyEventIds(body.eventIds)
+            parseEvents(body.eventIds, userToken, api)
+          }
+        })
+        .catch(err => alert(err))
     }
     const parseEvents = (eventIds, userToken, api) => {
       let allEvents = []
       eventIds.forEach((id) => {
-        fetch(`${api}/event/${id}` , {
+        fetch(`${api}/event/${id}`, {
           headers: {
             Authorization: `Bearer ${userToken}`,
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
           path: {
-            eventId:`${id}`
+            eventId: `${id}`
           },
           method: 'GET',
-        }).then(res=>res.json())
-        .then(body=>{
-          
-          if (body.error !== undefined){
-            //error stuff
-          } else{
-            //addToEventsJSON(body.event)
-            allEvents.push(body.event)
-          }
-        })
-        .catch(err=>alert(err))
+        }).then(res => res.json())
+          .then(body => {
+
+            if (body.error !== undefined) {
+              //error stuff
+            } else {
+              //addToEventsJSON(body.event)
+              getHostName(body.event.host)
+              let newEvent = body.event
+              newEvent['eventId'] = id
+              allEvents.push(newEvent)
+              setFetchedData(allEvents)
+              setFilteredData(allEvents)
+              forceUpdate()
+            }
+          })
+          .catch(err => alert(err))
       })
-      setFetchedData(allEvents)
-      setFilteredData(allEvents)
+
     }
 
     bootstrapAsync();
-  }, []);
+  }, [isVisible]);
 
   const searchFilterFunction = (text) => {
-    if (text){
+    if (text) {
       // Inserted text is not blank
       // Filter the initial data
       // Update filteredDate
-      const newData = data.filter(function (item) {
+      const newData = fetchedData.filter(function (item) {
         const itemData = item.title
           ? item.title.toUpperCase()
           : ''.toUpperCase();
@@ -102,39 +102,62 @@ export default function Events({ navigation }) {
     } else {
       // Inserted text is blank
       // Update filteredData with the original
-      setFilteredData(data);
+      setFilteredData(fetchedData);
       setSearchQuery(text);
     }
   }
 
-  const getHostName = (hostId) => {
+  const getHostName = async (hostId) => {
+    console.log(API_BASE_URL)
+    console.log("Hostid = " + hostId)
     fetch(`${API_BASE_URL}/user/${hostId}`, {
       headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
       method: 'GET',
     }).then(res => res.json())
       .then(body => {
-          return body.user.name
-    })
+        let temp = hostMap
+        temp[hostId] = body.user.name
+        setHostMap(temp)
+        forceUpdate()
+      })
   }
 
   const getLocation = (locations) => {
-    console.log(locations)
-    let sortedLocations = locations.sort(function(a, b) {
-      return a.voters.length - b.voters.length
-    });
-    if (sortedLocations.length <= 0) {
+    console.log(locations.length)
+
+    // Get highest voted location
+    if (Object.keys(locations).length == 0) {
       return 'TBD'
     }
-    return Object.keys(sortedLocations)[0]
+    let highestVotedLocation = ''
+    let highestVotes = 0
+    Object.keys(locations).map(location => {
+      console.log("Location =" + location)
+      if (locations[location].length > highestVotes) {
+        highestVotedLocation = location
+        highestVotes = locations[location].length
+      }
+    })
+    // let sortedLocations = locations.sort(function(a, b) {
+    //   return a.voters.length - b.voters.length
+    // });
+    // if (sortedLocations.length <= 0) {
+    //   return 'TBD'
+    // }
+    if (Object.keys(locations).length > 0 && highestVotedLocation === '') {
+      return Object.keys(locations)[0]
+    }
+
+    return highestVotedLocation
   }
   // Turns Date into readable format
   const getTime = (times) => {
- 
-    let sortedTimes = times.sort(function(a, b) {
+
+    let sortedTimes = times.sort(function (a, b) {
       return a.voters.length - b.voters.length
     });
     if (sortedTimes.length <= 0 || sortedTimes[0].start === null) {
@@ -145,9 +168,50 @@ export default function Events({ navigation }) {
 
   }
 
+  const acceptInvite = (eventId) => {
+    let index = myEventIds.indexOf(eventId);
+    let temp = myEventIds
+    if (index > -1) {
+      temp.splice(index, 1);
+    }
+    fetch(`${API_BASE_URL}/event/join/id`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        "eventId": eventId
+      }),
+      method: 'PUT',
+    }).then(() => setMyEventIds(temp))
+      .catch(err => alert(err))
+  }
+
+  const declineInvite = (eventId) => {
+    let index = myEventIds.indexOf(eventId);
+    let temp = myEventIds
+    if (index > -1) {
+      temp.splice(index, 1);
+    }
+    console.log("Invites list after declining: " + temp)
+    fetch(`${API_BASE_URL}/user/invites`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        "eventId": temp
+      }),
+      method: 'PUT',
+    }).catch(err => alert(err))
+    setMyEventIds(temp)
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-       <View style={styles.bannerView}>
+      <View style={styles.bannerView}>
         <View style={styles.headingView}>
           <Text style={styles.heading}>Incoming Invites</Text>
         </View>
@@ -158,39 +222,41 @@ export default function Events({ navigation }) {
             value={searchQuery}
             style={styles.searchBar}
           />
-        </View>  
+        </View>
       </View>
       <ScrollView style={styles.listsView}>
         {filteredData.map((d) => {
+          console.log('d = ')
+          console.log(d)
           return (
             <View style={styles.inviteView}>
-              <View style={styles.inviteDetails}> 
+              <View style={styles.inviteDetails}>
 
-                <Text style={styles.inviteTitle}> {d.title} </Text>
+                <Text style={styles.inviteTitle}> {d.name} </Text>
 
                 <View style={styles.textView}>
                   <Text style={styles.boldText}>Host: </Text>
-                  <View style={{flex: 1}}>
-                    <Text ellipsizeMode='tail'  numberOfLines={1} style={styles.dataText}>{d.host}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text ellipsizeMode='tail' numberOfLines={1} style={styles.dataText}>{hostMap[d.host]}</Text>
                   </View>
                 </View>
                 <View style={styles.textView}>
                   <Text style={styles.boldText}>Location: </Text>
-                  <View style={{flex: 1}}>
-                    <Text ellipsizeMode='tail'  numberOfLines={1} style={styles.dataText}>{d.location}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text ellipsizeMode='tail' numberOfLines={1} style={styles.dataText}>{getLocation(d.locations)}</Text>
                   </View>
                 </View>
                 <View style={styles.textView}>
                   <Text style={styles.boldText}>Time: </Text>
-                  <Text ellipsizeMode='tail' numberOfLines={1} style={styles.dataText}>{d.time}</Text>
+                  <Text ellipsizeMode='tail' numberOfLines={1} style={styles.dataText}>{getTime(d.times)}</Text>
 
                 </View>
               </View>
               <View style={styles.inviteButtons}>
-                <TouchableOpacity style={styles.acceptButton}>
+                <TouchableOpacity style={styles.acceptButton} onPress={() => acceptInvite(d.eventId)}>
                   <Text style={styles.inviteButtonText}>Accept</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.declineButton}>
+                <TouchableOpacity style={styles.declineButton} onPress={() => declineInvite(d.eventId)}>
                   <Text style={styles.inviteButtonText}>Decline</Text>
                 </TouchableOpacity>
               </View>
@@ -213,7 +279,7 @@ export default function Events({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  inviteView:{  // Whole invite view
+  inviteView: {  // Whole invite view
     width: dimensions.width,
     height: 110,
     borderBottomColor: "2px solid rgba(0, 0, 0, .3)",
@@ -224,16 +290,16 @@ const styles = StyleSheet.create({
   inviteDetails: {  // View for all the text details
     flex: 2,
     marginHorizontal: 30,
-    justifyContent:'center',
+    justifyContent: 'center',
     alignItems: 'flex-start'
   },
-  inviteButtons:{ // View for the buttons
+  inviteButtons: { // View for the buttons
     flex: 1,
     marginHorizontal: 30,
     alignItems: 'flex-end',
     justifyContent: "space-around",
   },
-  acceptButton:{
+  acceptButton: {
     borderRadius: 25,
     backgroundColor: '#165f22',
     width: 110,
@@ -263,26 +329,26 @@ const styles = StyleSheet.create({
     left: -4
   },
   textView: { // View for both bold and italicised text e.g. Host: Tim
-    alignItems:'center',
+    alignItems: 'center',
     flexDirection: 'row'
   },
-  boldText:{  // Host: 
+  boldText: {  // Host: 
     fontStyle: 'normal',
     fontSize: 16,
     lineHeight: 20,
     fontWeight: "bold",
   },
-  dataText:{  // Tim
+  dataText: {  // Tim
     fontSize: 16,
     lineHeight: 20,
     fontStyle: 'italic',
-    
+
   },
 
   listsView: {  // Contains every list
     width: dimensions.width,
     position: 'absolute',
-    top:150,
+    top: 150,
     flex: 1,
     height: dimensions.height - 310,
   },
@@ -290,17 +356,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 50, 
+    height: 50,
     position: 'absolute',
     bottom: 0,
     width: dimensions.width,
   },
-  codeText : {
+  codeText: {
     fontStyle: 'normal',
     fontWeight: 'normal',
     fontSize: 18,
   },
-  codeTextLink : {
+  codeTextLink: {
     fontStyle: 'normal',
     fontWeight: 'normal',
     fontSize: 18,
@@ -314,7 +380,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   searchBar: {
-    width: dimensions.width-40,
+    width: dimensions.width - 40,
     borderRadius: 25
   },
   bannerView: {
@@ -325,7 +391,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#165f22',
     shadowColor: '#000',
     shadowOffset: { width: 1, height: 1 },
-    shadowOpacity:  0.75,
+    shadowOpacity: 0.75,
     shadowRadius: 3,
     elevation: 5,
   },
@@ -345,7 +411,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#FFFFFF',
   },
-  searchBarView : {
+  searchBarView: {
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
